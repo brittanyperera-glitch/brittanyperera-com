@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { PixelIcon } from "@/components/PixelIcon";
+import { copy } from "@/content/copy";
 import "@/styles/alert.css";
 
 export type AlertOptions = {
@@ -19,7 +20,9 @@ export type AlertOptions = {
   buttons?: { label: string; primary?: boolean; run?: () => void }[];
 };
 
-const DEFAULT_BUTTONS: NonNullable<AlertOptions["buttons"]> = [{ label: "OK", primary: true }];
+const DEFAULT_BUTTONS: NonNullable<AlertOptions["buttons"]> = [
+  { label: copy.chrome.ok, primary: true },
+];
 
 const OpenCtx = createContext(false);
 const ShowCtx = createContext<(opts: AlertOptions) => void>(() => {});
@@ -37,12 +40,16 @@ export function AlertProvider({ children }: { children: ReactNode }) {
     setCurrent(opts);
   }, []);
 
-  const close = useCallback(() => {
-    setCurrent(null);
+  const close = useCallback(() => setCurrent(null), []);
+
+  // Restore focus after the commit: the page behind is inert while the alert is open, and an inert
+  // element cannot take focus until React has removed the attribute.
+  useEffect(() => {
+    if (current !== null) return;
     const el = returnFocus.current;
     returnFocus.current = null;
     el?.focus?.();
-  }, []);
+  }, [current]);
 
   // Focus the primary (else last) button whenever an alert opens or is replaced.
   useEffect(() => {
@@ -60,6 +67,17 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         e.preventDefault();
         e.stopPropagation();
         close();
+      } else if (e.key === "Enter") {
+        // Return always fires the default button, as on a classic Mac. A focused alert button
+        // keeps its own native behaviour.
+        const box = buttonsRef.current;
+        if (box?.contains(e.target as Node)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const target =
+          box?.querySelector<HTMLElement>(".default") ??
+          (box?.lastElementChild as HTMLElement | null);
+        target?.click();
       }
     };
     document.addEventListener("keydown", onKey, true);
@@ -79,7 +97,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
               className="alert bevel"
               role="alertdialog"
               aria-modal="true"
-              aria-describedby="alert-body"
+              aria-labelledby="alert-body"
             >
               <PixelIcon name={current.icon} size={40} />
               <div className="alert-main">

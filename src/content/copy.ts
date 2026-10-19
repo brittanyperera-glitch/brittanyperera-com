@@ -1,4 +1,5 @@
 import type { IconName, Visitor, WinId } from "@/lib/types";
+import { contact } from "./contact";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
 
@@ -80,7 +81,7 @@ export const copy = {
     },
     download: "downloading CV.pdf (me, minus the personality)",
     copyEmail: "copied! go on then",
-    copyEmailFailed: "couldnt copy it, heres the address: brittanykawshalya@gmail.com",
+    copyEmailFailed: `couldnt copy it, heres the address: ${contact.email}`,
     soundOn: "sound on. sorry in advance",
     leave: {
       text: "this opens in a new tab. come back after pls",
@@ -152,6 +153,7 @@ export const copy = {
       special: "Special",
     },
     close: "Close",
+    ok: "OK",
     soundOn: "Sound: on",
     soundOff: "Sound: off",
   },

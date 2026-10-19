@@ -1,10 +1,12 @@
-html,
-body {
-  margin: 0;
+/* Keyed on the server-rendered .desktop element, so the page is styled before any JS runs and
+   /cv stays unaffected even when this stylesheet stays loaded after client-side navigation. */
+html:has(.desktop) {
   height: 100%;
 }
 
-body {
+body:has(.desktop) {
+  margin: 0;
+  height: 100%;
   font-family: "Charcoal", "Chicago", Geneva, "Helvetica Neue", sans-serif;
   font-size: 12px;
   color: var(--ink);
@@ -56,11 +58,6 @@ body {
   align-items: center;
 }
 
-.menu.open > button {
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-
 .menu ul {
   position: absolute;
   top: 22px;
@@ -88,6 +85,11 @@ body {
   background: var(--accent);
   color: var(--accent-ink);
   outline: none;
+}
+
+.menu.open > button {
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .menu li.sep {
@@ -216,7 +218,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  body:has(.desktop) * {
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component transition to honour reduced motion */
     transition: none !important;
   }
 }

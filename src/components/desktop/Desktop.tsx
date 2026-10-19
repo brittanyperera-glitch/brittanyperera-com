@@ -9,17 +9,27 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from "react";
-import { AlertProvider, useAlert } from "@/components/alert/AlertProvider";
+import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
 import { copy } from "@/content/copy";
 import { projects } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
 import { removeKey } from "@/lib/storage";
 import type { WinId } from "@/lib/types";
-import { initialWindows, type WinAction, type WinState, windowsReducer } from "@/lib/windows";
+import {
+  initialWindows,
+  parentOf,
+  type TitleMetrics,
+  topWindow,
+  type WinAction,
+  type WinState,
+  windowsReducer,
+} from "@/lib/windows";
 import { DesktopIcons } from "./DesktopIcons";
 import { MenuBar } from "./MenuBar";
+import { measureTitle } from "./titleMetrics";
 import { Window } from "./Window";
 
 const CV_PDF = "/Brittany-Perera-CV.pdf";
@@ -87,11 +97,43 @@ function playChime() {
   }
 }
 
-function DesktopInner({ windows }: { windows: Partial<Record<WinId, ReactNode>> }) {
+type DesktopProps = {
+  windows: Partial<Record<WinId, ReactNode>>;
+  /** Rendered inside the alert and desktop context (the setup flow plugs in here). */
+  children?: ReactNode;
+};
+
+function DesktopInner({ windows, children }: DesktopProps) {
   const alert = useAlert();
+  const alertOpen = useAlertOpen();
   const [state, dispatch] = useReducer(windowsReducer, initialWindows);
   const [accent, setAccent] = useState(copy.setup.swatches[0].hex);
   const [soundOn, setSoundOn] = useState(false);
+  const closedId = useRef<WinId | null>(null);
+
+  // Re-clamp every open window to the current viewport. Only open windows are measured: a hidden
+  // one has no layout, and Window re-clamps it when it next opens.
+  const clampWindows = useCallback(() => {
+    const sizes: Partial<Record<WinId, TitleMetrics>> = {};
+    for (const el of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
+      sizes[el.dataset.win as WinId] = measureTitle(el);
+    }
+    dispatch({
+      type: "clampAll",
+      viewport: { w: window.innerWidth, h: window.innerHeight },
+      sizes,
+    });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", clampWindows);
+    return () => window.removeEventListener("resize", clampWindows);
+  }, [clampWindows]);
+
+  // Leaving phone mode puts stored positions back in play, so check them against the viewport.
+  useEffect(() => {
+    if (state.mode === "desktop") clampWindows();
+  }, [state.mode, clampWindows]);
 
   useEffect(() => {
     const mq = window.matchMedia(PHONE_QUERY);
@@ -113,7 +155,24 @@ function DesktopInner({ windows }: { windows: Partial<Record<WinId, ReactNode>> 
   }, [accent]);
 
   const open = useCallback((id: WinId) => dispatch({ type: "open", id }), []);
-  const close = useCallback((id: WinId) => dispatch({ type: "close", id }), []);
+  const close = useCallback((id: WinId) => {
+    closedId.current = id;
+    dispatch({ type: "close", id });
+  }, []);
+
+  // After a window closes, keep keyboard focus somewhere real: the new top window's close box, else
+  // the icon that opens the closed window (or its parent's, for a project window).
+  useEffect(() => {
+    const id = closedId.current;
+    if (!id || state.open.includes(id)) return;
+    closedId.current = null;
+    const top = topWindow(state);
+    const target = top
+      ? document.querySelector<HTMLElement>(`section[data-win="${top}"] .close`)
+      : (document.querySelector<HTMLElement>(`.icons [data-open="${id}"]`) ??
+        document.querySelector<HTMLElement>(`.icons [data-open="${parentOf(id)}"]`));
+    target?.focus();
+  }, [state]);
   const focus = useCallback((id: WinId) => dispatch({ type: "focus", id }), []);
 
   const actions = useMemo<DesktopActions>(() => {
@@ -247,7 +306,7 @@ function DesktopInner({ windows }: { windows: Partial<Record<WinId, ReactNode>> 
 
   return (
     <DesktopCtx.Provider value={api}>
-      <div className="desktop" data-mode={state.mode}>
+      <div className="desktop" data-mode={state.mode} inert={alertOpen}>
         <MenuBar />
         <DesktopIcons />
         {ids.map(({ id, title }) => (
@@ -255,15 +314,16 @@ function DesktopInner({ windows }: { windows: Partial<Record<WinId, ReactNode>> 
             {windows[id]}
           </Window>
         ))}
+        {children}
       </div>
     </DesktopCtx.Provider>
   );
 }
 
-export function Desktop({ windows }: { windows: Partial<Record<WinId, ReactNode>> }) {
+export function Desktop({ windows, children }: DesktopProps) {
   return (
     <AlertProvider>
-      <DesktopInner windows={windows} />
+      <DesktopInner windows={windows}>{children}</DesktopInner>
     </AlertProvider>
   );
 }

@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { about } from "@/content/about";
 import { contact } from "@/content/contact";
@@ -11,7 +13,7 @@ type Walked = { path: string; value: string };
 
 function walk(node: unknown, path: string, out: Walked[]): Walked[] {
   if (typeof node === "string") out.push({ path, value: node });
-  else if (Array.isArray(node)) node.forEach((v, i) => walk(v, `${path}[${i}]`, out));
+  else if (Array.isArray(node)) for (const [i, v] of node.entries()) walk(v, `${path}[${i}]`, out);
   else if (node && typeof node === "object")
     for (const [k, v] of Object.entries(node)) walk(v, `${path}.${k}`, out);
   return out;
@@ -66,5 +68,45 @@ describe("content strings", () => {
       client: ["about", "contact"],
       friend: ["about"],
     });
+  });
+  it("builds the copy-failed alert from the contact email", () => {
+    expect(copy.alerts.copyEmailFailed).toContain(contact.email);
+  });
+  it("has a CV title and section headings in content", () => {
+    expect(cv.metaTitle).toBeTruthy();
+    expect(Object.values(cv.sections).every((v) => v.length > 0)).toBe(true);
+  });
+  it("has an OK label in copy.chrome", () => {
+    expect(copy.chrome.ok).toBe("OK");
+  });
+});
+
+function tsxFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory()
+      ? tsxFiles(join(dir, e.name))
+      : e.name.endsWith(".tsx")
+        ? [join(dir, e.name)]
+        : [],
+  );
+}
+
+describe("components carry no user-visible literals", () => {
+  const root = new URL("../../src", import.meta.url).pathname;
+  const files = [...tsxFiles(join(root, "components")), ...tsxFiles(join(root, "app"))];
+
+  it("finds the component files", () => {
+    expect(files.length).toBeGreaterThan(5);
+  });
+  it("has no JSX text nodes or label literals outside src/content", () => {
+    const jsxText = /<[A-Za-z][^<>]*>\s*([A-Za-z][^<>{}]*?)\s*<\//g;
+    const bad: string[] = [];
+    for (const f of files) {
+      const src = readFileSync(f, "utf8");
+      for (const m of src.matchAll(jsxText)) bad.push(`${f}: ${m[1]}`);
+      for (const m of src.matchAll(/\blabel:\s*"([^"]*)"/g)) bad.push(`${f}: label ${m[1]}`);
+      for (const m of src.matchAll(/\btitle:\s*"([^"]*)"/g)) bad.push(`${f}: title ${m[1]}`);
+    }
+    expect(bad).toEqual([]);
   });
 });

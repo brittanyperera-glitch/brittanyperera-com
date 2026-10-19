@@ -1,4 +1,12 @@
 export const cv = {
+  metaTitle: "CV | Brittany Perera",
+  sections: {
+    experience: "Experience",
+    education: "Education",
+    leadership: "Leadership",
+    skills: "Skills",
+    languages: "Languages",
+  },
   name: "Brittany Perera",
   email: "brittanykawshalya@gmail.com",
   tags: ["Python", "TypeScript", "ML", "Geospatial", "SQL"],

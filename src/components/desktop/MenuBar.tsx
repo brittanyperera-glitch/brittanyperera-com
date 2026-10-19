@@ -39,11 +39,16 @@ export function MenuBar() {
 
   useEffect(() => {
     if (openMenu === null) return;
+    // Any press outside the open menu closes it, including the rest of the bar (sound, clock).
     const onPointerDown = (e: PointerEvent) => {
-      if (!barRef.current?.contains(e.target as Node)) setOpenMenu(null);
+      const menu = barRef.current?.querySelector(".menu.open");
+      if (!menu?.contains(e.target as Node)) setOpenMenu(null);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !alertOpen) setOpenMenu(null);
+      if (e.key !== "Escape" || alertOpen) return;
+      const menu = barRef.current?.querySelector(".menu.open");
+      if (menu?.contains(document.activeElement)) titleRefs.current[openMenu]?.focus();
+      setOpenMenu(null);
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKey);
@@ -65,8 +70,8 @@ export function MenuBar() {
               ref={(el) => {
                 titleRefs.current[key] = el;
               }}
-              aria-haspopup="true"
               aria-expanded={isOpen}
+              aria-controls={`menu-${key}`}
               aria-label={key === "apple" ? title : undefined}
               onClick={() => setOpenMenu(isOpen ? null : key)}
             >
@@ -79,7 +84,7 @@ export function MenuBar() {
               )}
             </button>
             {isOpen && (
-              <ul>
+              <ul id={`menu-${key}`}>
                 {items.map((item, i) => (
                   <li
                     key={item.label}

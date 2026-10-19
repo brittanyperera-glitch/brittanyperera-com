@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cv } from "@/content/cv";
 import "@/styles/cv-print.css";
 
-export const metadata: Metadata = { title: "CV | Brittany Perera" };
+export const metadata: Metadata = { title: cv.metaTitle };
 
 type Entry = {
   title: string;
@@ -40,19 +40,19 @@ export default function CvPage() {
         <a href={`mailto:${cv.email}`}>{cv.email}</a>
       </p>
 
-      <h2>Experience</h2>
+      <h2>{cv.sections.experience}</h2>
       <Entries items={cv.roles} />
 
-      <h2>Education</h2>
+      <h2>{cv.sections.education}</h2>
       <Entries items={cv.education} />
 
-      <h2>Leadership</h2>
+      <h2>{cv.sections.leadership}</h2>
       <Entries items={cv.leadership} />
 
-      <h2>Skills</h2>
+      <h2>{cv.sections.skills}</h2>
       <p>{cv.skills.join(", ")}</p>
 
-      <h2>Languages</h2>
+      <h2>{cv.sections.languages}</h2>
       <p>{cv.languages.join(", ")}</p>
     </main>
   );

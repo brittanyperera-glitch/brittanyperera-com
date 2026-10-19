@@ -31,21 +31,27 @@ export function PixelIcon({
   size?: number;
   label?: string;
 }) {
-  const a11y = label
-    ? { role: "img" as const, "aria-label": label }
-    : { "aria-hidden": true as const };
+  const rects = runsFor(ICONS[name]).map((r) => (
+    <rect key={`${r.x}-${r.y}`} x={r.x} y={r.y} width={r.w} height={1} fill={PALETTE[r.ch]} />
+  ));
+  const common = {
+    width: size,
+    height: size,
+    viewBox: "0 0 16 16",
+    shapeRendering: "crispEdges" as const,
+    xmlns: "http://www.w3.org/2000/svg",
+  };
+  if (label) {
+    return (
+      <svg {...common} role="img">
+        <title>{label}</title>
+        {rects}
+      </svg>
+    );
+  }
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      shapeRendering="crispEdges"
-      xmlns="http://www.w3.org/2000/svg"
-      {...a11y}
-    >
-      {runsFor(ICONS[name]).map((r) => (
-        <rect key={`${r.x}-${r.y}`} x={r.x} y={r.y} width={r.w} height={1} fill={PALETTE[r.ch]} />
-      ))}
+    <svg {...common} aria-hidden="true">
+      {rects}
     </svg>
   );
 }

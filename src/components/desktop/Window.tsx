@@ -5,6 +5,7 @@ import { copy } from "@/content/copy";
 import type { WinId } from "@/lib/types";
 import { topWindow } from "@/lib/windows";
 import { useDesktop } from "./Desktop";
+import { measureTitle } from "./titleMetrics";
 
 type Placement = { left: number | string; top: number | string; width: number };
 
@@ -42,11 +43,12 @@ export function Window({
   const place = PLACEMENT[id] ?? FALLBACK;
   const pos = state.pos[id];
 
-  // First open on desktop: turn the default (possibly percentage) position into a clamped pixel one.
-  const placed = pos !== undefined;
+  // On every desktop open, not only the first: turn the default (possibly percentage) position into
+  // a clamped pixel one, as the mockup's openWin does. This also rescues a window whose stored
+  // position no longer fits the viewport.
   useEffect(() => {
     const el = ref.current;
-    if (!isOpen || placed || phone || !el) return;
+    if (!isOpen || phone || !el) return;
     const r = el.getBoundingClientRect();
     dispatch({
       type: "move",
@@ -54,16 +56,16 @@ export function Window({
       x: Math.min(Math.max(0, r.left), Math.max(0, window.innerWidth - r.width)),
       y: r.top,
       viewport: { w: window.innerWidth, h: window.innerHeight },
-      width: el.offsetWidth,
+      ...measureTitle(el),
     });
-  }, [isOpen, placed, phone, id, dispatch]);
+  }, [isOpen, phone, id, dispatch]);
 
   const raise = () => {
     if (!isFront) focus(id);
   };
 
   const onTitlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (phone || (e.target as HTMLElement).closest("button")) return;
+    if (e.button !== 0 || phone || (e.target as HTMLElement).closest("button")) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -81,7 +83,7 @@ export function Window({
       x: e.clientX - d.dx,
       y: e.clientY - d.dy,
       viewport: { w: window.innerWidth, h: window.innerHeight },
-      width: el.offsetWidth,
+      ...measureTitle(el),
     });
   };
 
@@ -94,13 +96,18 @@ export function Window({
       ref={ref}
       className={isFront ? "win bevel front" : "win bevel"}
       aria-label={title}
+      data-win={id}
       hidden={!isOpen}
-      style={{
-        left: pos?.x ?? place.left,
-        top: pos?.y ?? place.top,
-        width: place.width,
-        zIndex: state.z[id],
-      }}
+      style={
+        phone
+          ? { zIndex: state.z[id] }
+          : {
+              left: pos?.x ?? place.left,
+              top: pos?.y ?? place.top,
+              width: place.width,
+              zIndex: state.z[id],
+            }
+      }
       onPointerDown={raise}
       onFocusCapture={raise}
     >
