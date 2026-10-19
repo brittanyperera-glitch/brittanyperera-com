@@ -13,7 +13,7 @@ async function expectRecruiterLanding(page: Page, phone: boolean) {
   }
 }
 
-test("fresh visit: all four steps and Go Ahead land on the recruiter windows", async ({
+test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead) lands on About and CV", async ({
   page,
 }, info) => {
   await page.goto("/");

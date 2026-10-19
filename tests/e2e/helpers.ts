@@ -61,7 +61,7 @@ export function collectPageErrors(page: Page): Error[] {
   return errors;
 }
 
-/** Click through the four Setup Assistant steps and Go Ahead, picking the given visitor. */
+/** Click through the three Setup Assistant steps and Go Ahead, picking the given visitor. */
 export async function runAssistant(page: Page, visitor: Visitor = "recruiter") {
   const s = copy.setup;
   const dialog = page.getByRole("dialog", { name: s.windowTitle });
@@ -69,7 +69,6 @@ export async function runAssistant(page: Page, visitor: Visitor = "recruiter") {
   await dialog.getByRole("button", { name: s.next }).click();
   const label = s.visitors.find((v) => v.id === visitor)?.label ?? visitor;
   await dialog.getByRole("radio", { name: label }).click();
-  await dialog.getByRole("button", { name: s.next }).click();
   await dialog.getByRole("button", { name: s.next }).click();
   await dialog.getByRole("button", { name: s.goAhead }).click();
   await expect(dialog).toHaveCount(0, { timeout: 20_000 });

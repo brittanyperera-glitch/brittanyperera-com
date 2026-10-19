@@ -21,18 +21,9 @@ export const copy = {
         sub: "this assistant sets up my Mac for you. takes about 20 seconds, or skip it (no hard feelings).",
       },
       { title: "About You", sub: "who's visiting? ill open the right stuff first." },
-      {
-        title: "Appearance",
-        sub: "pick a highlight colour. the iMac came in five flavours, so they're all here.",
-      },
       { title: "Conclusion", sub: "all set. click Go Ahead and ill set up the Mac with:" },
     ],
-    speech: [
-      "hey hey! ill walk you through it",
-      "be honest, who are you?",
-      "the important decision",
-      "thats it, promise",
-    ],
+    speech: ["", "be honest, who are you?", "thats it, promise"],
     hello: [
       { text: "hello", lang: "en" },
       { text: "ආයුබෝවන්", lang: "si" },
@@ -55,10 +46,7 @@ export const copy = {
       { name: "Graphite", hex: "#5e6670" },
     ],
     summaryVisitor: "Visitor:",
-    summaryColour: "Highlight colour:",
     count: "{n} of {total}",
-    previewBefore: "selected text looks",
-    previewHighlight: "like this",
     installLines: [
       "welding playground frames in Kurunegala…",
       "cooling an F1 radiator…",

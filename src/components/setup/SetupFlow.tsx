@@ -14,7 +14,6 @@ import { BOOT_ICONS, Boot } from "./Boot";
 import { SetupAssistant } from "./SetupAssistant";
 
 const DONE_KEY = "bp:setup-done";
-const ACCENT_KEY = "bp:accent";
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
 const BOOT_MS = 900;
@@ -28,7 +27,6 @@ const HELLO_MS = 1800;
 const INSTALL_TAIL_MS = 700;
 
 const isVisitor = (v: unknown): v is Visitor => copy.setup.visitors.some((x) => x.id === v);
-const isHex = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
 
 /**
  * First-visit boot screen and Setup Assistant. Mount it as a child of <Desktop>. It renders the
@@ -36,10 +34,10 @@ const isHex = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-f]{
  * runs the assistant; on finishing it opens that visitor's windows.
  */
 export function SetupFlow() {
-  const { open, setAccent, setBusy, accent: deskAccent, state: desk } = useDesktop();
+  const { open, setBusy, state: desk } = useDesktop();
   const alert = useAlert();
   const alertOpen = useAlertOpen();
-  const [s, dispatch] = useReducer(setupReducer, deskAccent, initialSetup);
+  const [s, dispatch] = useReducer(setupReducer, undefined, initialSetup);
   const [marched, setMarched] = useState(0);
   const [helloIndex, setHelloIndex] = useState(0);
   const [installLine, setInstallLine] = useState(-1);
@@ -57,8 +55,6 @@ export function SetupFlow() {
     setReduced(window.matchMedia(REDUCED_QUERY).matches);
     const saved = readJSON<{ visitor?: unknown } | null>(DONE_KEY, null);
     if (saved && isVisitor(saved.visitor)) {
-      const accent = readJSON<unknown>(ACCENT_KEY, null);
-      if (isHex(accent)) dispatch({ type: "pickAccent", accent });
       resumed.current = true;
       dispatch({ type: "resume", visitor: saved.visitor });
     }
@@ -138,8 +134,6 @@ export function SetupFlow() {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
     writeJSON(DONE_KEY, { visitor: s.visitor });
-    writeJSON(ACCENT_KEY, s.accent);
-    setAccent(s.accent);
     const phone = desk.mode === "phone";
     if (!resumed.current) focusPending.current = { phone };
     if (phone) {
@@ -148,7 +142,7 @@ export function SetupFlow() {
     } else {
       for (const id of copy.firstWindows[s.visitor]) open(id);
     }
-  }, [s.phase, s.visitor, s.accent, desk.mode, open, setAccent, alert]);
+  }, [s.phase, s.visitor, desk.mode, open, alert]);
 
   // Once the windows are open and the desktop is no longer inert, put keyboard focus on the front
   // window's close box instead of leaving it on <body>.
@@ -173,7 +167,6 @@ export function SetupFlow() {
     <SetupAssistant
       step={s.step}
       visitor={s.visitor}
-      accent={s.accent}
       helloIndex={helloIndex}
       reduced={reduced}
       installing={s.phase === "installing"}
@@ -183,10 +176,6 @@ export function SetupFlow() {
       onNext={() => dispatch({ type: "next" })}
       onGoAhead={() => dispatch({ type: "goAhead" })}
       onPickVisitor={(visitor) => dispatch({ type: "pickVisitor", visitor })}
-      onPickAccent={(accent) => {
-        dispatch({ type: "pickAccent", accent });
-        setAccent(accent);
-      }}
     />
   );
 }

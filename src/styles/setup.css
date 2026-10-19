@@ -225,51 +225,6 @@
   color: #555;
 }
 
-.swatches {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 6px 10px;
-}
-
-.swatch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 5px 6px;
-  border: 1px solid transparent;
-  background: none;
-  text-align: left;
-}
-
-.swatch:hover {
-  border-color: #bbb;
-  background: #fafafa;
-}
-
-.swatch i {
-  width: 26px;
-  height: 14px;
-  border: 1px solid var(--edge);
-  background: var(--c);
-  flex: none;
-}
-
-.swatch.picked {
-  border-color: var(--edge);
-  background: #fff;
-}
-
-.preview-sel {
-  margin-top: 14px;
-}
-
-.preview-sel span {
-  background: var(--accent);
-  color: var(--accent-ink);
-  padding: 0 3px;
-}
-
 .summary {
   padding: 8px 12px;
   line-height: 1.8;

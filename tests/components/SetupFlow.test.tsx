@@ -47,7 +47,6 @@ function runToConclusion(visitorLabel: RegExp) {
   click(/Continue/);
   click(visitorLabel, "radio");
   click(/Continue/);
-  click(/Continue/);
 }
 
 beforeEach(() => {
@@ -90,13 +89,13 @@ describe("SetupFlow", () => {
     throughBoot();
     expect(setupDialog()).not.toBeNull();
     expect(screen.getByRole("button", { name: /Go Back/ })).toBeDisabled();
-    expect(screen.getByText("1 of 4")).toBeInTheDocument();
+    expect(screen.getByText("1 of 3")).toBeInTheDocument();
   });
 
-  it("four steps as 'I'm hiring' then Go Ahead opens About and CV and stores the choice", () => {
+  it("three steps as 'I'm hiring' then Go Ahead opens About and CV and stores the choice", () => {
     renderFlow();
     runToConclusion(/I'm hiring/);
-    expect(screen.getByText("4 of 4")).toBeInTheDocument();
+    expect(screen.getByText("3 of 3")).toBeInTheDocument();
     click(copy.setup.goAhead);
     advance(20000);
     expect(setupDialog()).toBeNull();
@@ -105,22 +104,29 @@ describe("SetupFlow", () => {
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
-    expect(JSON.parse(window.localStorage.getItem("bp:accent") ?? "null")).toBe(
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(
       copy.setup.swatches[0].hex,
     );
   });
 
-  it("a picked colour is applied and stored", () => {
+  it("never shows a colour picker on any step", () => {
     renderFlow();
     throughBoot();
+    for (let i = 0; i < 3; i++) {
+      expect(screen.queryByRole("radio", { name: /Tangerine|Blueberry/ })).toBeNull();
+      expect(document.querySelector(".swatches, .preview-sel")).toBeNull();
+      if (i < 2) click(/Continue/);
+    }
+  });
+
+  it("step 1 has no speech bubble, steps 2 and 3 do", () => {
+    renderFlow();
+    throughBoot();
+    expect(document.querySelector(".speech")).toBeNull();
     click(/Continue/);
+    expect(document.querySelector(".speech")).toHaveTextContent("be honest, who are you?");
     click(/Continue/);
-    click(/Tangerine/, "radio");
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe("#c9772f");
-    click(/Continue/);
-    click(copy.setup.goAhead);
-    advance(20000);
-    expect(JSON.parse(window.localStorage.getItem("bp:accent") ?? "null")).toBe("#c9772f");
+    expect(document.querySelector(".speech")).toHaveTextContent("thats it, promise");
   });
 
   it("a collaborator gets About and Projects", () => {

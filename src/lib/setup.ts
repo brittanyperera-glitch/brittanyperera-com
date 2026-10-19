@@ -5,9 +5,8 @@ export type SetupPhase = "boot" | "splash" | "steps" | "installing" | "done";
 
 export type SetupState = {
   phase: SetupPhase;
-  step: 0 | 1 | 2 | 3;
+  step: 0 | 1 | 2;
   visitor: Visitor;
-  accent: string;
 };
 
 export type SetupAction =
@@ -15,14 +14,13 @@ export type SetupAction =
   | { type: "next" }
   | { type: "back" }
   | { type: "pickVisitor"; visitor: Visitor }
-  | { type: "pickAccent"; accent: string }
   | { type: "goAhead" }
   | { type: "installDone" }
   | { type: "skip" }
   | { type: "resume"; visitor: Visitor };
 
-export function initialSetup(accent: string): SetupState {
-  return { phase: "boot", step: 0, visitor: "friend", accent };
+export function initialSetup(): SetupState {
+  return { phase: "boot", step: 0, visitor: "friend" };
 }
 
 export function setupReducer(s: SetupState, a: SetupAction): SetupState {
@@ -32,7 +30,7 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
       if (s.phase === "splash") return { ...s, phase: "steps" };
       return s;
     case "next":
-      return s.phase === "steps" && s.step < 3
+      return s.phase === "steps" && s.step < 2
         ? { ...s, step: (s.step + 1) as SetupState["step"] }
         : s;
     case "back":
@@ -41,10 +39,8 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
         : s;
     case "pickVisitor":
       return { ...s, visitor: a.visitor };
-    case "pickAccent":
-      return { ...s, accent: a.accent };
     case "goAhead":
-      return s.phase === "steps" && s.step === 3 ? { ...s, phase: "installing" } : s;
+      return s.phase === "steps" && s.step === 2 ? { ...s, phase: "installing" } : s;
     case "installDone":
       return s.phase === "installing" ? { ...s, phase: "done" } : s;
     case "skip":

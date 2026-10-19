@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { PixelIcon } from "@/components/PixelIcon";
 import { copy } from "@/content/copy";
@@ -8,14 +8,13 @@ import { useFocusTrap } from "./useFocusTrap";
 
 const STEP_TITLE_ID = "setup-step-title";
 
-// "n of 4" has no key in src/content/copy.ts yet; this is the one literal until it does.
+// "n of 3" has no key in src/content/copy.ts yet; this is the one literal until it does.
 const countText = (n: number, total: number) =>
   copy.setup.count.replace("{n}", String(n)).replace("{total}", String(total));
 
 type Props = {
   step: SetupState["step"];
   visitor: Visitor;
-  accent: string;
   /** Index into copy.setup.hello for the cycling greeting. */
   helloIndex: number;
   /** Reduced motion: show every greeting at once instead of cycling. */
@@ -28,13 +27,11 @@ type Props = {
   onNext: () => void;
   onGoAhead: () => void;
   onPickVisitor: (v: Visitor) => void;
-  onPickAccent: (hex: string) => void;
 };
 
 export function SetupAssistant({
   step,
   visitor,
-  accent,
   helloIndex,
   reduced,
   installing,
@@ -44,7 +41,6 @@ export function SetupAssistant({
   onNext,
   onGoAhead,
   onPickVisitor,
-  onPickAccent,
 }: Props) {
   const s = copy.setup;
   const nextRef = useRef<HTMLButtonElement>(null);
@@ -53,7 +49,6 @@ export function SetupAssistant({
   useFocusTrap(rootRef, !alertOpen);
   const last = step === s.steps.length - 1;
   const visitorLabel = s.visitors.find((v) => v.id === visitor)?.label ?? visitor;
-  const swatch = s.swatches.find((w) => w.hex === accent);
   const hello = s.hello[helloIndex % s.hello.length];
   const pct = installing ? Math.round(((installLine + 1) / s.installLines.length) * 100) : 0;
 
@@ -70,7 +65,7 @@ export function SetupAssistant({
         </div>
         <div className="assistant-body well">
           <div className="guide">
-            <div className="speech">{s.speech[step]}</div>
+            {s.speech[step] && <div className="speech">{s.speech[step]}</div>}
             <div className="portrait well">
               <PixelIcon name="person" size={60} label={s.portraitAlt} />
             </div>
@@ -119,35 +114,8 @@ export function SetupAssistant({
 
             {step === 2 && (
               <>
-                <div className="swatches" role="radiogroup" aria-labelledby={STEP_TITLE_ID}>
-                  {s.swatches.map((w) => (
-                    // biome-ignore lint/a11y/useSemanticElements: a styled radio row, not a form input
-                    <button
-                      key={w.hex}
-                      type="button"
-                      role="radio"
-                      aria-checked={w.hex === accent}
-                      className={w.hex === accent ? "swatch picked" : "swatch"}
-                      style={{ "--c": w.hex } as CSSProperties}
-                      onClick={() => onPickAccent(w.hex)}
-                    >
-                      <i />
-                      {w.name}
-                    </button>
-                  ))}
-                </div>
-                <p className="preview-sel">
-                  {s.previewBefore} <span>{s.previewHighlight}</span>
-                </p>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
                 <div className="summary well">
                   <b>{s.summaryVisitor}</b> <span>{visitorLabel}</span>
-                  <br />
-                  <b>{s.summaryColour}</b> <span>{swatch?.name ?? accent}</span>
                 </div>
                 {installing && (
                   <div className="installing">
