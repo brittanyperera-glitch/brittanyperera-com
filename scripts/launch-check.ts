@@ -4,10 +4,8 @@ import { music } from "../src/content/music";
 import { photos } from "../src/content/photos";
 import { travel } from "../src/content/travel";
 
+// Instrument lines are optional (Brittany, 2026-10-19: "no lines needed for instruments").
 const missing: string[] = [
-  ...music.instruments
-    .filter((i) => !i.line.trim())
-    .map((i) => `music: line for ${i.name} is empty`),
   ...(music.track ? [] : ["music: no audio track for Garage Brittany"]),
   ...(travel.places.length ? [] : ["travel: no places"]),
   ...(photos.items.length ? [] : ["photos: no photos"]),
