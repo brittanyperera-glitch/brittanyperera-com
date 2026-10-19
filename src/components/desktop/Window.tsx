@@ -23,6 +23,7 @@ const PLACEMENT: Record<string, Placement> = {
   garage: { left: 320, top: 120, width: 380 },
   travel: { left: 160, top: 70, width: 540 },
   photos: { left: 220, top: 80, width: 480 },
+  youtube: { left: 180, top: 60, width: 620 },
   "project:trip": { left: 110, top: 70, width: 500 },
   "project:delulu": { left: 150, top: 90, width: 450 },
   "project:whereflix": { left: 190, top: 110, width: 430 },

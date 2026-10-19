@@ -1,10 +1,9 @@
 // @vitest-environment jsdom
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { appWindows } from "@/components/apps/appWindows";
 import { Desktop } from "@/components/desktop/Desktop";
-import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { cvBuilder } from "@/content/cvbuilder";
 import { music } from "@/content/music";
@@ -129,37 +128,6 @@ describe("Music folder", () => {
     expect(within(body).getByRole("heading", { level: 3 })).toHaveTextContent(
       music.instruments[0].name,
     );
-  });
-});
-
-describe("YouTube icon", () => {
-  const original = contact.youtube;
-  afterEach(() => {
-    contact.youtube = original;
-  });
-
-  it("is absent while contact.youtube is undefined", () => {
-    contact.youtube = undefined;
-    setup();
-    expect(screen.queryByRole("button", { name: contact.youtubeLabel })).toBeNull();
-  });
-
-  it("is present when set, opens no window, and runs the leave alert", async () => {
-    contact.youtube = "https://www.youtube.com/@example";
-    const user = setup();
-    const yt = icon(contact.youtubeLabel);
-    expect(yt.hasAttribute("data-open")).toBe(false);
-    await user.dblClick(yt);
-    expect(await screen.findByRole("alertdialog")).toHaveTextContent(copy.alerts.leave.text);
-    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(0);
-  });
-
-  it("Enter on the focused icon runs the leave alert", async () => {
-    contact.youtube = "https://www.youtube.com/@example";
-    const user = setup();
-    icon(contact.youtubeLabel).focus();
-    await user.keyboard("{Enter}");
-    expect(await screen.findByRole("alertdialog")).toHaveTextContent(copy.alerts.leave.text);
   });
 });
 

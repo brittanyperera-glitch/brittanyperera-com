@@ -11,6 +11,7 @@ import { photos } from "@/content/photos";
 import { projects } from "@/content/projects";
 import { trash, trashHeader } from "@/content/trash";
 import { travel } from "@/content/travel";
+import { youtube } from "@/content/youtube";
 
 type Walked = { path: string; value: string };
 
@@ -29,7 +30,7 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
-  ...walk({ cvBuilder, music, travel, photos }, "apps", []),
+  ...walk({ cvBuilder, music, travel, photos, youtube }, "apps", []),
 ];
 
 const wordExempt = (p: string) => /^projects\[\d+\]\.blurb$/.test(p) || p.startsWith("cv");

@@ -94,5 +94,6 @@ export const ALL_WINDOWS: WinId[] = [
   "garage",
   "travel",
   "photos",
+  "youtube",
   ...projects.map((p) => `project:${p.id}` as WinId),
 ];

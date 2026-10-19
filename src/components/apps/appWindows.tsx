@@ -6,6 +6,7 @@ import { InstrumentWindow } from "./InstrumentWindow";
 import { MusicWindow } from "./MusicWindow";
 import { PhotosWindow } from "./PhotosWindow";
 import { TravelWindow } from "./TravelWindow";
+import { YouTubeWindow } from "./YouTubeWindow";
 
 /** Window body for each of the four apps; page.tsx spreads this into the desktop's windows map. */
 export const appWindows: Partial<Record<WinId, ReactNode>> = {
@@ -17,4 +18,5 @@ export const appWindows: Partial<Record<WinId, ReactNode>> = {
   garage: <GarageWindow />,
   travel: <TravelWindow />,
   photos: <PhotosWindow />,
+  youtube: <YouTubeWindow />,
 };

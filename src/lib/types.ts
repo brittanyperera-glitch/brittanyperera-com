@@ -15,6 +15,7 @@ export type WinId =
   | "garage"
   | "travel"
   | "photos"
+  | "youtube"
   | `project:${ProjectId}`;
 
 export type IconName =
