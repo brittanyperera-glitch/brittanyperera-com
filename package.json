@@ -11,7 +11,10 @@
     "format": "biome check --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "cv:pdf": "tsx scripts/build-cv-pdf.ts",
+    "og": "tsx scripts/build-og.ts",
+    "launch-check": "tsx scripts/launch-check.ts"
   },
   "dependencies": {
     "next": "16.3.4",

@@ -1,0 +1,220 @@
+/* YouTube window body: a mid-2000s watch page on white. The wordmark is plain text, no logo asset. */
+.win[data-win="youtube"] .body {
+  padding: 0;
+  line-height: normal;
+}
+
+.yt {
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+/* Header band: the 2006 white-to-pale-blue gradient with the wordmark on the left. */
+.yt-head {
+  padding: 8px 12px 7px;
+  background: linear-gradient(#fff, #e5ecf9);
+  border-bottom: 1px solid #c3d9ff;
+  box-shadow: 0 1px 0 #fff;
+}
+
+.yt-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 1;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.yt-tube {
+  margin-left: 2px;
+  padding: 2px 7px 3px;
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+  background: linear-gradient(#e51a1a, #b00000);
+  border-radius: 7px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.yt-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 14px;
+  padding: 10px;
+  align-items: start;
+}
+
+.yt-main {
+  min-width: 0;
+}
+
+.yt-stage {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid #000;
+  box-shadow:
+    0 0 0 4px #e5ecf9,
+    0 0 0 5px #c3d9ff;
+}
+
+.yt-facade {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #000;
+  cursor: pointer;
+}
+
+.yt-facade img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Big round play button: a dark disc with a white triangle drawn from borders. */
+.yt-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.72);
+  border: 3px solid #fff;
+  border-radius: 50%;
+}
+
+.yt-play::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-30%, -50%);
+  border-style: solid;
+  border-width: 11px 0 11px 18px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.yt-facade:hover .yt-play,
+.yt-facade:focus-visible .yt-play {
+  background: #c00;
+}
+
+.yt-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+}
+
+.yt-title {
+  margin: 14px 0 2px;
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.yt-by {
+  margin: 0;
+  color: #555;
+}
+
+.yt-by b {
+  color: #0033cc;
+}
+
+/* The side column is a rounded pale-blue box, as on the 2006 watch page. */
+.yt-side {
+  padding: 6px;
+  background: #e5ecf9;
+  border: 1px solid #c3d9ff;
+  border-radius: 6px;
+}
+
+.yt-more {
+  margin: 0 0 6px;
+  padding: 0 2px 3px;
+  font-size: 13px;
+  color: #333;
+  border-bottom: 1px solid #c3d9ff;
+}
+
+.yt-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.yt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 4px;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.yt-item img {
+  flex: none;
+  display: block;
+  width: 80px;
+  height: 45px;
+  object-fit: cover;
+  background: #000;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px #999;
+}
+
+.yt-item-title {
+  min-width: 0;
+  color: #0033cc;
+  text-decoration: underline;
+  overflow-wrap: break-word;
+}
+
+.yt-item:hover {
+  background: #f3f7ff;
+}
+
+.yt-item.current {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #c3d9ff;
+}
+
+.yt-item.current .yt-item-title {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.yt-channel {
+  max-width: 100%;
+}
+
+/* Phone: the list stacks under the player. */
+@media (max-width: 700px) {
+  .yt-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .yt-item {
+    min-height: 44px;
+  }
+
+  .yt-channel {
+    min-height: 40px;
+  }
+}

@@ -1,0 +1,103 @@
+import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
+import { copy } from "../../src/content/copy";
+import { music } from "../../src/content/music";
+import { projects, projectUi } from "../../src/content/projects";
+import type { Visitor, WinId } from "../../src/lib/types";
+
+export const SETUP_KEY = "bp:setup-done";
+
+export const isPhone = (info: TestInfo) => info.project.name === "phone";
+
+/**
+ * Pretend the visitor already finished setup. Seeds once per tab (sessionStorage guard), so a
+ * reload or "Restart setup" later in the test is not undone by the init script running again.
+ */
+export async function skipSetup(page: Page, visitor: Visitor = "recruiter") {
+  await page.addInitScript(
+    ([key, v]) => {
+      try {
+        if (sessionStorage.getItem("e2e-seeded")) return;
+        sessionStorage.setItem("e2e-seeded", "1");
+        localStorage.setItem(key, JSON.stringify({ visitor: v }));
+      } catch {
+        // storage blocked: nothing to seed
+      }
+    },
+    [SETUP_KEY, visitor],
+  );
+}
+
+export const win = (page: Page, id: WinId): Locator => page.locator(`section[data-win="${id}"]`);
+
+export const openWindows = (page: Page): Locator => page.locator("section[data-win]:not([hidden])");
+
+/** Wait for hydration to finish removing the boot and setup overlays, then clear the phone alert. */
+export async function settle(page: Page, info: TestInfo) {
+  await expect(page.locator(".boot, .setup")).toHaveCount(0);
+  if (isPhone(info)) {
+    const alert = page.getByRole("alertdialog");
+    await expect(alert).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(alert).toHaveCount(0);
+  }
+}
+
+/** Opens a window the way a keyboard user would: focus its icon and press Enter. */
+export async function openWin(page: Page, id: WinId) {
+  if (id.startsWith("browser:")) {
+    // The way in is the About window's default button, as for a visitor.
+    const about = `project:${id.slice("browser:".length)}` as WinId;
+    if (!(await win(page, about).isVisible())) await openWin(page, about);
+    await win(page, about).getByRole("button", { name: projectUi.openSite }).focus();
+  } else if (id.startsWith("project:")) {
+    const title = projects.find((p) => `project:${p.id}` === id)?.title;
+    if (!title) throw new Error(`unknown project window ${id}`);
+    if (!(await win(page, "projects").isVisible())) await openWin(page, "projects");
+    await win(page, "projects").locator("button.icon", { hasText: title }).focus();
+  } else if (id === "garage" || id.startsWith("music:")) {
+    const name =
+      id === "garage" ? music.appName : music.instruments.find((i) => `music:${i.id}` === id)?.name;
+    if (!name) throw new Error(`unknown music window ${id}`);
+    if (!(await win(page, "music").isVisible())) await openWin(page, "music");
+    await win(page, "music").locator("button.icon", { hasText: name }).focus();
+  } else {
+    await page.locator(`.icons [data-open="${id}"]`).focus();
+  }
+  await page.keyboard.press("Enter");
+  await expect(win(page, id)).toBeVisible();
+}
+
+export function collectPageErrors(page: Page): Error[] {
+  const errors: Error[] = [];
+  page.on("pageerror", (e) => errors.push(e));
+  return errors;
+}
+
+/** Click through the three Setup Assistant steps and Go Ahead, picking the given visitor. */
+export async function runAssistant(page: Page, visitor: Visitor = "recruiter") {
+  const s = copy.setup;
+  const dialog = page.getByRole("dialog", { name: s.windowTitle });
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
+  await dialog.getByRole("button", { name: s.next }).click();
+  const label = s.visitors.find((v) => v.id === visitor)?.label ?? visitor;
+  await dialog.getByRole("radio", { name: label }).click();
+  await dialog.getByRole("button", { name: s.next }).click();
+  await dialog.getByRole("button", { name: s.goAhead }).click();
+  await expect(dialog).toHaveCount(0, { timeout: 20_000 });
+}
+
+export const ALL_WINDOWS: WinId[] = [
+  "cv",
+  "projects",
+  "contact",
+  "trash",
+  "cvbuilder",
+  "music",
+  "music:guitar",
+  "music:piano",
+  "music:ukulele",
+  "garage",
+  "photos",
+  "youtube",
+  ...projects.flatMap((p) => [`project:${p.id}`, `browser:${p.id}`] as WinId[]),
+];

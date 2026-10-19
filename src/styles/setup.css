@@ -1,0 +1,318 @@
+/* Startup screen: happy Mac, then the splash with the project icons marching (ported from the v6 mockup). */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: var(--desk);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.boot .happy {
+  display: flex;
+}
+
+.boot .splash {
+  display: block;
+  width: min(360px, calc(100vw - 32px));
+  padding: 18px 22px 16px;
+  text-align: center;
+}
+
+.boot .splash svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.boot .boot-name {
+  display: block;
+  margin: 6px 0 2px;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.boot .boot-status {
+  display: block;
+  margin: 0 0 12px;
+}
+
+.boot .bar {
+  display: block;
+}
+
+.boot .extensions {
+  position: fixed;
+  left: 12px;
+  bottom: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.boot .boot-hint {
+  position: fixed;
+  right: 14px;
+  bottom: 12px;
+  color: #fff;
+  opacity: 0.8;
+  font-size: 11px;
+}
+
+/* Setup Assistant */
+.setup {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--desk);
+}
+
+.assistant {
+  width: min(700px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+
+.assistant .titlebar {
+  cursor: default;
+}
+
+.assistant-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  margin: 10px;
+  min-height: 320px;
+}
+
+.guide {
+  border-right: 1px solid var(--plat-dark);
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: #f4f4f4;
+  text-align: center;
+  font-size: 11px;
+}
+
+.speech {
+  background: #fffde6;
+  border: 1px solid var(--edge);
+  padding: 6px 8px;
+  position: relative;
+  line-height: 1.35;
+}
+
+.speech::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 9px;
+  height: 9px;
+  background: #fffde6;
+  border-right: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.portrait {
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 4px;
+}
+
+.step-sub {
+  margin: 0 0 14px;
+  line-height: 1.45;
+}
+
+.hello {
+  font-family: "Snell Roundhand", "Apple Chancery", "Brush Script MT", cursive;
+  font-size: 64px;
+  line-height: 1.1;
+  min-height: 84px;
+  margin: 4px 0 8px;
+  color: #222;
+  animation: hello-in 0.4s;
+}
+
+@keyframes hello-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hello-all {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 24px;
+  margin: 4px 0 8px;
+}
+
+.radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  text-align: left;
+  background: none;
+}
+
+.radio:hover {
+  border-color: #bbb;
+  background: #fafafa;
+}
+
+.radio .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--edge);
+  background: linear-gradient(#fff, #ddd);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio.picked .dot::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.radio small {
+  color: #555;
+}
+
+.summary {
+  padding: 8px 12px;
+  line-height: 1.8;
+}
+
+.installing {
+  margin-top: 14px;
+}
+
+.install-line {
+  min-height: 18px;
+  margin-top: 8px;
+}
+
+.assistant-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 10px;
+}
+
+.count {
+  font-size: 11px;
+  color: #444;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* 404: a static bomb alert on the platinum desktop. */
+.nf-layer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 18vh;
+}
+
+.nf-restart {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--ink);
+  line-height: 16px;
+}
+
+@media (max-width: 700px) {
+  .assistant-body {
+    grid-template-columns: 1fr;
+  }
+
+  .guide {
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--plat-dark);
+    padding: 10px;
+    text-align: left;
+  }
+
+  .guide .portrait {
+    width: 52px;
+    height: 52px;
+    flex: none;
+    order: -1;
+  }
+
+  .guide .portrait svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hello {
+    font-size: 48px;
+    min-height: 62px;
+  }
+
+  .assistant-foot {
+    flex-wrap: wrap;
+  }
+
+  .assistant-foot .count {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hello {
+    animation: none;
+  }
+}

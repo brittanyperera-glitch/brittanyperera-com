@@ -1,0 +1,297 @@
+/* Window-body styles. Shared bits (.row, .folder-grid, .info, .tag, .open-hint) live in desktop.css. */
+
+.win {
+  --doc-serif: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --doc-ui: "Charcoal", "Chicago", "Geneva", "Lucida Grande", "Helvetica Neue", sans-serif;
+  --doc-accent: var(--accent-deep, #24467d);
+}
+
+/* Document toolbar. Sticks to the top of the window's own scroll region (no second scroller);
+   the negative margins cancel .body padding (12px 14px in platinum.css). */
+.win .doc-toolbar {
+  position: sticky;
+  top: -12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -12px -14px 0;
+  padding: 5px 8px;
+  background: linear-gradient(#ececec, #d2d2d2);
+  border-bottom: 1px solid #8a8a8a;
+  box-shadow: inset 0 1px 0 #fff;
+  font: 11px var(--doc-ui);
+}
+
+.win .doc-toolbar .doc-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.win .doc-toolbar .sep {
+  width: 1px;
+  height: 18px;
+  background: #9a9a9a;
+  box-shadow: 1px 0 0 #fff;
+}
+
+.win .doc-toolbar a {
+  color: #1a3fa3;
+}
+
+.win .doc-toolbar .pbtn {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+/* Grey desk behind the page, full window width. */
+.win .paper-desk {
+  margin: 0 -14px;
+  padding: 18px 22px 22px;
+  background:
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.035) 0 2px, transparent 2px 4px), #8d939e;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
+  container: paper / inline-size;
+}
+
+.win .paper {
+  background: #fff;
+  color: #1b1b1b;
+  padding: 32px 38px 38px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    3px 4px 0 rgba(0, 0, 0, 0.22),
+    0 8px 18px rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* SimpleText-style read-me for each project. */
+.win .readme {
+  margin: -12px -14px 0;
+  padding: 16px 18px 14px;
+  background: #fff;
+  border-bottom: 1px solid #b9b9b9;
+}
+
+.win .readme h3 {
+  margin: 0 0 8px;
+  font: bold 18px / 1.2 var(--doc-serif);
+}
+
+.win .readme p {
+  margin: 0;
+  font: 12px / 1.55 var(--doc-serif);
+}
+
+/* A portrait promo: capped height so the About window stays short, centred on black. */
+.win .promo {
+  display: block;
+  width: 100%;
+  height: min(360px, 50vh);
+  margin-top: 12px;
+  background: #000;
+  border: 1px solid #5a5a5a;
+  box-shadow: inset 1px 1px 0 #000;
+}
+
+/* The full CV: same markup as /cv (CvDocument), laid out here with CSS only. */
+.win .cv-doc > h3 {
+  margin: 0;
+  font: bold 26px / 1.1 var(--doc-serif);
+  letter-spacing: -0.01em;
+}
+
+.win .cv-doc h4 {
+  margin: 24px 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #c9cfdc;
+  font: bold 11px var(--doc-ui);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--doc-accent);
+}
+
+/* Dates in their own left column: .cv-head dissolves so its two spans become grid items. */
+.win .cv-doc .cv-item {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+  column-gap: 14px;
+}
+
+.win .cv-doc .cv-item + .cv-item {
+  margin-top: 14px;
+}
+
+.win .cv-doc .cv-head {
+  display: contents;
+}
+
+.win .cv-doc .cv-item > *,
+.win .cv-doc .cv-head > * {
+  grid-column: 2;
+}
+
+.win .cv-doc .cv-head > span:first-child {
+  font: bold 14px / 1.3 var(--doc-serif);
+}
+
+.win .cv-doc .cv-when {
+  grid-column: 1;
+  grid-row: 1;
+  padding-top: 2px;
+  color: #666;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.win .cv-doc p {
+  margin: 4px 0 0;
+  color: #333;
+}
+
+.win .cv-doc > h3 + p {
+  font-size: 11.5px;
+}
+
+.win .cv-doc ul {
+  margin: 5px 0 0;
+  padding-left: 15px;
+  color: #333;
+}
+
+.win .cv-doc li + li {
+  margin-top: 3px;
+}
+
+.win .cv-doc .cv-head + p {
+  margin: 0;
+  color: var(--doc-accent);
+  font-weight: bold;
+  font-size: 11.5px;
+}
+
+.win .body .actions-right {
+  margin: 12px 0 0;
+  text-align: right;
+}
+
+.win .body .linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 12px;
+  font: inherit;
+  color: #1a3fa3;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Contact: the address in a read-only, inset field. */
+.win .body .email-field {
+  margin: 4px 0 10px;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid #7a7a7a;
+  box-shadow:
+    inset 1px 1px 0 #b5b5b5,
+    1px 1px 0 #fff;
+  font: 13px var(--doc-ui);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+/* Trash: a Finder list view. */
+.win .body .trash-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: #fff;
+  border: 1px solid #7a7a7a;
+  box-shadow: inset 1px 1px 0 #b5b5b5;
+}
+
+.win .body .trash-list li {
+  padding: 5px 10px;
+}
+
+.win .body .trash-list li:nth-child(even) {
+  background: #eef1f7;
+}
+
+/* Narrow page (small window or phone): one column, date above its title. */
+@container paper (max-width: 520px) {
+  .win .cv-doc .cv-item {
+    grid-template-columns: 1fr;
+  }
+
+  .win .cv-doc .cv-item > *,
+  .win .cv-doc .cv-head > * {
+    grid-column: 1;
+  }
+}
+
+/* Stickies: a yellow note with a slim title bar and only a close box. */
+.win[data-win="note"] {
+  background: #fff6a3;
+  border-color: #a8973a;
+  box-shadow:
+    2px 3px 0 rgba(0, 0, 0, 0.16),
+    0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.win[data-win="note"]::after,
+.win[data-win="note"] .titlebar::before,
+.win[data-win="note"] .titlebar .zoom,
+.win[data-win="note"] .titlebar .shade {
+  display: none;
+}
+
+.win[data-win="note"] .titlebar {
+  height: 18px;
+  margin-bottom: 0;
+  background: linear-gradient(#fffbc8, #f3e472);
+  border-bottom: 1px solid #c8b64c;
+}
+
+.win[data-win="note"] .titlebar .close {
+  top: 2px;
+}
+
+.win[data-win="note"] .titlebar .t {
+  background: none;
+  color: #6b5d12;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.win[data-win="note"] .body {
+  background: #fff6a3;
+  border: 0;
+  box-shadow: none;
+  padding: 10px 12px 12px;
+  font:
+    13px / 1.45 "Geneva",
+    "Lucida Grande",
+    "Verdana",
+    sans-serif;
+  color: #3a3410;
+}
+
+.win[data-win="note"] .sticky-note p {
+  margin: 0 0 6px;
+}
+
+@media (max-width: 700px) {
+  .win .paper-desk {
+    padding: 10px;
+  }
+
+  .win .paper {
+    padding: 20px 18px 24px;
+  }
+}

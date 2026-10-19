@@ -1,0 +1,230 @@
+/* Keyed on the server-rendered .desktop element, so the page is styled before any JS runs and
+   /cv stays unaffected even when this stylesheet stays loaded after client-side navigation. */
+html:has(.desktop) {
+  height: 100%;
+}
+
+body:has(.desktop) {
+  margin: 0;
+  height: 100%;
+  font-family: "Charcoal", "Chicago", Geneva, "Helvetica Neue", sans-serif;
+  font-size: 12px;
+  color: var(--ink);
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--desk);
+  /* Fine stipple plus a gentle light falloff: a printed desktop texture, not flat paint. The layers
+     are neutral black and white at low alpha, so a visitor's chosen --desk colour still shows. */
+  background-image:
+    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.18) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    160px 160px,
+    3px 3px;
+}
+
+.desktop {
+  position: fixed;
+  inset: 0;
+}
+
+/* Visually hidden, still read by screen readers (the page's h1). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Menu bar */
+.menubar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  z-index: 5000;
+  display: flex;
+  align-items: stretch;
+  padding: 0 6px;
+  background: linear-gradient(#fbfbfb, #e4e4e4 55%, #d4d4d4);
+  border-bottom: 1px solid #1b1b1b;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.menu {
+  position: relative;
+}
+
+.menu > button {
+  height: 100%;
+  background: none;
+  border: none;
+  padding: 0 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+.menu ul {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: 3px 0;
+  list-style: none;
+  background: linear-gradient(#f8f8f8, #e6e6e6);
+  border: 1px solid #1b1b1b;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    1px 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.menu li button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 3px 18px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.menu li button:hover,
+.menu li button:focus-visible {
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: none;
+}
+
+.menu.open > button {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.menu li.sep {
+  border-top: 1px solid #aaa;
+  margin-top: 3px;
+  padding-top: 3px;
+}
+
+.menubar .right {
+  margin-left: auto;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.menubar .right button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Desktop icons */
+.icons {
+  position: fixed;
+  top: 30px;
+  right: 8px;
+  bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  gap: 14px 4px;
+  z-index: 1;
+}
+
+.icon {
+  width: 92px;
+  padding: 3px 0;
+  text-align: center;
+  cursor: default;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.icon svg {
+  width: 32px;
+  height: 32px;
+  overflow: visible;
+  filter: drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.45));
+}
+
+/* Label chip: white with dark ink, inverted when selected (polish-v1 section 2). */
+.icon .label {
+  display: inline-block;
+  padding: 0 3px;
+  font-size: 12px;
+  line-height: 15px;
+  background: #fff;
+  color: #111;
+}
+
+.icon.selected svg {
+  filter: brightness(0.52) saturate(1.1) drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.45));
+}
+
+.icon.selected .label {
+  background: #1b1b1b;
+  color: #fff;
+}
+
+/* Window body content shared by the Task 7 windows */
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 8px 6px;
+}
+
+.info {
+  font-size: 11px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+  color: #444;
+}
+
+.tag {
+  display: inline-block;
+  border: 1px solid #999;
+  background: #f4f4f4;
+  padding: 0 6px;
+  font-size: 11px;
+  margin-right: 4px;
+}
+
+.open-hint {
+  font-size: 11px;
+  color: #444;
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.desktop) * {
+    /* biome-ignore lint/complexity/noImportantStyles: must beat every component transition to honour reduced motion */
+    transition: none !important;
+  }
+}
