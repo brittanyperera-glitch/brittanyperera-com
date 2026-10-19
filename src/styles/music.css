@@ -27,6 +27,13 @@
   overflow-wrap: anywhere;
 }
 
+.garage-note {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: #444;
+}
+
 .garage-deck {
   display: flex;
   align-items: center;

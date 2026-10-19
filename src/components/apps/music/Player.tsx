@@ -5,7 +5,7 @@ import { music } from "@/content/music";
 import "@/styles/music.css";
 import { formatTime } from "./format";
 
-type Track = { src: string; title: string };
+type Track = { src: string; title: string; note?: string };
 
 /** `active` is false while the window is closed; the window stays mounted, so playback must stop. */
 export function Player({ track, active }: { track: Track; active: boolean }) {
@@ -39,6 +39,7 @@ export function Player({ track, active }: { track: Track; active: boolean }) {
   return (
     <div className="garage">
       <div className="garage-title well">{track.title}</div>
+      {track.note ? <p className="garage-note">{track.note}</p> : null}
       {/* biome-ignore lint/a11y/useMediaCaption: her own instrumental, nothing to caption */}
       <audio
         ref={ref}

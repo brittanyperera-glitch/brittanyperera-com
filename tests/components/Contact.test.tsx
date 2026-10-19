@@ -35,13 +35,15 @@ function setClipboard(value: unknown) {
 }
 
 describe("ContactWindow", () => {
+  const realLinkedin = contact.linkedin;
   afterEach(() => {
     vi.restoreAllMocks();
-    contact.linkedin = undefined;
+    contact.linkedin = realLinkedin;
     setClipboard(undefined);
   });
 
   it("hides LinkedIn when unset and shows email and GitHub", () => {
+    contact.linkedin = undefined;
     const { w } = setup();
     expect(w.queryByText(copy.windows.linkedin)).toBeNull();
     expect(w.getByText(contact.email)).toBeInTheDocument();

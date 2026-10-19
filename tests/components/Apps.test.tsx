@@ -62,15 +62,17 @@ describe("new desktop apps", () => {
     }
   });
 
-  // Windows whose content is all Brittany's (still pending) show only their title until it lands.
+  // Windows whose content is all Brittany's show only their title while that content is empty.
+  // Reads the live content, so each window drops out of the check once her input lands.
   it("input-only windows render a title heading and nothing else while empty", () => {
     setup();
     const body = (id: string) =>
       document.querySelector(`section[data-win="${id}"] .body`) as HTMLElement;
-    for (const [id, title] of [
-      ["photos", photos.title],
-      ["garage", music.appName],
-    ] as const) {
+    const empty = [
+      ...(photos.items.length === 0 ? [["photos", photos.title] as const] : []),
+      ...(music.track ? [] : [["garage", music.appName] as const]),
+    ];
+    for (const [id, title] of empty) {
       expect(body(id).textContent, id).toBe(title);
       expect(body(id).querySelector("h3"), id).toHaveTextContent(title);
     }

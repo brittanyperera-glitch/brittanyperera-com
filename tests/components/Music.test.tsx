@@ -51,7 +51,7 @@ function Opener() {
   );
 }
 
-function mount(t?: typeof track) {
+function mount(t?: (typeof track & { note?: string }) | null) {
   render(
     <Desktop windows={{ garage: <GarageWindow track={t} /> }}>
       <Opener />
@@ -80,6 +80,18 @@ describe("GarageWindow", () => {
     expect(audio()).toHaveAttribute("preload", "metadata");
     expect(audio().autoplay).toBe(false);
     expect(play).not.toHaveBeenCalled();
+  });
+
+  it("shows the track note under the title when there is one, and none otherwise", async () => {
+    const user = mount({ ...track, note: "a fixture note" });
+    await user.click(screen.getByText("test-open-garage"));
+    expect(screen.getByText("a fixture note")).toBeInTheDocument();
+  });
+
+  it("renders no note element for a track without a note", async () => {
+    const user = mount(track);
+    await user.click(screen.getByText("test-open-garage"));
+    expect(document.querySelector(".garage-note")).toBeNull();
   });
 
   it("Play calls play() and toggles to Pause, which calls pause()", async () => {
@@ -126,7 +138,8 @@ describe("GarageWindow", () => {
   });
 
   it("renders only the app title, and no audio element, when there is no track", async () => {
-    const user = mount(undefined);
+    // null means "no track"; undefined would fall back to the real content track.
+    const user = mount(null);
     await user.click(screen.getByText("test-open-garage"));
     expect(screen.getByRole("heading", { level: 3, name: music.appName })).toBeInTheDocument();
     expect(audio()).toBeNull();
