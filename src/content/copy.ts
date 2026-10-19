@@ -56,6 +56,9 @@ export const copy = {
     ],
     summaryVisitor: "Visitor:",
     summaryColour: "Highlight colour:",
+    count: "{n} of {total}",
+    previewBefore: "selected text looks",
+    previewHighlight: "like this",
     installLines: [
       "welding playground frames in Kurunegala…",
       "cooling an F1 radiator…",

@@ -7,7 +7,8 @@ import type { Visitor } from "@/lib/types";
 const STEP_TITLE_ID = "setup-step-title";
 
 // "n of 4" has no key in src/content/copy.ts yet; this is the one literal until it does.
-const countText = (n: number, total: number) => `${n} of ${total}`;
+const countText = (n: number, total: number) =>
+  copy.setup.count.replace("{n}", String(n)).replace("{total}", String(total));
 
 type Props = {
   step: SetupState["step"];
@@ -131,7 +132,7 @@ export function SetupAssistant({
                   ))}
                 </div>
                 <p className="preview-sel">
-                  <span>{swatch?.name ?? accent}</span>
+                  {s.previewBefore} <span>{s.previewHighlight}</span>
                 </p>
               </>
             )}
