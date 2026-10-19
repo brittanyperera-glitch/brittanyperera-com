@@ -143,6 +143,18 @@ export const copy = {
     contact: "Say hi",
     trash: "Trash",
   } as Record<"about" | "cv" | "projects" | "contact" | "trash", string>,
+  chrome: {
+    menuTitles: {
+      apple: "Apple menu",
+      brittany: "Brittany",
+      file: "File",
+      view: "View",
+      special: "Special",
+    },
+    close: "Close",
+    soundOn: "Sound: on",
+    soundOff: "Sound: off",
+  },
   contactInvite: "want to work together, hire me, or just say hi?",
   firstWindows: {
     recruiter: ["about", "cv"],

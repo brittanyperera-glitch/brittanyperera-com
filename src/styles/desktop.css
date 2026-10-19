@@ -1,0 +1,222 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Charcoal", "Chicago", Geneva, "Helvetica Neue", sans-serif;
+  font-size: 12px;
+  color: var(--ink);
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--desk);
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size:
+    4px 4px,
+    4px 4px;
+  background-position:
+    0 0,
+    2px 2px;
+}
+
+.desktop {
+  position: fixed;
+  inset: 0;
+}
+
+/* Menu bar */
+.menubar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  z-index: 5000;
+  display: flex;
+  align-items: stretch;
+  padding: 0 6px;
+  background: linear-gradient(#f7f7f7, #dcdcdc);
+  border-bottom: 1px solid var(--edge);
+}
+
+.menu {
+  position: relative;
+}
+
+.menu > button {
+  height: 100%;
+  background: none;
+  border: none;
+  padding: 0 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.menu.open > button {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.menu ul {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: 3px 0;
+  list-style: none;
+  background: var(--plat-light);
+  border: 1px solid var(--edge);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.menu li button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 3px 18px;
+  cursor: pointer;
+}
+
+.menu li button:hover,
+.menu li button:focus-visible {
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: none;
+}
+
+.menu li.sep {
+  border-top: 1px solid #aaa;
+  margin-top: 3px;
+  padding-top: 3px;
+}
+
+.menubar .right {
+  margin-left: auto;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.menubar .right button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Desktop icons */
+.icons {
+  position: fixed;
+  top: 30px;
+  right: 8px;
+  bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  gap: 6px 4px;
+  z-index: 1;
+}
+
+.icon {
+  width: 86px;
+  padding: 3px 2px;
+  text-align: center;
+  cursor: default;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.icon .label {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0 3px;
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.icon.selected svg {
+  filter: brightness(0.6);
+}
+
+.icon.selected .label {
+  background: var(--accent);
+  color: var(--accent-ink);
+  text-shadow: none;
+}
+
+.win .icon .label {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+/* Window body content shared by the Task 7 windows */
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 66px 1fr;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dotted #aaa;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 8px 6px;
+}
+
+.info {
+  font-size: 11px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+  color: #444;
+}
+
+.tag {
+  display: inline-block;
+  border: 1px solid #999;
+  background: #f4f4f4;
+  padding: 0 6px;
+  font-size: 11px;
+  margin-right: 4px;
+}
+
+.open-hint {
+  font-size: 11px;
+  color: #444;
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

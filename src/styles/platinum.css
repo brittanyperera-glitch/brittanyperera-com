@@ -1,0 +1,192 @@
+:root {
+  --ink: #111;
+  --platinum: #dddddd;
+  --plat-light: #f0f0f0;
+  --plat-dark: #8a8a8a;
+  --edge: #444;
+  --accent: #3d6fb6;
+  --accent-ink: #fff;
+  --desk: #6b7c99;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+a {
+  color: #1a3fa3;
+}
+
+.bevel {
+  background: var(--platinum);
+  border: 1px solid var(--edge);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--plat-dark);
+}
+
+.well {
+  background: #fff;
+  border: 1px solid var(--plat-dark);
+  box-shadow: inset 1px 1px 0 #bbb;
+}
+
+.pbtn {
+  cursor: pointer;
+  background: linear-gradient(#fafafa, #d2d2d2);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  padding: 3px 14px;
+  min-height: 24px;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+.pbtn:active {
+  background: linear-gradient(#bdbdbd, #d8d8d8);
+}
+
+.pbtn.default {
+  box-shadow:
+    0 0 0 2px var(--platinum),
+    0 0 0 3px var(--edge),
+    inset 1px 1px 0 #fff;
+  font-weight: bold;
+}
+
+.pbtn[disabled] {
+  color: #8a8a8a;
+  cursor: default;
+}
+
+.bar {
+  height: 12px;
+  border: 1px solid var(--edge);
+  background: #fff;
+  box-shadow: inset 1px 1px 0 #bbb;
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.25) 0 6px, transparent 6px 12px),
+    var(--accent);
+  transition: width 0.4s;
+}
+
+/* Windows */
+.win {
+  position: absolute;
+  min-width: 240px;
+  max-width: calc(100vw - 20px);
+  padding: 0 4px 4px;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--plat-dark),
+    2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.win[hidden] {
+  display: none;
+}
+
+.titlebar {
+  height: 20px;
+  position: relative;
+  cursor: move;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -4px 4px;
+  padding: 0 30px;
+  background: repeating-linear-gradient(#f3f3f3 0 1px, #b9b9b9 1px 2px);
+  background-size: 100% 2px;
+  background-clip: content-box;
+  border-bottom: 1px solid var(--plat-dark);
+}
+
+.titlebar .t {
+  background: var(--platinum);
+  padding: 0 8px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.win:not(.front) .titlebar {
+  background: var(--platinum);
+}
+
+.win:not(.front) .titlebar .t {
+  color: #777;
+  font-weight: normal;
+}
+
+/* 13px box with a 23px hit area. Hidden on inactive windows, but still focusable so Tab reveals it. */
+.titlebar .close {
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  border: 1px solid var(--edge);
+  background: linear-gradient(#fff, #c8c8c8);
+  cursor: pointer;
+}
+
+.titlebar .close::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+}
+
+.titlebar .zoom {
+  position: absolute;
+  right: 6px;
+  top: 3px;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--edge);
+  background: linear-gradient(#fff, #c8c8c8);
+}
+
+.win:not(.front) .titlebar .close,
+.win:not(.front) .titlebar .zoom {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.win .body {
+  padding: 12px 14px;
+  max-height: 60vh;
+  overflow: auto;
+  line-height: 1.5;
+  user-select: text;
+}
+
+.win .body h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.win .body p {
+  margin: 0 0 10px;
+}
