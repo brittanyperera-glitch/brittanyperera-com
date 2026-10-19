@@ -1,0 +1,78 @@
+.instrument {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 20px;
+  text-align: center;
+}
+
+.instrument h3,
+.instrument p {
+  margin: 0;
+}
+
+/* Garage Brittany: a Platinum-era media deck. Title in a recessed well, transport on bevelled buttons. */
+.garage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.garage-title {
+  padding: 6px 10px;
+  font-weight: bold;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.garage-deck {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.garage-play {
+  flex: 0 0 auto;
+  min-width: 76px;
+  min-height: 40px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.garage-scrub {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.garage-scrub input,
+.garage-volume input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.garage-times {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.garage-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.garage-volume input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.garage-play:focus-visible,
+.garage input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
