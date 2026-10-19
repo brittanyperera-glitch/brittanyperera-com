@@ -2,18 +2,15 @@ import { expect, type Page, test } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { collectPageErrors, isPhone, runAssistant, settle, skipSetup, win } from "./helpers";
 
-// Recruiter lands on About + CV on a desktop, CV alone on a phone.
+// Recruiter lands on the CV alone, on a desktop and on a phone (the phone also shows its alert).
 async function expectRecruiterLanding(page: Page, phone: boolean) {
   await expect(win(page, "cv")).toBeVisible();
-  if (phone) {
-    await expect(win(page, "about")).toBeHidden();
-    await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
-  } else {
-    await expect(win(page, "about")).toBeVisible();
-  }
+  await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
+  await expect(win(page, "projects")).toBeHidden();
+  if (phone) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
 }
 
-test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead) lands on About and CV", async ({
+test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead) lands on the CV", async ({
   page,
 }, info) => {
   await page.goto("/");
@@ -21,7 +18,18 @@ test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead)
   await expectRecruiterLanding(page, isPhone(info));
 });
 
-test("Esc on first paint skips setup to About and CV", async ({ page }, info) => {
+test("fresh visit: the friend flow lands on the CV, not an About me window", async ({
+  page,
+}, info) => {
+  await page.goto("/");
+  await runAssistant(page, "friend");
+  await expect(win(page, "cv")).toBeVisible();
+  await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
+  await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
+  if (isPhone(info)) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
+});
+
+test("Esc on first paint skips setup to the CV", async ({ page }, info) => {
   await page.goto("/");
   // Pressed until it lands: before hydration the key listener does not exist yet.
   await expect(async () => {

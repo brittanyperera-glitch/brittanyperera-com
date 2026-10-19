@@ -67,20 +67,20 @@ describe("SetupFlow", () => {
     expect(setupDialog()).toBeNull();
   });
 
-  it("Escape during boot ends setup and opens About and CV", () => {
+  it("Escape during boot ends setup and opens the CV, with no About me window", () => {
     const { container } = renderFlow();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(bootOverlay(container)).toBeNull();
     expect(setupDialog()).toBeNull();
-    expect(win("About me")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(win("Projects")).toHaveAttribute("hidden");
+    expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
+    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
   });
 
   it("clicking the boot screen skips too", () => {
     const { container } = renderFlow();
     fireEvent.click(bootOverlay(container) as Element);
-    expect(win("About me")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
 
@@ -92,15 +92,15 @@ describe("SetupFlow", () => {
     expect(screen.getByText("1 of 3")).toBeInTheDocument();
   });
 
-  it("three steps as 'I'm hiring' then Go Ahead opens About and CV and stores the choice", () => {
+  it("three steps as 'I'm hiring' then Go Ahead opens only the CV and stores the choice", () => {
     renderFlow();
     runToConclusion(/I'm hiring/);
     expect(screen.getByText("3 of 3")).toBeInTheDocument();
     click(copy.setup.goAhead);
     advance(20000);
     expect(setupDialog()).toBeNull();
-    expect(win("About me")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
+    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
@@ -129,14 +129,22 @@ describe("SetupFlow", () => {
     expect(document.querySelector(".speech")).toHaveTextContent("thats it, promise");
   });
 
-  it("a collaborator gets About and Projects", () => {
+  it("a collaborator gets CV and Projects", () => {
     renderFlow();
     runToConclusion(/Let's build something/);
     click(copy.setup.goAhead);
     advance(20000);
-    expect(win("About me")).not.toHaveAttribute("hidden");
+    expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(win("Projects")).not.toHaveAttribute("hidden");
-    expect(win("CV.pdf")).toHaveAttribute("hidden");
+  });
+
+  it("a friend lands on the CV and nothing else", () => {
+    renderFlow();
+    runToConclusion(/Friend/);
+    click(copy.setup.goAhead);
+    advance(20000);
+    expect(win("CV.pdf")).not.toHaveAttribute("hidden");
+    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
   });
 
   it("install lines hold 1s each, or 2s under reduced motion", () => {
@@ -181,12 +189,12 @@ describe("SetupFlow", () => {
     expect(hello()).toHaveAttribute("lang", copy.setup.hello[1].lang);
   });
 
-  it("with setup already done as a collaborator, setup never shows and About and Projects open", () => {
+  it("with setup already done as a collaborator, setup never shows and CV and Projects open", () => {
     window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "collab" }));
     const { container } = renderFlow();
     expect(bootOverlay(container)).toBeNull();
     expect(setupDialog()).toBeNull();
-    expect(win("About me")).not.toHaveAttribute("hidden");
+    expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(win("Projects")).not.toHaveAttribute("hidden");
   });
 
@@ -210,7 +218,6 @@ describe("SetupFlow", () => {
       advance(20000);
     }).not.toThrow();
     expect(setupDialog()).toBeNull();
-    expect(win("About me")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
 
@@ -221,7 +228,7 @@ describe("SetupFlow", () => {
     click(copy.setup.goAhead);
     advance(20000);
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(win("About me")).toHaveAttribute("hidden");
+    expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
     expect(screen.getByRole("alertdialog")).toHaveTextContent(copy.alerts.phone);
   });
 
@@ -230,7 +237,7 @@ describe("SetupFlow", () => {
     window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
     renderFlow();
     expect(win("Say hi")).not.toHaveAttribute("hidden");
-    expect(win("About me")).toHaveAttribute("hidden");
+    expect(win("CV.pdf")).toHaveAttribute("hidden");
   });
 });
 

@@ -82,7 +82,6 @@ export async function runAssistant(page: Page, visitor: Visitor = "recruiter") {
 }
 
 export const ALL_WINDOWS: WinId[] = [
-  "about",
   "cv",
   "projects",
   "contact",

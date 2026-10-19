@@ -9,7 +9,7 @@ async function main() {
       viewport: { width: 1200, height: 630 },
       deviceScaleFactor: 1,
     });
-    // Skip the boot screen and Setup Assistant; the recruiter preset opens About and CV.
+    // Skip the boot screen and Setup Assistant; the recruiter preset opens the CV.
     await context.addInitScript(() => {
       localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "recruiter" }));
     });
@@ -21,7 +21,6 @@ async function main() {
       process.exitCode = 1;
       return;
     }
-    await page.locator('section[data-win="about"]').waitFor({ state: "visible" });
     await page.locator('section[data-win="cv"]').waitFor({ state: "visible" });
     await page.screenshot({ path: "public/og.png" });
     console.log("Wrote public/og.png");

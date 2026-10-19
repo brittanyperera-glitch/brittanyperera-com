@@ -50,7 +50,7 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
   }
 }
 
-/** The one window a phone shows: the last of the visitor's first windows (about, cv, projects...). */
+/** The one window a phone shows: the last of the visitor's first windows (cv, projects, contact). */
 export function phoneWindow(visitor: Visitor): WinId {
   const wins = copy.firstWindows[visitor];
   return wins[wins.length - 1];

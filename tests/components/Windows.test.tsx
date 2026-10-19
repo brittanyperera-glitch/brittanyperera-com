@@ -1,15 +1,13 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useEffect } from "react";
 import { describe, expect, it } from "vitest";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
-import { AboutWindow } from "@/components/windows/AboutWindow";
 import { CvWindow } from "@/components/windows/CvWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
 import { ProjectWindow } from "@/components/windows/ProjectWindow";
 import { TrashWindow } from "@/components/windows/TrashWindow";
-import { about } from "@/content/about";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
 import { projects } from "@/content/projects";
@@ -25,7 +23,6 @@ function Opener({ ids }: { ids: WinId[] }) {
 }
 
 const windows: Partial<Record<WinId, ReactNode>> = {
-  about: <AboutWindow />,
   cv: <CvWindow />,
   projects: <ProjectsWindow />,
   trash: <TrashWindow />,
@@ -49,31 +46,13 @@ function win(id: string): HTMLElement {
   return el;
 }
 
-describe("About", () => {
-  it("shows the intro heading and every timeline entry", () => {
-    setup(["about"]);
-    const w = within(win("about"));
-    expect(w.getByRole("heading", { name: about.heading })).toBeInTheDocument();
-    for (const t of about.timeline) {
-      expect(w.getByText(t.when)).toBeInTheDocument();
-      expect(w.getByText(t.text)).toBeInTheDocument();
-    }
-  });
-
-  // The review (I1) made this a real link so it works without JavaScript, so it is no longer a
-  // button; with JavaScript the click is intercepted and opens the CV window instead of navigating.
-  it("Open CV is a real /cv link that opens the CV window instead of navigating", async () => {
-    const user = setup(["about"]);
-    expect(win("cv")).toHaveAttribute("hidden");
-    const link = within(win("about")).getByRole("link", { name: copy.menus.file[0].label });
-    expect(link).toHaveAttribute("href", "/cv");
-    await user.click(link);
-    expect(win("cv")).not.toHaveAttribute("hidden");
-    expect(fireEvent.click(link)).toBe(false);
-  });
-});
-
 describe("CV", () => {
+  it("links to the full CV page, which works without JavaScript", () => {
+    setup(["cv"]);
+    const link = within(win("cv")).getByRole("link", { name: copy.windows.cvPageLink });
+    expect(link).toHaveAttribute("href", "/cv");
+  });
+
   it("Download PDF shows the download alert", async () => {
     const user = setup(["cv"]);
     await user.click(within(win("cv")).getByRole("button", { name: "Download PDF" }));

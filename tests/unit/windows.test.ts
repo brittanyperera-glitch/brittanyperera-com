@@ -12,40 +12,40 @@ const title = { titleLeft: 1, titleRight: 299 };
 describe("windowsReducer", () => {
   it("open adds the id once and raises a reopened window above the rest", () => {
     const s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
     ]);
-    expect(s.open.filter((id) => id === "about")).toHaveLength(1);
+    expect(s.open.filter((id) => id === "projects")).toHaveLength(1);
     expect(s.open).toHaveLength(2);
-    expect(s.z.about).toBeGreaterThan(s.z.cv as number);
+    expect(s.z.projects).toBeGreaterThan(s.z.cv as number);
   });
 
   it("focus raises z above all others; focusing a closed window does nothing", () => {
     const s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
-      { type: "focus", id: "about" },
+      { type: "focus", id: "projects" },
     ]);
-    expect(s.z.about).toBeGreaterThan(s.z.cv as number);
+    expect(s.z.projects).toBeGreaterThan(s.z.cv as number);
     const after = windowsReducer(s, { type: "focus", id: "contact" });
     expect(after).toEqual(s);
   });
 
   it("close removes the window; closing a closed window is a no-op", () => {
     const s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
-      { type: "close", id: "about" },
+      { type: "close", id: "projects" },
     ]);
     expect(s.open).toEqual(["cv"]);
     expect(windowsReducer(s, { type: "close", id: "contact" })).toEqual(s);
   });
 
   it("move clamps all four corners and keeps 80px of the title bar visible", () => {
-    const base = run([{ type: "open", id: "about" }]);
+    const base = run([{ type: "open", id: "projects" }]);
     const at = (x: number, y: number) =>
-      windowsReducer(base, { type: "move", id: "about", x, y, viewport, ...title }).pos.about;
+      windowsReducer(base, { type: "move", id: "projects", x, y, viewport, ...title }).pos.projects;
     const left = at(-5000, -5000);
     const right = at(5000, 5000);
     expect(left).toEqual({ x: 80 - title.titleRight, y: 24 });
@@ -61,12 +61,16 @@ describe("windowsReducer", () => {
     const big = { w: 1440, h: 900 };
     const small = { w: 1024, h: 600 };
     const s = run([
-      { type: "open", id: "about" },
-      { type: "move", id: "about", x: 5000, y: 5000, viewport: big, ...title },
+      { type: "open", id: "projects" },
+      { type: "move", id: "projects", x: 5000, y: 5000, viewport: big, ...title },
     ]);
-    expect(s.pos.about).toEqual({ x: big.w - 80 - title.titleLeft, y: big.h - 40 });
-    const after = windowsReducer(s, { type: "clampAll", viewport: small, sizes: { about: title } });
-    const p = after.pos.about as { x: number; y: number };
+    expect(s.pos.projects).toEqual({ x: big.w - 80 - title.titleLeft, y: big.h - 40 });
+    const after = windowsReducer(s, {
+      type: "clampAll",
+      viewport: small,
+      sizes: { projects: title },
+    });
+    const p = after.pos.projects as { x: number; y: number };
     expect(p.x + title.titleLeft).toBeLessThan(small.w);
     expect(small.w - (p.x + title.titleLeft)).toBe(80);
     expect(p.y).toBeLessThan(small.h);
@@ -75,33 +79,33 @@ describe("windowsReducer", () => {
 
   it("clampAll leaves windows with no measured size alone", () => {
     const s = run([
-      { type: "open", id: "about" },
-      { type: "move", id: "about", x: 5000, y: 5000, viewport: { w: 1440, h: 900 }, ...title },
+      { type: "open", id: "projects" },
+      { type: "move", id: "projects", x: 5000, y: 5000, viewport: { w: 1440, h: 900 }, ...title },
     ]);
     expect(windowsReducer(s, { type: "clampAll", viewport, sizes: {} }).pos).toEqual(s.pos);
   });
 
   it("renormalises z before it can reach the menu bar, keeping stacking order", () => {
     let s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
       { type: "open", id: "contact" },
     ]);
     for (let i = 0; i < 5000; i++) {
-      s = windowsReducer(s, { type: "focus", id: i % 2 === 0 ? "about" : "cv" });
+      s = windowsReducer(s, { type: "focus", id: i % 2 === 0 ? "projects" : "cv" });
     }
     const zs = Object.values(s.z) as number[];
     expect(Math.max(...zs)).toBeLessThan(4001);
     expect(s.nextZ).toBeLessThan(4002);
     expect(topWindow(s)).toBe("cv");
-    expect(s.z.about as number).toBeLessThan(s.z.cv as number);
-    expect(s.z.contact as number).toBeLessThan(s.z.about as number);
+    expect(s.z.projects as number).toBeLessThan(s.z.cv as number);
+    expect(s.z.contact as number).toBeLessThan(s.z.projects as number);
   });
 
   it("phone mode: open leaves exactly the new window open", () => {
     const s = run([
       { type: "setMode", mode: "phone" },
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
     ]);
     expect(s.open).toEqual(["cv"]);
@@ -120,7 +124,7 @@ describe("windowsReducer", () => {
 
   it("setMode phone with several open keeps only the top window", () => {
     const s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
       { type: "open", id: "contact" },
       { type: "focus", id: "cv" },
@@ -132,7 +136,7 @@ describe("windowsReducer", () => {
 
   it("closeAll empties open", () => {
     const s = run([
-      { type: "open", id: "about" },
+      { type: "open", id: "projects" },
       { type: "open", id: "cv" },
       { type: "closeAll" },
     ]);
@@ -144,7 +148,7 @@ describe("windowsReducer", () => {
 describe("helpers", () => {
   it("parentOf maps project windows to projects, others to null", () => {
     expect(parentOf("project:gift")).toBe("projects");
-    expect(parentOf("about")).toBeNull();
+    expect(parentOf("cv")).toBeNull();
     expect(parentOf("projects")).toBeNull();
   });
 

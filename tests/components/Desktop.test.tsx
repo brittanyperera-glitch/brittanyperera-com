@@ -27,14 +27,30 @@ describe("desktop shell", () => {
 
   it("File > Open CV makes CV the front window", async () => {
     const { user } = setup();
-    await user.click(screen.getByRole("button", { name: "About me" }));
-    await user.dblClick(screen.getByRole("button", { name: "About me" }));
-    expect(win("About me")).toHaveClass("front");
+    await user.click(screen.getByRole("button", { name: "Projects" }));
+    await user.dblClick(screen.getByRole("button", { name: "Projects" }));
+    expect(win("Projects")).toHaveClass("front");
     await user.click(screen.getByRole("button", { name: "File" }));
     await user.click(screen.getByRole("button", { name: "Open CV" }));
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).toHaveClass("front");
-    expect(win("About me")).not.toHaveClass("front");
+    expect(win("Projects")).not.toHaveClass("front");
+  });
+
+  it("has no About me icon, menu item or window", async () => {
+    const { user } = setup();
+    expect(screen.queryByRole("button", { name: "About me" })).toBeNull();
+    expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Brittany" }));
+    expect(screen.queryByRole("button", { name: "About me" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "View" }));
+    expect(screen.queryByRole("button", { name: "About me" })).toBeNull();
+  });
+
+  it("puts the CV icon first on the desktop", () => {
+    setup();
+    const labels = [...document.querySelectorAll(".icons .icon .label")].map((l) => l.textContent);
+    expect(labels[0]).toBe("CV");
   });
 
   it("Special > Break something shows the system error alert", async () => {
@@ -238,14 +254,14 @@ describe("sound toggle", () => {
 describe("window drag", () => {
   const dragLeft = async (button: number) => {
     const { user } = setup();
-    await user.dblClick(screen.getByRole("button", { name: "About me" }));
-    const about = win("About me");
-    const bar = about.querySelector(".titlebar") as HTMLElement;
-    const before = about.style.left;
+    await user.dblClick(screen.getByRole("button", { name: "CV" }));
+    const cv = win("CV.pdf");
+    const bar = cv.querySelector(".titlebar") as HTMLElement;
+    const before = cv.style.left;
     fireEvent.pointerDown(bar, { button, clientX: 10, clientY: 40, pointerId: 1 });
     fireEvent.pointerMove(bar, { button, clientX: 400, clientY: 300, pointerId: 1 });
     fireEvent.pointerUp(bar, { button, pointerId: 1 });
-    return { before, after: about.style.left };
+    return { before, after: cv.style.left };
   };
 
   it("a primary-button drag moves the window", async () => {
@@ -273,12 +289,12 @@ describe("focus after closing a window", () => {
 
   it("lands on the new top window's close box when another window is open", async () => {
     const { user } = setup();
-    await user.dblClick(screen.getByRole("button", { name: "About me" }));
+    await user.dblClick(screen.getByRole("button", { name: "Projects" }));
     await user.dblClick(screen.getByRole("button", { name: "CV" }));
     const cv = win("CV.pdf");
     within(cv).getByRole("button", { name: "Close" }).focus();
     await user.keyboard("{Enter}");
-    expect(within(win("About me")).getByRole("button", { name: "Close" })).toHaveFocus();
+    expect(within(win("Projects")).getByRole("button", { name: "Close" })).toHaveFocus();
   });
 });
 
@@ -319,12 +335,12 @@ describe("extension seams", () => {
     );
     const { user, container } = setup();
     expect(container.querySelector(".desktop")).toHaveAttribute("data-mode", "phone");
-    await user.click(screen.getByRole("button", { name: "About me" }));
-    const about = win("About me");
-    expect(about).not.toHaveAttribute("hidden");
-    expect(about.style.left).toBe("");
-    expect(about.style.top).toBe("");
-    expect(about.style.width).toBe("");
+    await user.click(screen.getByRole("button", { name: "CV" }));
+    const cv = win("CV.pdf");
+    expect(cv).not.toHaveAttribute("hidden");
+    expect(cv.style.left).toBe("");
+    expect(cv.style.top).toBe("");
+    expect(cv.style.width).toBe("");
   });
 
   it("phone title bar labels the close box: Back for a child window, Close otherwise", async () => {
@@ -346,13 +362,13 @@ describe("extension seams", () => {
       );
     }
     const { user } = setup(<OpenProject />);
-    await user.click(screen.getByRole("button", { name: "About me" }));
+    await user.click(screen.getByRole("button", { name: "Projects" }));
     const label = (el: HTMLElement) => {
       const found = el.querySelector(".titlebar .close-label");
       if (!found) throw new Error("no .close-label in the title bar");
       return found.textContent;
     };
-    expect(label(win("About me"))).toBe(copy.chrome.closeLabel);
+    expect(label(win("Projects"))).toBe(copy.chrome.closeLabel);
     await user.click(screen.getByRole("button", { name: "File" }));
     await user.click(screen.getByRole("button", { name: "Open CV" }));
     expect(label(win("CV.pdf"))).toBe(copy.chrome.closeLabel);
@@ -363,11 +379,11 @@ describe("extension seams", () => {
 
   it("keeps inline left, top and width on desktop", async () => {
     const { user } = setup();
-    await user.dblClick(screen.getByRole("button", { name: "About me" }));
-    const about = win("About me");
-    expect(about.style.width).not.toBe("");
-    expect(about.style.left).not.toBe("");
-    expect(about.style.top).not.toBe("");
+    await user.dblClick(screen.getByRole("button", { name: "CV" }));
+    const cv = win("CV.pdf");
+    expect(cv.style.width).not.toBe("");
+    expect(cv.style.left).not.toBe("");
+    expect(cv.style.top).not.toBe("");
   });
 });
 

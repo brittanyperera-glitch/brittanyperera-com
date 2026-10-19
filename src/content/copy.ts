@@ -104,17 +104,13 @@ export const copy = {
       { label: "About Brittany's Mac", action: "aboutmac" },
       { label: "Restart setup", action: "restart" },
     ] as MenuItem[],
-    brittany: [
-      { label: "About me", open: "about" },
-      { label: "Say hi", open: "contact" },
-    ] as MenuItem[],
+    brittany: [{ label: "Say hi", open: "contact" }] as MenuItem[],
     file: [
       { label: "Open CV", open: "cv" },
       { label: "Download CV (PDF)", action: "download" },
       { label: "Close all windows", action: "closeall" },
     ] as MenuItem[],
     view: [
-      { label: "About me", open: "about" },
       { label: "Projects", open: "projects" },
       { label: music.folderTitle, open: "music" },
       { label: travel.title, open: "travel" },
@@ -130,7 +126,6 @@ export const copy = {
     ] as MenuItem[],
   },
   desktopIcons: [
-    { open: "about", label: "About me", icon: "mac" },
     { open: "cv", label: "CV", icon: "doc" },
     { open: "cvbuilder", label: cvBuilder.title, icon: "game" },
     { open: "projects", label: "Projects", icon: "folder" },
@@ -141,7 +136,6 @@ export const copy = {
     { open: "trash", label: "Trash", icon: "trash" },
   ] as { open: WinId; label: string; icon: IconName }[],
   windowTitles: {
-    about: "About me",
     cv: "CV.pdf",
     projects: "Projects",
     contact: "Say hi",
@@ -180,9 +174,9 @@ export const copy = {
   },
   contactInvite: "want to work together, hire me, or just say hi?",
   firstWindows: {
-    recruiter: ["about", "cv"],
-    collab: ["about", "projects"],
-    client: ["about", "contact"],
-    friend: ["about"],
+    recruiter: ["cv"],
+    collab: ["cv", "projects"],
+    client: ["cv", "contact"],
+    friend: ["cv"],
   } as Record<Visitor, WinId[]>,
 };

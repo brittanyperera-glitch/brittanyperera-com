@@ -4,12 +4,11 @@ import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CvBuilderWindow } from "@/components/apps/CvBuilderWindow";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
-import { about } from "@/content/about";
 import { cvBuilder } from "@/content/cvbuilder";
 import { createGame, type Game, gravityMs, type Kind, type Piece } from "@/lib/tetris";
 import type { WinId } from "@/lib/types";
 
-const TOTAL = about.timeline.length;
+const TOTAL = cvBuilder.entries.length;
 
 /** O piece at the top left; the bottom row is full except the two columns the O will fill. */
 function nearLine(lines = 0): () => Game {
@@ -36,7 +35,7 @@ function Open({ ids }: { ids: WinId[] }) {
 }
 
 const CV_ONLY: WinId[] = ["cvbuilder"];
-const CV_THEN_ABOUT: WinId[] = ["cvbuilder", "about"];
+const CV_THEN_PROJECTS: WinId[] = ["cvbuilder", "projects"];
 
 function setup(startGame?: () => Game, ids: WinId[] = CV_ONLY) {
   render(
@@ -76,9 +75,13 @@ afterEach(() => {
 
 describe("CV Builder content", () => {
   it("has one panel entry and one piece label per timeline entry, in order", () => {
-    expect(cvBuilder.entries).toHaveLength(about.timeline.length);
-    expect(cvBuilder.entries.map((e) => e.when)).toEqual(about.timeline.map((t) => t.when));
-    expect(cvBuilder.entries.every((e) => e.label.length > 0)).toBe(true);
+    expect(cvBuilder.entries).toEqual([
+      { when: "2018", label: "playground" },
+      { when: "2020–24", label: "Oxford" },
+      { when: "2023–24", label: "F1" },
+      { when: "2024", label: "jet engines" },
+      { when: "Now", label: "PangeAI" },
+    ]);
     expect(cvBuilder.pieceLabels.slice(0, TOTAL)).toEqual(cvBuilder.entries.map((e) => e.label));
     expect(cvBuilder.pieceLabels.length).toBeGreaterThan(TOTAL);
   });
@@ -142,8 +145,8 @@ describe("CV Builder window", () => {
   });
 
   it("keys do nothing while another window is in front", () => {
-    setup(nearLine(), CV_THEN_ABOUT);
-    expect(document.querySelector("section[data-win=about]")).toHaveClass("front");
+    setup(nearLine(), CV_THEN_PROJECTS);
+    expect(document.querySelector("section[data-win=projects]")).toHaveClass("front");
     press("ArrowDown");
     press(" ");
     expect(board().dataset.pieceY).toBe("0");
@@ -177,7 +180,7 @@ describe("CV Builder window", () => {
 
   it("pauses while another window is in front, and resumes when it is raised", () => {
     vi.useFakeTimers();
-    setup(nearLine(), CV_THEN_ABOUT);
+    setup(nearLine(), CV_THEN_PROJECTS);
     act(() => {
       vi.advanceTimersByTime(gravityMs(0) * 3);
     });

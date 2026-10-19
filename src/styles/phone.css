@@ -39,7 +39,7 @@
     font-size: 12px;
   }
 
-  /* No :not([hidden]) here: the no-JS stylesheet shows About while it still carries the attribute. */
+  /* No :not([hidden]) here: the no-JS stylesheet shows the CV while it still carries the attribute. */
   .desktop .win {
     position: fixed;
     /* biome-ignore lint/complexity/noImportantStyles: beats the inline desktop position on server-rendered HTML */

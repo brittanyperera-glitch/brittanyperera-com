@@ -23,17 +23,17 @@ async function box(page: Page, selector: string): Promise<Box> {
   return b;
 }
 
-test("dragging About into each of the four corners keeps its title bar reachable", async ({
+test("dragging the CV into each of the four corners keeps its title bar reachable", async ({
   page,
 }, info) => {
   test.skip(info.project.name === "phone", "windows do not drag on a phone");
   await skipSetup(page, "friend");
   await page.goto("/");
-  await expect(win(page, "about")).toBeVisible();
+  await expect(win(page, "cv")).toBeVisible();
   const vp = page.viewportSize();
   if (!vp) throw new Error("no viewport");
-  const barSel = 'section[data-win="about"] .titlebar';
-  const sectionSel = 'section[data-win="about"]';
+  const barSel = 'section[data-win="cv"] .titlebar';
+  const sectionSel = 'section[data-win="cv"]';
 
   for (const c of CORNERS) {
     // Press on the part of the bar that is on screen NOW: after the previous drag the bar's centre
@@ -50,7 +50,7 @@ test("dragging About into each of the four corners keeps its title bar reachable
       ([x, y]) => {
         const el = document.elementFromPoint(x, y);
         return {
-          inBar: !!el?.closest('section[data-win="about"] .titlebar'),
+          inBar: !!el?.closest('section[data-win="cv"] .titlebar'),
           button: !!el?.closest("button"),
         };
       },

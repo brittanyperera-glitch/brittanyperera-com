@@ -41,7 +41,7 @@ html:has(.desktop), body:has(.desktop) { height: auto !important; overflow: auto
 }
 .desktop .win .body { max-height: none !important; overflow: visible !important; }
 @media (max-width: 700px) {
-  .desktop .win[data-win="about"] {
+  .desktop .win[data-win="cv"] {
     margin: 22px 0 0 !important;
     min-height: calc(100dvh - 22px);
   }

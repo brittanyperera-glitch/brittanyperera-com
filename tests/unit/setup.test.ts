@@ -110,6 +110,6 @@ describe("phoneWindow", () => {
     expect(phoneWindow("recruiter")).toBe("cv");
     expect(phoneWindow("collab")).toBe("projects");
     expect(phoneWindow("client")).toBe("contact");
-    expect(phoneWindow("friend")).toBe("about");
+    expect(phoneWindow("friend")).toBe("cv");
   });
 });

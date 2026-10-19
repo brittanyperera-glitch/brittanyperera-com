@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { about } from "@/content/about";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
@@ -25,7 +24,6 @@ function walk(node: unknown, path: string, out: Walked[]): Walked[] {
 
 const all = [
   ...walk(copy, "copy", []),
-  ...walk(about, "about", []),
   ...walk(projects, "projects", []),
   ...walk(cv, "cv", []),
   ...walk(contact, "contact", []),
@@ -34,10 +32,7 @@ const all = [
   ...walk({ cvBuilder, music, travel, photos }, "apps", []),
 ];
 
-const wordExempt = (p: string) =>
-  /^about\.timeline\[\d+\]\.text$/.test(p) ||
-  /^projects\[\d+\]\.blurb$/.test(p) ||
-  p.startsWith("cv");
+const wordExempt = (p: string) => /^projects\[\d+\]\.blurb$/.test(p) || p.startsWith("cv");
 
 describe("content strings", () => {
   it("collects strings from every module", () => {
@@ -68,11 +63,29 @@ describe("content strings", () => {
   });
   it("opens the right first windows per visitor", () => {
     expect(copy.firstWindows).toEqual({
-      recruiter: ["about", "cv"],
-      collab: ["about", "projects"],
-      client: ["about", "contact"],
-      friend: ["about"],
+      recruiter: ["cv"],
+      collab: ["cv", "projects"],
+      client: ["cv", "contact"],
+      friend: ["cv"],
     });
+  });
+  it("has no About me window, icon or menu item (the Apple menu's About Brittany's Mac stays)", () => {
+    const menus = [...copy.menus.brittany, ...copy.menus.view, ...copy.menus.apple];
+    expect(copy.desktopIcons.some((i) => i.open === ("about" as string))).toBe(false);
+    expect(menus.some((m) => "open" in m && m.open === ("about" as string))).toBe(false);
+    expect(menus.some((m) => /about me/i.test(m.label))).toBe(false);
+    expect(copy.desktopIcons.some((i) => /about me/i.test(i.label))).toBe(false);
+    expect("about" in copy.windowTitles).toBe(false);
+    expect(Object.values(copy.firstWindows).flat()).not.toContain("about");
+    expect(copy.menus.apple.some((m) => m.label === "About Brittany's Mac")).toBe(true);
+  });
+  it("lists CV as the first desktop icon", () => {
+    expect(copy.desktopIcons[0].open).toBe("cv");
+  });
+  it("describes the site in the agreed meta description", () => {
+    expect(meta.description).toBe(
+      "Brittany Perera. Geospatial engineer at PangeAI. CV and side projects.",
+    );
   });
   it("builds the copy-failed alert from the contact email", () => {
     expect(copy.alerts.copyEmailFailed).toContain(contact.email);

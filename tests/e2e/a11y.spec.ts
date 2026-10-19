@@ -5,14 +5,17 @@ import { openWin, settle, skipSetup, win } from "./helpers";
 
 test.beforeEach(async ({ page }, info) => {
   test.skip(info.project.name === "phone", "keyboard flows are checked on the desktop");
-  // "friend" opens only About, so CV starts closed.
   await skipSetup(page, "friend");
   await page.goto("/");
   await settle(page, info);
 });
 
 test("Tab reaches the CV icon and Enter opens it", async ({ page }) => {
+  // Every first-window set opens the CV, so close it, then start the Tab walk from the page top.
+  await expect(win(page, "cv")).toBeVisible();
+  await win(page, "cv").locator(".close").click();
   await expect(win(page, "cv")).toBeHidden();
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   const cvIcon = page.locator('.icons [data-open="cv"]');
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press("Tab");

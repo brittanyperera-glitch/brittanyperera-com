@@ -5,7 +5,14 @@ test("home page responds and renders the desktop shell", async ({ page }) => {
   const res = await page.goto("/");
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("button", { name: "Special" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "About me" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "CV", exact: true })).toBeVisible();
+});
+
+test("there is no About me icon and no About me window", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "About me" })).toHaveCount(0);
+  await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
+  await expect(page.getByText("About me", { exact: true })).toHaveCount(0);
 });
 
 test("the desktop page has one main landmark and one h1 carrying the site title", async ({

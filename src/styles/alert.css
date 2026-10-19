@@ -14,7 +14,7 @@
   min-height: 24px;
   box-shadow: inset 1px 1px 0 #fff;
 }
-/* The same button face on a real link: About's "Open CV" has to work without JavaScript. */
+/* The same button face on a real link (the 404 page's Restart). */
 a.pbtn {
   display: inline-block;
   box-sizing: border-box;

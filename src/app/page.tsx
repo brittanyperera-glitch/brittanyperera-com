@@ -1,7 +1,6 @@
 import { appWindows } from "@/components/apps/appWindows";
 import { Desktop } from "@/components/desktop/Desktop";
 import { SetupFlow } from "@/components/setup/SetupFlow";
-import { AboutWindow } from "@/components/windows/AboutWindow";
 import { ContactWindow } from "@/components/windows/ContactWindow";
 import { CvWindow } from "@/components/windows/CvWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
@@ -15,7 +14,6 @@ import "@/styles/desktop.css";
 import "@/styles/windows.css";
 
 const windows: Partial<Record<WinId, React.ReactNode>> = {
-  about: <AboutWindow />,
   cv: <CvWindow />,
   projects: <ProjectsWindow />,
   contact: <ContactWindow />,

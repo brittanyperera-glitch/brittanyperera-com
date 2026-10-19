@@ -3,7 +3,6 @@ export type Visitor = "recruiter" | "collab" | "client" | "friend";
 export type ProjectId = "trip" | "delulu" | "whereflix" | "gift" | "schengen";
 
 export type WinId =
-  | "about"
   | "cv"
   | "projects"
   | "contact"

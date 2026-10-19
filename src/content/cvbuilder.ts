@@ -1,9 +1,14 @@
 // Drafts for Brittany's approval.
-import { about } from "./about";
 import { cv } from "./cv";
 
-// One short label per about.timeline entry, same order; a test keeps the lengths equal.
-const timelineLabels = ["playground", "Oxford", "F1", "jet engines", "PangeAI"];
+// Panel rows, in the order their pieces fall: the `when` plus a short label.
+const timeline = [
+  { when: "2018", label: "playground" },
+  { when: "2020–24", label: "Oxford" },
+  { when: "2023–24", label: "F1" },
+  { when: "2024", label: "jet engines" },
+  { when: "Now", label: "PangeAI" },
+];
 
 export const cvBuilder = {
   title: "CV Builder",
@@ -18,10 +23,9 @@ export const cvBuilder = {
   linesLabel: "lines",
   pausedLabel: "paused",
   hint: "arrows to move and turn, space to drop it fast",
-  /** Panel rows: about.timeline's `when` plus a short label. */
-  entries: about.timeline.map((t, i) => ({ when: t.when, label: timelineLabels[i] ?? "" })),
+  entries: timeline,
   /** Falling pieces carry these in order, then the skills, then round again. */
-  pieceLabels: [...timelineLabels, ...cv.skills],
+  pieceLabels: [...timeline.map((t) => t.label), ...cv.skills],
   controls: {
     left: { label: "move left", glyph: "←" },
     rotate: { label: "rotate", glyph: "↻" },
