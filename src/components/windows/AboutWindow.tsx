@@ -32,9 +32,18 @@ export function AboutWindow() {
         ))}
       </ul>
       <p className="actions">
-        <button type="button" className="pbtn" onClick={() => open("cv")}>
+        <a
+          href="/cv"
+          className="pbtn"
+          onClick={(e) => {
+            // Modified and non-primary clicks keep the link's own behaviour.
+            if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            open("cv");
+          }}
+        >
           {copy.menus.file[0].label}
-        </button>{" "}
+        </a>{" "}
         <button type="button" className="pbtn" onClick={() => open("projects")}>
           {copy.windowTitles.projects}
         </button>{" "}

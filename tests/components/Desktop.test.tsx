@@ -327,6 +327,40 @@ describe("extension seams", () => {
     expect(about.style.width).toBe("");
   });
 
+  it("phone title bar labels the close box: Back for a child window, Close otherwise", async () => {
+    vi.spyOn(window, "matchMedia").mockImplementation(
+      (query: string) =>
+        ({
+          matches: true,
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        }) as unknown as MediaQueryList,
+    );
+    function OpenProject() {
+      const { open } = useDesktop();
+      return (
+        <button type="button" onClick={() => open(`project:${projects[0].id}`)}>
+          open project
+        </button>
+      );
+    }
+    const { user } = setup(<OpenProject />);
+    await user.click(screen.getByRole("button", { name: "About me" }));
+    const label = (el: HTMLElement) => {
+      const found = el.querySelector(".titlebar .close-label");
+      if (!found) throw new Error("no .close-label in the title bar");
+      return found.textContent;
+    };
+    expect(label(win("About me"))).toBe(copy.chrome.closeLabel);
+    await user.click(screen.getByRole("button", { name: "File" }));
+    await user.click(screen.getByRole("button", { name: "Open CV" }));
+    expect(label(win("CV.pdf"))).toBe(copy.chrome.closeLabel);
+    await user.click(screen.getByRole("button", { name: "open project" }));
+    expect(win(projects[0].title)).not.toHaveAttribute("hidden");
+    expect(label(win(projects[0].title))).toBe(copy.chrome.back);
+  });
+
   it("keeps inline left, top and width on desktop", async () => {
     const { user } = setup();
     await user.dblClick(screen.getByRole("button", { name: "About me" }));

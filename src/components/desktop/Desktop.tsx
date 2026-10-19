@@ -58,6 +58,8 @@ export type DesktopApi = {
   runAction(name: string): void;
   soundOn: boolean;
   toggleSound(): void;
+  /** True while a full-screen overlay (boot, Setup Assistant) is up: the desktop goes inert behind it. */
+  setBusy(busy: boolean): void;
 };
 
 const DesktopCtx = createContext<DesktopApi | null>(null);
@@ -99,7 +101,7 @@ function playChime() {
 
 type DesktopProps = {
   windows: Partial<Record<WinId, ReactNode>>;
-  /** Rendered inside the alert and desktop context (the setup flow plugs in here). */
+  /** Rendered beside the desktop, inside its alert and desktop context (the setup flow plugs in here). */
   children?: ReactNode;
 };
 
@@ -109,6 +111,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const [state, dispatch] = useReducer(windowsReducer, initialWindows);
   const [accent, setAccent] = useState(copy.setup.swatches[0].hex);
   const [soundOn, setSoundOn] = useState(false);
+  const [busy, setBusy] = useState(false);
   const closedId = useRef<WinId | null>(null);
 
   // Re-clamp every open window to the current viewport. Only open windows are measured: a hidden
@@ -292,6 +295,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
       runAction,
       soundOn,
       toggleSound,
+      setBusy,
     }),
     [state, open, close, focus, accent, actions, runAction, soundOn, toggleSound],
   );
@@ -306,7 +310,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
 
   return (
     <DesktopCtx.Provider value={api}>
-      <div className="desktop" data-mode={state.mode} inert={alertOpen}>
+      <div className="desktop" data-mode={state.mode} inert={alertOpen || busy}>
         <MenuBar />
         <DesktopIcons />
         {ids.map(({ id, title }) => (
@@ -314,8 +318,9 @@ function DesktopInner({ windows, children }: DesktopProps) {
             {windows[id]}
           </Window>
         ))}
-        {children}
       </div>
+      {/* Beside the desktop, not in it: the overlays must stay live while the desktop is inert. */}
+      {children}
     </DesktopCtx.Provider>
   );
 }

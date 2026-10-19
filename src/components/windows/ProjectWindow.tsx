@@ -8,7 +8,7 @@ export function ProjectWindow({ project }: { project: Project }) {
   const { embed, link } = project;
   return (
     <>
-      <h3>{project.title}</h3>
+      <h3>{project.heading}</h3>
       <p>{project.blurb}</p>
       {embed && (
         <div className="shot well">

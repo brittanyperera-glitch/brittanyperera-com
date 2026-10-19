@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import { copy } from "@/content/copy";
 import type { WinId } from "@/lib/types";
-import { topWindow } from "@/lib/windows";
+import { parentOf, topWindow } from "@/lib/windows";
 import { useDesktop } from "./Desktop";
 import { measureTitle } from "./titleMetrics";
 
@@ -42,6 +42,8 @@ export function Window({
   const phone = state.mode === "phone";
   const place = PLACEMENT[id] ?? FALLBACK;
   const pos = state.pos[id];
+  // On a phone the close box is the only way out, so it says where it goes.
+  const closeLabel = parentOf(id) ? copy.chrome.back : copy.chrome.closeLabel;
 
   // On every desktop open, not only the first: turn the default (possibly percentage) position into
   // a clamped pixel one, as the mockup's openWin does. This also rescues a window whose stored
@@ -121,9 +123,13 @@ export function Window({
         <button
           type="button"
           className="close"
-          aria-label={copy.chrome.close}
+          aria-label={phone ? closeLabel : copy.chrome.close}
           onClick={() => close(id)}
-        />
+        >
+          <span className="close-label" aria-hidden="true">
+            {closeLabel}
+          </span>
+        </button>
         <span className="t">{title}</span>
         <span className="zoom" aria-hidden="true" />
       </div>

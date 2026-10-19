@@ -7,6 +7,7 @@ import { copy } from "@/content/copy";
 import { initialSetup, phoneWindow, setupReducer } from "@/lib/setup";
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { Visitor } from "@/lib/types";
+import { topWindow } from "@/lib/windows";
 import "@/styles/phone.css";
 import "@/styles/setup.css";
 import { BOOT_ICONS, Boot } from "./Boot";
@@ -20,6 +21,9 @@ const BOOT_MS = 900;
 const MARCH_START_MS = 200;
 const MARCH_STEP_MS = 220;
 const SPLASH_TAIL_MS = 400;
+// Reduced motion: no happy-Mac hold and no icon march, just a beat so the screen does not flash.
+const REDUCED_BOOT_MS = 0;
+const REDUCED_SPLASH_MS = 200;
 const HELLO_MS = 1800;
 const INSTALL_TAIL_MS = 700;
 
@@ -32,7 +36,7 @@ const isHex = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-f]{
  * runs the assistant; on finishing it opens that visitor's windows.
  */
 export function SetupFlow() {
-  const { open, setAccent, accent: deskAccent, state: desk } = useDesktop();
+  const { open, setAccent, setBusy, accent: deskAccent, state: desk } = useDesktop();
   const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [s, dispatch] = useReducer(setupReducer, deskAccent, initialSetup);
@@ -41,6 +45,11 @@ export function SetupFlow() {
   const [installLine, setInstallLine] = useState(-1);
   const [reduced, setReduced] = useState(false);
   const finished = useRef(false);
+  const resumed = useRef(false);
+  // Set when this visit's setup ends. Focus moves once the windows are open and the desktop has
+  // stopped being inert. On a phone the laptop alert waits for that, so dismissing it hands focus
+  // back to the close box rather than <body>.
+  const focusPending = useRef<{ phone: boolean } | null>(null);
 
   // Storage and matchMedia are read after hydration, before paint, so a returning visitor does not
   // see the boot screen flash and the server render stays identical to the first client render.
@@ -50,13 +59,28 @@ export function SetupFlow() {
     if (saved && isVisitor(saved.visitor)) {
       const accent = readJSON<unknown>(ACCENT_KEY, null);
       if (isHex(accent)) dispatch({ type: "pickAccent", accent });
+      resumed.current = true;
       dispatch({ type: "resume", visitor: saved.visitor });
     }
   }, []);
 
+  // Everything but the overlays is inert, and unreachable by Tab, until setup is over.
+  useLayoutEffect(() => {
+    setBusy(s.phase !== "done");
+    return () => setBusy(false);
+  }, [s.phase, setBusy]);
+
   useEffect(() => {
     if (s.phase === "boot") {
-      const t = window.setTimeout(() => dispatch({ type: "tick" }), BOOT_MS);
+      const t = window.setTimeout(
+        () => dispatch({ type: "tick" }),
+        reduced ? REDUCED_BOOT_MS : BOOT_MS,
+      );
+      return () => window.clearTimeout(t);
+    }
+    if (s.phase === "splash" && reduced) {
+      setMarched(BOOT_ICONS.length);
+      const t = window.setTimeout(() => dispatch({ type: "tick" }), REDUCED_SPLASH_MS);
       return () => window.clearTimeout(t);
     }
     if (s.phase === "splash") {
@@ -73,7 +97,7 @@ export function SetupFlow() {
         for (const id of ids) window.clearTimeout(id);
       };
     }
-  }, [s.phase]);
+  }, [s.phase, reduced]);
 
   const onIntro = s.phase === "steps" && s.step === 0;
   useEffect(() => {
@@ -116,13 +140,26 @@ export function SetupFlow() {
     writeJSON(DONE_KEY, { visitor: s.visitor });
     writeJSON(ACCENT_KEY, s.accent);
     setAccent(s.accent);
-    if (desk.mode === "phone") {
+    const phone = desk.mode === "phone";
+    if (!resumed.current) focusPending.current = { phone };
+    if (phone) {
       open(phoneWindow(s.visitor));
-      alert({ icon: "note", body: copy.alerts.phone });
+      if (resumed.current) alert({ icon: "note", body: copy.alerts.phone });
     } else {
       for (const id of copy.firstWindows[s.visitor]) open(id);
     }
   }, [s.phase, s.visitor, s.accent, desk.mode, open, setAccent, alert]);
+
+  // Once the windows are open and the desktop is no longer inert, put keyboard focus on the front
+  // window's close box instead of leaving it on <body>.
+  const front = topWindow(desk);
+  useEffect(() => {
+    const pending = focusPending.current;
+    if (!pending || s.phase !== "done" || !front) return;
+    focusPending.current = null;
+    document.querySelector<HTMLElement>(`section[data-win="${front}"] .close`)?.focus();
+    if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
+  }, [s.phase, front, alert]);
 
   if (s.phase === "done") return null;
 

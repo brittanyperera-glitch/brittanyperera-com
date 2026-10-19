@@ -1,8 +1,10 @@
 import { type CSSProperties, useEffect, useRef } from "react";
+import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { PixelIcon } from "@/components/PixelIcon";
 import { copy } from "@/content/copy";
 import type { SetupState } from "@/lib/setup";
 import type { Visitor } from "@/lib/types";
+import { useFocusTrap } from "./useFocusTrap";
 
 const STEP_TITLE_ID = "setup-step-title";
 
@@ -46,6 +48,9 @@ export function SetupAssistant({
 }: Props) {
   const s = copy.setup;
   const nextRef = useRef<HTMLButtonElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const alertOpen = useAlertOpen();
+  useFocusTrap(rootRef, !alertOpen);
   const last = step === s.steps.length - 1;
   const visitorLabel = s.visitors.find((v) => v.id === visitor)?.label ?? visitor;
   const swatch = s.swatches.find((w) => w.hex === accent);
@@ -58,7 +63,7 @@ export function SetupAssistant({
   }, []);
 
   return (
-    <div className="setup" role="dialog" aria-modal="true" aria-label={s.windowTitle}>
+    <div ref={rootRef} className="setup" role="dialog" aria-modal="true" aria-label={s.windowTitle}>
       <div className="assistant bevel">
         <div className="titlebar">
           <span className="t">{s.windowTitle}</span>

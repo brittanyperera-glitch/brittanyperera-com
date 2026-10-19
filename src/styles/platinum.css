@@ -152,6 +152,11 @@ a {
   cursor: pointer;
 }
 
+/* The phone stylesheet turns this on; on a desktop the close box is a bare square. */
+.titlebar .close-label {
+  display: none;
+}
+
 .titlebar .close::after {
   content: "";
   position: absolute;

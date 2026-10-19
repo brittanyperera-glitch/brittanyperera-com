@@ -6,6 +6,7 @@ import { cv } from "@/content/cv";
 
 export function CvWindow() {
   const { actions } = useDesktop();
+  const edu = cv.education[0];
   return (
     <>
       <h3>{cv.name}</h3>
@@ -23,6 +24,11 @@ export function CvWindow() {
           <span className="when">{r.when}</span>
         </p>
       ))}
+      <p>
+        <b>{edu.title}</b>
+        <span className="org">{edu.org}</span>
+        <span className="when">{edu.when}</span>
+      </p>
       <p>
         <button type="button" className="pbtn default" onClick={actions.download}>
           {cv.downloadLabel}

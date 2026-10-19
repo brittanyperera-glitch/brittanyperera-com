@@ -22,12 +22,30 @@ export const metadata: Metadata = {
   },
 };
 
-// Only parsed when scripting is off: the boot and setup overlays need JavaScript to ever go away,
-// so hide them and show About me instead of a frozen boot screen.
+// Only parsed when scripting is off. The boot and setup overlays need JavaScript to ever go away, so
+// hide them, and lay the windows out as a plain readable column (menus, icons and the Projects
+// folder are all buttons that do nothing without scripts). !important beats the inline desktop
+// placement and the phone stylesheet's full-screen rules.
 const NO_JS_CSS = `
 .boot, .setup { display: none !important; }
-.win[data-win="about"][hidden] { display: block; }
-@media (max-width: 700px) { .win[data-win="about"][hidden] { display: flex; } }
+html:has(.desktop), body:has(.desktop) { height: auto !important; overflow: auto !important; }
+.desktop { position: static !important; }
+.desktop .menubar, .desktop .icons, .desktop .win[data-win="projects"] { display: none !important; }
+.desktop .win, .desktop .win[hidden] {
+  display: block !important;
+  position: static !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 12px !important;
+  z-index: auto !important;
+}
+.desktop .win .body { max-height: none !important; overflow: visible !important; }
+@media (max-width: 700px) {
+  .desktop .win[data-win="about"] {
+    margin: 22px 0 0 !important;
+    min-height: calc(100dvh - 22px);
+  }
+}
 `;
 
 export default function RootLayout({ children }: { children: ReactNode }) {

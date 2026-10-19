@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { contact } from "../../src/content/contact";
 import { copy } from "../../src/content/copy";
-import { settle, skipSetup, win } from "./helpers";
+import { openWin, settle, skipSetup, win } from "./helpers";
 
 test.beforeEach(async ({ page }, info) => {
   test.skip(info.project.name === "phone", "keyboard flows are checked on the desktop");
@@ -54,4 +55,23 @@ test("focus returns to the menu title after an alert raised from a menu item", a
   await page.keyboard.press("Escape");
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
   await expect(special).toBeFocused();
+});
+
+test("the address in the copy-failed alert can be selected", async ({ page }) => {
+  await page.evaluate(() =>
+    Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true }),
+  );
+  await openWin(page, "contact");
+  await win(page, "contact").getByRole("button", { name: copy.windows.copyEmail }).click();
+  const alert = page.getByRole("alertdialog");
+  await expect(alert).toContainText(contact.email);
+
+  const userSelect = await alert
+    .locator(".alert-main")
+    .evaluate((el) => getComputedStyle(el).userSelect);
+  expect(userSelect).toBe("text");
+
+  await alert.locator("#alert-body").click({ clickCount: 3 });
+  const selected = await page.evaluate(() => window.getSelection()?.toString() ?? "");
+  expect(selected).toContain(contact.email);
 });

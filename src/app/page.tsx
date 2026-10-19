@@ -6,6 +6,7 @@ import { CvWindow } from "@/components/windows/CvWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
 import { ProjectWindow } from "@/components/windows/ProjectWindow";
 import { TrashWindow } from "@/components/windows/TrashWindow";
+import { meta } from "@/content/meta";
 import { projects } from "@/content/projects";
 import type { WinId } from "@/lib/types";
 import "@/styles/platinum.css";
@@ -25,8 +26,11 @@ const windows: Partial<Record<WinId, React.ReactNode>> = {
 
 export default function Home() {
   return (
-    <Desktop windows={windows}>
-      <SetupFlow />
-    </Desktop>
+    <main>
+      <h1 className="sr-only">{meta.title}</h1>
+      <Desktop windows={windows}>
+        <SetupFlow />
+      </Desktop>
+    </main>
   );
 }

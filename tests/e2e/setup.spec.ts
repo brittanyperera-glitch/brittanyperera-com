@@ -58,6 +58,57 @@ test("Special > Restart setup > Restart brings setup back", async ({ page }, inf
   });
 });
 
+test("Tab during the Setup Assistant never leaves it for the menu bar behind", async ({ page }) => {
+  await page.goto("/");
+  const dialog = page.getByRole("dialog", { name: copy.setup.windowTitle });
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
+  for (let i = 0; i < 5; i++) {
+    await page.keyboard.press("Tab");
+    const where = await page.evaluate(() => {
+      const el = document.activeElement;
+      return {
+        inSetup: !!el?.closest(".setup"),
+        inMenuBar: !!el?.closest(".menubar"),
+        desc: `${el?.tagName}.${el?.className}`,
+      };
+    });
+    expect(where.inMenuBar, `Tab ${i + 1} reached the menu bar`).toBe(false);
+    expect(where.inSetup, `Tab ${i + 1} focused ${where.desc} outside the assistant`).toBe(true);
+  }
+});
+
+test("Tab on the boot screen keeps focus on the boot button", async ({ page }) => {
+  await page.goto("/");
+  const boot = page.locator(".boot");
+  await expect(boot).toBeFocused({ timeout: 10_000 });
+  await page.keyboard.press("Tab");
+  await expect(page.locator(".menubar button:focus")).toHaveCount(0);
+});
+
+test("after setup, focus lands on the front window's close box instead of <body>", async ({
+  page,
+}, info) => {
+  await page.goto("/");
+  await runAssistant(page, "recruiter");
+  await expectRecruiterLanding(page, isPhone(info));
+  if (isPhone(info)) await page.keyboard.press("Escape");
+  await expect(win(page, "cv").locator(".close")).toBeFocused();
+});
+
+test.describe("reduced motion", () => {
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
+
+  test("the Setup Assistant is visible within a second, with nothing cycling", async ({ page }) => {
+    const dialog = page.getByRole("dialog", { name: copy.setup.windowTitle });
+    await page.goto("/");
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await page.reload();
+    await expect(dialog).toBeVisible({ timeout: 1000 });
+    await expect(page.locator(".hello")).toHaveCount(0);
+    await expect(page.locator(".hello-all [lang]")).toHaveCount(copy.setup.hello.length);
+  });
+});
+
 test("setup completes with no page errors when localStorage throws", async ({ page }, info) => {
   const errors = collectPageErrors(page);
   await page.addInitScript(() => {

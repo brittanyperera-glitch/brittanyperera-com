@@ -1,6 +1,9 @@
+import { useEffect, useRef } from "react";
+import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { PixelIcon } from "@/components/PixelIcon";
 import { copy } from "@/content/copy";
 import type { IconName } from "@/lib/types";
+import { useFocusTrap } from "./useFocusTrap";
 
 /** The project icons that march along the bottom of the splash, one every 220ms. */
 export const BOOT_ICONS: IconName[] = [
@@ -26,8 +29,13 @@ export function Boot({
   onSkip: () => void;
 }) {
   const pct = Math.round((marched / BOOT_ICONS.length) * 100);
+  const ref = useRef<HTMLButtonElement>(null);
+  const alertOpen = useAlertOpen();
+  // Enter or Space skips from the first keypress, and Tab cannot reach the page behind.
+  useEffect(() => ref.current?.focus(), []);
+  useFocusTrap(ref, !alertOpen);
   return (
-    <button type="button" className="boot" data-phase={phase} onClick={onSkip}>
+    <button ref={ref} type="button" className="boot" data-phase={phase} onClick={onSkip}>
       {phase === "boot" ? (
         <span className="happy">
           <PixelIcon name="happymac" size={64} />

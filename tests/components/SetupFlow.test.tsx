@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Desktop } from "@/components/desktop/Desktop";
 import { SetupFlow } from "@/components/setup/SetupFlow";
@@ -225,5 +225,77 @@ describe("SetupFlow", () => {
     renderFlow();
     expect(win("Say hi")).not.toHaveAttribute("hidden");
     expect(win("About me")).toHaveAttribute("hidden");
+  });
+});
+
+describe("SetupFlow focus and motion", () => {
+  const desktopEl = (c: HTMLElement) => c.querySelector(".desktop") as HTMLElement;
+
+  it("keeps the desktop inert behind the boot screen, focuses its button, and frees it after", () => {
+    const { container } = renderFlow();
+    expect(desktopEl(container)).toHaveAttribute("inert");
+    expect(bootOverlay(container)).toHaveFocus();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(desktopEl(container)).not.toHaveAttribute("inert");
+  });
+
+  it("keeps the desktop inert behind the Setup Assistant", () => {
+    const { container } = renderFlow();
+    throughBoot();
+    expect(setupDialog()).not.toBeNull();
+    expect(desktopEl(container)).toHaveAttribute("inert");
+  });
+
+  it("Tab wraps inside the assistant in both directions", () => {
+    renderFlow();
+    throughBoot();
+    const dialog = setupDialog() as HTMLElement;
+    const next = screen.getByRole("button", { name: /Continue/ });
+    expect(next).toHaveFocus();
+    fireEvent.keyDown(next, { key: "Tab" });
+    expect(screen.getByRole("button", { name: copy.setup.skip })).toHaveFocus();
+    fireEvent.keyDown(document.activeElement as Element, { key: "Tab", shiftKey: true });
+    expect(next).toHaveFocus();
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+
+  it("Tab with focus outside the assistant pulls it back in", () => {
+    renderFlow();
+    throughBoot();
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "Tab" });
+    expect((setupDialog() as HTMLElement).contains(document.activeElement)).toBe(true);
+  });
+
+  it("after setup, focus lands on the front window's close box, not <body>", () => {
+    renderFlow();
+    runToConclusion(/I'm hiring/);
+    click(copy.setup.goAhead);
+    advance(20000);
+    expect(setupDialog()).toBeNull();
+    expect(within(win("CV.pdf")).getByRole("button", { name: "Close" })).toHaveFocus();
+  });
+
+  it("after Esc skips setup, focus lands on a window's close box", () => {
+    renderFlow();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toHaveClass("close");
+  });
+
+  it("reduced motion reaches the assistant within half a second", () => {
+    mockMedia([REDUCED]);
+    renderFlow();
+    expect(setupDialog()).toBeNull();
+    // Two acts, as in throughBoot: the splash timer is only set once the splash has rendered.
+    advance(250);
+    advance(250);
+    expect(setupDialog()).not.toBeNull();
+  });
+
+  it("motion allowed still takes the full boot and splash", () => {
+    renderFlow();
+    advance(500);
+    expect(setupDialog()).toBeNull();
   });
 });

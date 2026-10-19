@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useEffect } from "react";
 import { describe, expect, it } from "vitest";
@@ -11,6 +11,7 @@ import { ProjectWindow } from "@/components/windows/ProjectWindow";
 import { TrashWindow } from "@/components/windows/TrashWindow";
 import { about } from "@/content/about";
 import { copy } from "@/content/copy";
+import { cv } from "@/content/cv";
 import { projects } from "@/content/projects";
 import { trash } from "@/content/trash";
 import type { WinId } from "@/lib/types";
@@ -59,11 +60,16 @@ describe("About", () => {
     }
   });
 
-  it("Open CV opens the CV window", async () => {
+  // The review (I1) made this a real link so it works without JavaScript, so it is no longer a
+  // button; with JavaScript the click is intercepted and opens the CV window instead of navigating.
+  it("Open CV is a real /cv link that opens the CV window instead of navigating", async () => {
     const user = setup(["about"]);
     expect(win("cv")).toHaveAttribute("hidden");
-    await user.click(within(win("about")).getByRole("button", { name: copy.menus.file[0].label }));
+    const link = within(win("about")).getByRole("link", { name: copy.menus.file[0].label });
+    expect(link).toHaveAttribute("href", "/cv");
+    await user.click(link);
     expect(win("cv")).not.toHaveAttribute("hidden");
+    expect(fireEvent.click(link)).toBe(false);
   });
 });
 
@@ -72,6 +78,17 @@ describe("CV", () => {
     const user = setup(["cv"]);
     await user.click(within(win("cv")).getByRole("button", { name: "Download PDF" }));
     expect(screen.getByRole("alertdialog")).toHaveTextContent(copy.alerts.download);
+  });
+
+  it("shows the MEng line from the mockup and capitalises Now", () => {
+    setup(["cv"]);
+    const w = within(win("cv"));
+    const edu = cv.education[0];
+    expect(w.getByText(edu.title)).toBeInTheDocument();
+    expect(w.getByText(edu.org, { exact: false })).toBeInTheDocument();
+    expect(w.getByText(edu.when, { exact: false })).toBeInTheDocument();
+    expect(w.getByText("Now")).toBeInTheDocument();
+    expect(w.queryByText("now")).toBeNull();
   });
 
   it("links to the full CV page with a plain anchor", () => {
@@ -99,6 +116,22 @@ describe("Projects", () => {
 });
 
 describe("Project windows", () => {
+  it("headings match the mockup: the trip and gift windows use their own heading", () => {
+    const heading = (id: string) => {
+      setup([`project:${id}` as WinId]);
+      return within(win(`project:${id}`)).getByRole("heading").textContent;
+    };
+    expect(heading("trip")).toBe("Group trip planner");
+    cleanup();
+    expect(heading("gift")).toBe("The Perfect Gift Finder");
+    cleanup();
+    for (const p of projects) {
+      setup([`project:${p.id}` as WinId]);
+      expect(within(win(`project:${p.id}`)).getByRole("heading").textContent).toBe(p.heading);
+      cleanup();
+    }
+  });
+
   it("trip has the guest note, an iframe with the embed URL and the link label", () => {
     setup(["project:trip"]);
     const w = within(win("project:trip"));

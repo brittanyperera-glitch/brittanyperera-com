@@ -63,10 +63,23 @@
     height: 34px;
   }
 
+  /* The close box carries its own label ("Close", or "Back" for a project), so it grows to fit it. */
   .desktop .win .titlebar .close {
-    width: 26px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    min-width: 26px;
     height: 26px;
     top: 3px;
+    padding: 0 8px;
+    font: inherit;
+    color: inherit;
+  }
+
+  .desktop .win .titlebar .close .close-label {
+    display: inline;
+    white-space: nowrap;
   }
 
   .desktop .win .titlebar .zoom {

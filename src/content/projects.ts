@@ -3,6 +3,8 @@ import type { IconName, ProjectId } from "@/lib/types";
 export type Project = {
   id: ProjectId;
   title: string;
+  /** The window's h3, when the mockup words it differently from the folder label. */
+  heading: string;
   icon: IconName;
   blurb: string;
   tags: string[];
@@ -14,6 +16,7 @@ export const projects: Project[] = [
   {
     id: "trip",
     title: "Trip Planner",
+    heading: "Group trip planner",
     icon: "palm",
     blurb:
       "Five friends, one Sri Lanka trip, too many opinions. Everyone rates activities Must, Keen, Meh or Skip; it builds a plan for each person, then a group plan, and settles arguments with head-to-head votes.",
@@ -27,6 +30,7 @@ export const projects: Project[] = [
   {
     id: "delulu",
     title: "100 Days of Delulu",
+    heading: "100 Days of Delulu",
     icon: "heart",
     blurb:
       "A shared site for a couple's 100-day challenge. Now becoming a free template anyone can use.",
@@ -39,6 +43,7 @@ export const projects: Project[] = [
   {
     id: "whereflix",
     title: "Whereflix",
+    heading: "Whereflix",
     icon: "film",
     blurb: "Type a film or show, see every service it is streaming on.",
     tags: ["Next.js"],
@@ -46,6 +51,7 @@ export const projects: Project[] = [
   {
     id: "gift",
     title: "Gift Finder",
+    heading: "The Perfect Gift Finder",
     icon: "gift",
     blurb:
       "Interviews you about someone, tells you which direction to go (or not), then finds real gifts with prices and links.",
@@ -54,6 +60,7 @@ export const projects: Project[] = [
   {
     id: "schengen",
     title: "SchengenKit",
+    heading: "SchengenKit",
     icon: "passport",
     blurb: "An iPhone app that counts your days in the Schengen area so you never overstay.",
     tags: ["iOS", "Swift"],

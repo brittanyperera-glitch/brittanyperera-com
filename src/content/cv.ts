@@ -14,7 +14,7 @@ export const cv = {
     {
       title: "Geospatial Engineer",
       org: "PangeAI",
-      when: "now",
+      when: "Now",
       summary:
         "Working with satellite images and extracting analysis from them for hazards, risks and changes to the earth over time.",
       bullets: [] as string[],
