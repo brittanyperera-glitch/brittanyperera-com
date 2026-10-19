@@ -62,19 +62,27 @@ describe("new desktop apps", () => {
     }
   });
 
-  it("stub windows render a title heading and nothing else", () => {
+  // Windows whose content is all Brittany's (still pending) show only their title until it lands.
+  it("input-only windows render a title heading and nothing else while empty", () => {
     setup();
     const body = (id: string) =>
       document.querySelector(`section[data-win="${id}"] .body`) as HTMLElement;
     for (const [id, title] of [
-      ["cvbuilder", cvBuilder.title],
-      ["travel", travel.title],
       ["photos", photos.title],
       ["garage", music.appName],
     ] as const) {
       expect(body(id).textContent, id).toBe(title);
       expect(body(id).querySelector("h3"), id).toHaveTextContent(title);
     }
+  });
+
+  it("travel shows the map, with no placeholder text", () => {
+    setup();
+    const win = document.querySelector('section[data-win="travel"]') as HTMLElement;
+    const body = win.querySelector(".body") as HTMLElement;
+    expect(win.getAttribute("aria-label")).toBe(travel.title);
+    expect(body.querySelector('[role="img"]')).not.toBeNull();
+    expect(body.textContent ?? "").not.toMatch(/placeholder|goes here|lorem|\[ /i);
   });
 });
 

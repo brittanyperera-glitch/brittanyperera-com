@@ -14,6 +14,7 @@
     "e2e": "playwright test",
     "cv:pdf": "tsx scripts/build-cv-pdf.ts",
     "og": "tsx scripts/build-og.ts",
+    "world-map": "tsx scripts/build-world-map.ts",
     "launch-check": "tsx scripts/launch-check.ts"
   },
   "dependencies": {
@@ -27,14 +28,19 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "^6.1.1",
+    "d3-geo": "^3.1.1",
     "jsdom": "^30.0.1",
+    "topojson-client": "^3.1.0",
     "tsx": "^4.23.13",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "world-atlas": "^2.0.2"
   },
   "packageManager": "pnpm@10.28.1"
 }
