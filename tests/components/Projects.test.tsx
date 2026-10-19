@@ -77,7 +77,9 @@ describe("Projects folder", () => {
 
 describe("About window", () => {
   it("is titled About <project> and holds the title and one button when the about text is empty", () => {
-    setup(["project:trip"]);
+    setup(["project:trip"], {
+      "project:trip": <ProjectWindow project={{ ...trip, about: "" }} />,
+    });
     const w = win("project:trip");
     expect(w).toHaveAttribute("aria-label", aboutTitle(trip.title));
     expect(within(w).getByRole("heading").textContent).toBe(trip.title);

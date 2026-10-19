@@ -19,7 +19,9 @@ export const projects: Project[] = [
     id: "delulu",
     title: "100 Days of Delulu",
     icon: "heart",
-    about: "",
+    // Draft for Brittany to keep or change (2026-10-19), from the Delulu README.
+    about:
+      "a private little site for two. for 100 days you act like the life you want is already yours. a countdown, one shared wall and a ring of tiny games around it. the real one's password protected, sorry",
     siteUrl: "https://100-days-of-delulu.vercel.app",
     siteLabel: "100 Days of Delulu, live site",
     // Web encode of the promo animatic (archived as a release on the Delulu repo, which is private).
@@ -33,7 +35,9 @@ export const projects: Project[] = [
     id: "trip",
     title: "Group Trip Hero",
     icon: "palm",
-    about: "",
+    // Draft for Brittany to keep or change (2026-10-19).
+    about:
+      "i built this to plan our group trip to sri lanka. everyone takes a quiz, votes on where we stay and what we do, and knockout rounds settle the arguments.",
     siteUrl: "https://grouptriphero.brittanyperera.com/#/guest",
     siteLabel: "Group Trip Hero, live site",
   },

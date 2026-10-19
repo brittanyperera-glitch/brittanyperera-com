@@ -1,4 +1,4 @@
-// Drafts for Brittany's approval.
+// Approved by Brittany 2026-10-19.
 import { cv } from "./cv";
 
 // Panel rows, in the order their pieces fall: the `when` plus a short label.
