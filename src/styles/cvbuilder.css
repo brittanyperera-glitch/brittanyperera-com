@@ -1,0 +1,160 @@
+/* CV Builder. The board is sized from the viewport height so the window body never needs its own scroll. */
+.win .body .cvb-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cvb {
+  --cvb-cell: clamp(14px, calc((60vh - 150px) / 16), 22px);
+  --cvb-ink: #1b1b1b;
+}
+
+.desktop[data-mode="phone"] .cvb {
+  --cvb-cell: 20px;
+}
+
+.cvb-intro {
+  margin: 0 0 8px;
+}
+
+.cvb-main {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.cvb-left {
+  flex: none;
+}
+
+.cvb-board {
+  position: relative;
+  display: grid;
+  grid-auto-rows: var(--cvb-cell);
+  width: max-content;
+  background:
+    linear-gradient(#ececec 1px, transparent 1px) 0 0 / var(--cvb-cell) var(--cvb-cell),
+    linear-gradient(90deg, #ececec 1px, transparent 1px) 0 0 / var(--cvb-cell) var(--cvb-cell),
+    #fafafa;
+  image-rendering: pixelated;
+}
+
+.cvb-gap {
+  display: block;
+}
+
+.cvb-block {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid var(--cvb-ink);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.55),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.cvb-tag {
+  position: absolute;
+  left: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  padding: 0 2px;
+  font-size: 9px;
+  line-height: 11px;
+  white-space: nowrap;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--cvb-ink);
+  pointer-events: none;
+}
+
+.cvb-paused {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(221, 221, 221, 0.85);
+  font-weight: bold;
+}
+
+.cvb-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  max-width: calc(var(--cvb-cell) * 10);
+}
+
+.cvb-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cvb-pad .pbtn {
+  padding: 0;
+  min-height: 36px;
+  font-size: 18px;
+}
+
+.cvb-side {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cvb-doc {
+  padding: 4px 6px 6px;
+}
+
+.cvb-doc-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--plat-dark);
+}
+
+.cvb-doc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cvb-entry {
+  min-height: 18px;
+  line-height: 18px;
+  border-bottom: 1px dotted var(--plat-dark);
+  overflow-wrap: anywhere;
+}
+
+.cvb-stats {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.cvb-next {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.cvb-next-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 10px);
+  grid-auto-rows: 10px;
+  width: max-content;
+}
+
+.cvb-next-grid .cvb-block {
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.55);
+}
