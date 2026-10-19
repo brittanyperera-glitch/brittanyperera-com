@@ -3,7 +3,7 @@
   --platinum: #dddddd;
   --plat-light: #f0f0f0;
   --plat-dark: #8a8a8a;
-  --edge: #444;
+  --edge: #262626;
   --accent: #3d6fb6;
   --accent-ink: #fff;
   --desk: #6b7c99;
@@ -48,12 +48,15 @@ a {
 
 .pbtn {
   cursor: pointer;
-  background: linear-gradient(#fafafa, #d2d2d2);
-  border: 1px solid var(--edge);
-  border-radius: 4px;
+  background: linear-gradient(#ffffff, #ececec 45%, #cfcfcf 55%, #dcdcdc);
+  border: 1px solid #1f1f1f;
+  border-radius: 5px;
   padding: 3px 14px;
   min-height: 24px;
-  box-shadow: inset 1px 1px 0 #fff;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #a6a6a6,
+    0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .pbtn:active {
@@ -63,8 +66,10 @@ a {
 .pbtn.default {
   box-shadow:
     0 0 0 2px var(--platinum),
-    0 0 0 3px var(--edge),
-    inset 1px 1px 0 #fff;
+    0 0 0 3px #1f1f1f,
+    0 0 0 4px #b3b3b3,
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #a6a6a6;
   font-weight: bold;
 }
 
@@ -76,8 +81,10 @@ a {
 .bar {
   height: 12px;
   border: 1px solid var(--edge);
-  background: #fff;
-  box-shadow: inset 1px 1px 0 #bbb;
+  background: #eee;
+  box-shadow:
+    inset 1px 1px 0 #9a9a9a,
+    inset -1px -1px 0 #fff;
   overflow: hidden;
 }
 
@@ -86,29 +93,53 @@ a {
   height: 100%;
   width: 0;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.25) 0 6px, transparent 6px 12px),
-    var(--accent);
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.15)),
+    repeating-linear-gradient(120deg, #8fa6dc 0 5px, #6f8ad0 5px 10px);
+  border-right: 1px solid #2a3f70;
   transition: width 0.4s;
 }
 
-/* Windows */
+/* Windows: recessed pinstripe title band, bevelled boxes, soft shadow. */
 .win {
   position: absolute;
   min-width: 240px;
   max-width: calc(100vw - 20px);
-  padding: 0 4px 4px;
+  padding: 0 5px 5px;
+  border-color: #111;
   box-shadow:
     inset 1px 1px 0 #fff,
-    inset -1px -1px 0 var(--plat-dark),
-    2px 2px 0 rgba(0, 0, 0, 0.35);
+    inset -1px -1px 0 #9c9c9c,
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.win:not(.front) {
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #a8a8a8,
+    0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .win[hidden] {
   display: none;
 }
 
+/* Resize grip: decoration only, the windows do not resize. It never takes pointer events, so the
+   body's scrollbar underneath stays usable. */
+.win::after {
+  content: "";
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 13px;
+  height: 13px;
+  pointer-events: none;
+  background: repeating-linear-gradient(135deg, transparent 0 2px, #fff 2px 3px, #7a7a7a 3px 4px);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
 .titlebar {
-  height: 20px;
+  height: 22px;
   position: relative;
   cursor: move;
   touch-action: none;
@@ -116,40 +147,98 @@ a {
   align-items: center;
   justify-content: center;
   margin: 0 -4px 4px;
-  padding: 0 30px;
-  background: repeating-linear-gradient(#f3f3f3 0 1px, #b9b9b9 1px 2px);
-  background-size: 100% 2px;
-  background-clip: content-box;
-  border-bottom: 1px solid var(--plat-dark);
+  /* Room for the close box on the left and the zoom and collapse boxes on the right. */
+  padding: 0 46px;
+}
+
+/* Pinstripes sit in a recessed band inset from each end, like the real title bar. */
+.titlebar::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 5px;
+  bottom: 5px;
+  background: repeating-linear-gradient(#fff 0 1px, #9d9d9d 1px 2px);
+  box-shadow: 0 -1px 0 #bdbdbd;
 }
 
 .titlebar .t {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background: var(--platinum);
-  padding: 0 8px;
+  padding: 0 9px;
   font-weight: bold;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
-.win:not(.front) .titlebar {
-  background: var(--platinum);
+.win:not(.front) .titlebar::before {
+  display: none;
 }
 
 .win:not(.front) .titlebar .t {
-  color: #777;
+  color: #8b8b8b;
   font-weight: normal;
 }
 
-/* 13px box with a 23px hit area. Hidden on inactive windows, but still focusable so Tab reveals it. */
-.titlebar .close {
+/* Bevelled 13px boxes. The close box keeps a 23px hit area. Hidden on inactive windows, but the
+   close box stays focusable so Tab reveals it. */
+.titlebar .close,
+.titlebar .zoom,
+.titlebar .shade {
   position: absolute;
-  left: 6px;
-  top: 3px;
+  top: 4px;
+  z-index: 2;
   width: 13px;
   height: 13px;
   padding: 0;
-  border: 1px solid var(--edge);
-  background: linear-gradient(#fff, #c8c8c8);
+  border: 1px solid #2b2b2b;
+  background: linear-gradient(135deg, #fff 0%, #e2e2e2 35%, #a9a9a9 100%);
+  box-shadow:
+    0 0 0 1px var(--platinum),
+    1px 1px 0 1px #fff,
+    -1px -1px 0 1px #8f8f8f,
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #8a8a8a;
+}
+
+.titlebar .close {
+  left: 8px;
   cursor: pointer;
+}
+
+.titlebar .zoom {
+  right: 25px;
+}
+
+.titlebar .shade {
+  right: 8px;
+}
+
+.titlebar .zoom::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #3a3a3a;
+  box-shadow: 1px 1px 0 #fff;
+}
+
+.titlebar .shade::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 4px;
+  height: 3px;
+  border-top: 1px solid #3a3a3a;
+  border-bottom: 1px solid #3a3a3a;
 }
 
 /* The phone stylesheet turns this on; on a desktop the close box is a bare square. */
@@ -163,20 +252,19 @@ a {
   inset: -5px;
 }
 
-.titlebar .zoom {
-  position: absolute;
-  right: 6px;
-  top: 3px;
-  width: 13px;
-  height: 13px;
-  border: 1px solid var(--edge);
-  background: linear-gradient(#fff, #c8c8c8);
-}
-
 .win:not(.front) .titlebar .close,
-.win:not(.front) .titlebar .zoom {
+.win:not(.front) .titlebar .zoom,
+.win:not(.front) .titlebar .shade {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Phones open windows full screen: no collapse box, no resize grip. */
+@media (max-width: 700px) {
+  .titlebar .shade,
+  .win::after {
+    display: none;
+  }
 }
 
 .win .body {
@@ -185,6 +273,10 @@ a {
   overflow: auto;
   line-height: 1.5;
   user-select: text;
+  border-color: #5a5a5a;
+  box-shadow:
+    0 0 0 1px #f4f4f4,
+    inset 1px 1px 0 #d6d6d6;
 }
 
 .win .body h3 {

@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { PixelIcon } from "@/components/PixelIcon";
+import { MacIcon } from "@/components/icons/MacIcon";
 import { copy } from "@/content/copy";
 import "@/styles/alert.css";
 
@@ -99,7 +99,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
               aria-modal="true"
               aria-labelledby="alert-body"
             >
-              <PixelIcon name={current.icon} size={40} />
+              <MacIcon name={current.icon} size={40} />
               <div className="alert-main">
                 <div id="alert-body">{current.body}</div>
                 <div className="alert-buttons" ref={buttonsRef}>

@@ -1,18 +1,21 @@
 .bevel {
   background: var(--platinum, #dddddd);
-  border: 1px solid var(--edge, #000);
+  border: 1px solid var(--edge, #262626);
   box-shadow:
     inset 1px 1px 0 #fff,
     inset -1px -1px 0 var(--plat-dark, #a0a0a0);
 }
 .pbtn {
   cursor: pointer;
-  background: linear-gradient(#fafafa, #d2d2d2);
-  border: 1px solid var(--edge, #000);
-  border-radius: 4px;
+  background: linear-gradient(#ffffff, #ececec 45%, #cfcfcf 55%, #dcdcdc);
+  border: 1px solid #1f1f1f;
+  border-radius: 5px;
   padding: 3px 14px;
   min-height: 24px;
-  box-shadow: inset 1px 1px 0 #fff;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #a6a6a6,
+    0 1px 0 rgba(255, 255, 255, 0.6);
 }
 /* The same button face on a real link (the 404 page's Restart). */
 a.pbtn {
@@ -28,8 +31,10 @@ a.pbtn {
 .pbtn.default {
   box-shadow:
     0 0 0 2px var(--platinum, #dddddd),
-    0 0 0 3px var(--edge, #000),
-    inset 1px 1px 0 #fff;
+    0 0 0 3px #1f1f1f,
+    0 0 0 4px #b3b3b3,
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #a6a6a6;
   font-weight: bold;
 }
 .pbtn[disabled] {
@@ -55,15 +60,19 @@ a.pbtn {
   padding: 16px 16px 12px;
   display: flex;
   gap: 14px;
+  border-color: #111;
   box-shadow:
     inset 1px 1px 0 #fff,
-    inset -1px -1px 0 var(--plat-dark, #a0a0a0),
-    3px 3px 0 rgba(0, 0, 0, 0.4);
+    inset -1px -1px 0 #9c9c9c,
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    0 2px 5px rgba(0, 0, 0, 0.25);
 }
 .alert > svg {
   width: 40px;
   height: 40px;
   flex: none;
+  overflow: visible;
+  filter: drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.45));
 }
 .alert-main {
   flex: 1;

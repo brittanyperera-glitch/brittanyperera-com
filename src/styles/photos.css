@@ -1,50 +1,135 @@
 /* Photos window body: Finder-style album folders, then a Scrapbook page with a Platinum scroll bar. */
+.win[data-win="photos"] .body {
+  padding: 0;
+  line-height: normal;
+}
+
+/* Album folders sit on a fine dotted icon-view background with room around them. */
+.folder-grid.photo-albums {
+  min-height: 160px;
+  padding: 16px 14px;
+  background:
+    radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(#fff, #f4f4f8);
+}
+
 .photo-view {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
-/* The scrapbook page: a beveled sheet holding one photo and its caption. */
+/* Toolbar: Back on the left, a divider, then Previous and Next, then any watch buttons. */
+.scrap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  background: linear-gradient(#ececec, #d2d2d2);
+  border-bottom: 1px solid #8a8a8a;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+.scrap-sep {
+  align-self: stretch;
+  width: 1px;
+  margin: 2px 2px;
+  background: #9a9a9a;
+  box-shadow: 1px 0 0 #fff;
+}
+
+.scrap-watch {
+  margin-left: auto;
+}
+
+.scrap-watch ~ .scrap-watch {
+  margin-left: 0;
+}
+
+/* The scrapbook page on a mottled desk: a bevelled mat holding one photo, its edge shadowed. */
 .scrap-page {
-  padding: 8px;
-  background: #fff;
-  border: 1px solid var(--edge);
-  box-shadow:
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 var(--plat-dark),
-    2px 2px 0 rgba(0, 0, 0, 0.25);
+  padding: 14px 16px 16px;
+  background:
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.035) 0 2px, transparent 2px 4px), #8d939e;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .photo-stage {
-  display: flex;
-  justify-content: center;
-  background: #111;
-  border: 1px solid var(--plat-dark);
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #1b1b1b;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #b0b0b0,
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    3px 4px 0 rgba(0, 0, 0, 0.22),
+    0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
 .photo-stage img {
   display: block;
-  max-width: 100%;
-  max-height: 40vh;
+  width: 100%;
+  max-height: 42vh;
   object-fit: contain;
+  background: #111;
+  border: 1px solid #333;
+  box-shadow: 0 0 0 1px #777;
 }
 
 .win .body .photo-caption {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
+  padding: 4px 8px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #555;
+  box-shadow: inset 1px 1px 0 #cfcfcf;
 }
 
-/* Arrow buttons at the ends of a grey track, like a Platinum horizontal scroll bar. */
+/* A Platinum horizontal scroll bar: ridged track, end arrows drawn on the box, striped thumb. */
 .scrap-scrollbar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+  padding: 0 16px;
+  background: #e6e6e6;
+  border-top: 1px solid #5a5a5a;
+}
+
+.scrap-scrollbar::before,
+.scrap-scrollbar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #9a9a9a;
+}
+
+.scrap-scrollbar::before {
+  left: 0;
+  border-right: 1px solid #5a5a5a;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M10 4L5 8l5 4z' fill='%23222'/%3E%3C/svg%3E")
+    center / 16px 16px no-repeat,
+    linear-gradient(135deg, #fafafa, #cfcfcf);
+}
+
+.scrap-scrollbar::after {
+  right: 0;
+  border-left: 1px solid #5a5a5a;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M6 4l5 4-5 4z' fill='%23222'/%3E%3C/svg%3E")
+    center / 16px 16px no-repeat,
+    linear-gradient(135deg, #fafafa, #cfcfcf);
 }
 
 .scrap-scroll {
   flex: 1;
   min-width: 0;
-  height: 20px;
+  height: 16px;
   margin: 0;
   cursor: pointer;
   appearance: none;
@@ -53,34 +138,46 @@
 
 .scrap-scroll::-webkit-slider-runnable-track {
   height: 16px;
-  background: repeating-linear-gradient(90deg, #c9c9c9 0 1px, #dddddd 1px 2px);
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #8a8a8a;
+  background: repeating-linear-gradient(#e2e2e2 0 1px, #d2d2d2 1px 2px);
+  box-shadow:
+    inset 0 1px 0 #b0b0b0,
+    inset 0 -1px 0 #fafafa;
 }
 
 .scrap-scroll::-moz-range-track {
-  height: 14px;
-  background: repeating-linear-gradient(90deg, #c9c9c9 0 1px, #dddddd 1px 2px);
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #8a8a8a;
+  height: 16px;
+  background: repeating-linear-gradient(#e2e2e2 0 1px, #d2d2d2 1px 2px);
+  box-shadow:
+    inset 0 1px 0 #b0b0b0,
+    inset 0 -1px 0 #fafafa;
 }
 
 .scrap-scroll::-webkit-slider-thumb {
   appearance: none;
-  width: 22px;
+  width: 36px;
   height: 16px;
-  background: linear-gradient(#fafafa, #bdbdbd);
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #fff;
+  background:
+    repeating-linear-gradient(90deg, #fff 0 1px, #5b5f9e 1px 2px, transparent 2px 3px) 50% 50% /
+    14px 7px no-repeat,
+    linear-gradient(#e3e4fb, #c6c8f2 45%, #8c8fd0);
+  border: 1px solid #4b4f8a;
+  box-shadow:
+    inset 1px 1px 0 #f4f4ff,
+    inset -1px -1px 0 #7477b8;
 }
 
 .scrap-scroll::-moz-range-thumb {
-  width: 20px;
+  width: 34px;
   height: 14px;
   border-radius: 0;
-  background: linear-gradient(#fafafa, #bdbdbd);
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #fff;
+  background:
+    repeating-linear-gradient(90deg, #fff 0 1px, #5b5f9e 1px 2px, transparent 2px 3px) 50% 50% /
+    14px 7px no-repeat,
+    linear-gradient(#e3e4fb, #c6c8f2 45%, #8c8fd0);
+  border: 1px solid #4b4f8a;
+  box-shadow:
+    inset 1px 1px 0 #f4f4ff,
+    inset -1px -1px 0 #7477b8;
 }
 
 .scrap-scroll:focus-visible {
@@ -93,25 +190,26 @@
   opacity: 0.5;
 }
 
+/* Status strip: "Item n of N". */
 .scrap-foot {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  padding: 3px 8px;
+  font-size: 11px;
+  background: linear-gradient(#ececec, #d6d6d6);
+  border-top: 1px solid #5a5a5a;
+  box-shadow: inset 0 1px 0 #fff;
 }
 
 .photo-count {
   min-width: 84px;
 }
 
-.photo-back {
-  margin-left: auto;
-}
-
 /* Phone: two album columns, and the page fills the window. */
 @media (max-width: 700px) {
   .desktop .folder-grid.photo-albums {
     grid-template-columns: repeat(2, 1fr);
+    min-height: 100%;
   }
 
   .photo-view {
@@ -128,16 +226,22 @@
   .photo-stage {
     flex: 1;
     min-height: 0;
-    align-items: center;
+    display: flex;
   }
 
   .photo-stage img {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
     max-height: none;
-    height: 100%;
+    height: auto;
   }
 
-  .scrap-scrollbar .pbtn,
-  .scrap-foot .pbtn {
+  .scrap-toolbar .pbtn {
     min-height: 40px;
+  }
+
+  .scrap-scroll {
+    height: 28px;
   }
 }

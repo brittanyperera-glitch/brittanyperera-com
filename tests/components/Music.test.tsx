@@ -116,6 +116,40 @@ describe("GarageWindow", () => {
     expect(screen.getByText("0:42")).toBeInTheDocument();
   });
 
+  it("the LCD shows the play state, following Play and Pause", async () => {
+    const user = mount(track);
+    await user.click(screen.getByText("test-open-garage"));
+    const state = () => document.querySelector(".garage-lcd .garage-state")?.textContent;
+    expect(state()).toBe(music.ui.pause);
+    await user.click(screen.getByRole("button", { name: music.ui.play }));
+    expect(state()).toBe(music.ui.play);
+    await user.click(screen.getByRole("button", { name: music.ui.pause }));
+    expect(state()).toBe(music.ui.pause);
+  });
+
+  it("the LCD shows the title, note and the real elapsed and total time", async () => {
+    const user = mount({ ...track, note: "a fixture note" });
+    await user.click(screen.getByText("test-open-garage"));
+    const lcd = document.querySelector(".garage-lcd") as HTMLElement;
+    expect(lcd).not.toBeNull();
+    expect(lcd.textContent).toContain("Fixture tune");
+    expect(lcd.textContent).toContain("a fixture note");
+    setDuration(audio(), 125);
+    audio().currentTime = 65;
+    act(() => {
+      fireEvent.timeUpdate(audio());
+    });
+    expect(lcd.querySelector(".garage-elapsed")).toHaveTextContent("1:05");
+    expect(lcd.querySelector(".garage-total")).toHaveTextContent("2:05");
+  });
+
+  it("before the audio length is known, the LCD total reads as unknown, not 0:00", async () => {
+    const user = mount(track);
+    await user.click(screen.getByText("test-open-garage"));
+    const total = document.querySelector(".garage-lcd .garage-total");
+    expect(total).toHaveTextContent(music.ui.unknownTime);
+  });
+
   it("volume slider sets the audio volume", async () => {
     const user = mount(track);
     await user.click(screen.getByText("test-open-garage"));

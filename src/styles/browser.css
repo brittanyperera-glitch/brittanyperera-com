@@ -18,23 +18,29 @@
   align-items: center;
   gap: 6px;
   flex: none;
-  padding: 4px 6px;
-  background: var(--platinum);
-  border-bottom: 1px solid var(--plat-dark);
-  box-shadow: inset 1px 1px 0 #fff;
+  padding: 5px 6px;
+  background: linear-gradient(#f1f1f1, #d4d4d4);
+  border-bottom: 1px solid #5a5a5a;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    0 1px 0 #fff;
 }
 
+/* Location field: a recessed white well with a double edge, like a late-90s browser's. */
 .browser-address {
   flex: 1;
   min-width: 0;
-  height: 22px;
-  padding: 0 6px;
+  height: 24px;
+  padding: 0 7px;
   font: inherit;
   font-size: 12px;
   color: #000;
   background: #fff;
   border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #bbb;
+  box-shadow:
+    inset 1px 1px 0 #8a8a8a,
+    inset 2px 2px 0 #d0d0d0,
+    1px 1px 0 #fff;
 }
 
 .browser-bar .pbtn {
@@ -42,16 +48,20 @@
   white-space: nowrap;
 }
 
+/* The throbber: a raised square tile that animates while the page loads. */
 .browser-throbber {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: #fff;
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #bbb;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 40% 30%, #fff, #e8eaf6 65%, #c6c8e4);
+  border: 1px solid #222;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #8c8fb8,
+    1px 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .browser-throbber.busy svg {
@@ -74,6 +84,7 @@
   flex: 1;
   min-height: 0;
   background: #fff;
+  box-shadow: inset 1px 1px 0 #5a5a5a;
 }
 
 .browser-page iframe {

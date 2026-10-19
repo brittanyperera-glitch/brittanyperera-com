@@ -1,4 +1,4 @@
-import { PixelIcon } from "@/components/PixelIcon";
+import { MacIcon } from "@/components/icons/MacIcon";
 import { copy } from "@/content/copy";
 import "@/styles/platinum.css";
 import "@/styles/desktop.css";
@@ -12,7 +12,7 @@ export default function NotFound() {
     <div className="desktop">
       <div className="nf-layer">
         <div className="alert bevel" role="alertdialog" aria-labelledby="nf-body">
-          <PixelIcon name="bomb" size={40} />
+          <MacIcon name="bomb" size={40} />
           <div className="alert-main">
             <div id="nf-body">
               <b>{crash.title}</b>

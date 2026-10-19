@@ -8,8 +8,10 @@ export function ProjectWindow({ project }: { project: Project }) {
   const { open } = useDesktop();
   return (
     <>
-      <h3>{project.title}</h3>
-      {project.about && <p>{project.about}</p>}
+      <div className="readme">
+        <h3>{project.title}</h3>
+        {project.about && <p>{project.about}</p>}
+      </div>
       <p className="actions-right">
         <button
           type="button"

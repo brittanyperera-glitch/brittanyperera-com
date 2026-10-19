@@ -22,17 +22,41 @@ export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
 
   return (
     <div className="photo-view">
+      <div className="scrap-toolbar">
+        <button type="button" className="pbtn photo-back" onClick={onBack}>
+          {ui.back}
+        </button>
+        <span className="scrap-sep" aria-hidden="true" />
+        <button type="button" className="pbtn" onClick={() => onIndex((index + total - 1) % total)}>
+          {ui.prev}
+        </button>
+        <button type="button" className="pbtn" onClick={() => onIndex((index + 1) % total)}>
+          {ui.next}
+        </button>
+        {videoIds.map((id) => {
+          const title = youtube.videos.find((v) => v.id === id)?.title;
+          const label =
+            videoIds.length > 1 && title ? ui.watchNamed.replace("{title}", title) : ui.watchVideo;
+          return (
+            <button
+              key={id}
+              type="button"
+              className="pbtn scrap-watch"
+              onClick={() => requestVideo(id)}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
       <div className="scrap-page">
         <div className="photo-stage">
           {/* biome-ignore lint/performance/noImgElement: plain img by design, files are static */}
           <img src={item.src} alt={item.alt} decoding="async" />
         </div>
-        <p className="photo-caption">{item.caption}</p>
+        {item.caption ? <p className="photo-caption">{item.caption}</p> : null}
       </div>
       <div className="scrap-scrollbar">
-        <button type="button" className="pbtn" onClick={() => onIndex((index + total - 1) % total)}>
-          {ui.prev}
-        </button>
         <input
           type="range"
           className="scrap-scroll"
@@ -45,27 +69,11 @@ export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
           aria-valuetext={counter}
           onChange={(e) => onIndex(Number(e.currentTarget.value) - 1)}
         />
-        <button type="button" className="pbtn" onClick={() => onIndex((index + 1) % total)}>
-          {ui.next}
-        </button>
       </div>
       <div className="scrap-foot">
         <span className="photo-count" aria-live="polite">
           {counter}
         </span>
-        {videoIds.map((id) => {
-          const title = youtube.videos.find((v) => v.id === id)?.title;
-          const label =
-            videoIds.length > 1 && title ? ui.watchNamed.replace("{title}", title) : ui.watchVideo;
-          return (
-            <button key={id} type="button" className="pbtn" onClick={() => requestVideo(id)}>
-              {label}
-            </button>
-          );
-        })}
-        <button type="button" className="pbtn photo-back" onClick={onBack}>
-          {ui.back}
-        </button>
       </div>
     </div>
   );

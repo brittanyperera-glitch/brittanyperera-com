@@ -22,5 +22,7 @@ export const music = {
     pause: "Pause",
     position: "Position",
     volume: "Volume",
+    // LCD total before the browser has read the track's length.
+    unknownTime: "--:--",
   },
 };

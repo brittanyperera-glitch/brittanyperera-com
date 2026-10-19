@@ -13,7 +13,9 @@ export function InstrumentWindow({
   if (!instrument) return null;
   return (
     <div className="instrument">
-      <PixelIcon name={instrument.icon} size={64} />
+      <span className="instrument-tile">
+        <PixelIcon name={instrument.icon} size={64} />
+      </span>
       <h3>{instrument.name}</h3>
       {instrument.line && <p>{instrument.line}</p>}
     </div>

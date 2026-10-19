@@ -1,85 +1,435 @@
+/* Music windows. The body's own padding and white well are dropped so the panels run edge to edge. */
+.win[data-win^="music:"] .body,
+.win[data-win="garage"] .body {
+  padding: 0;
+  max-height: none;
+  overflow: hidden;
+  line-height: normal;
+}
+
+/* Get Info panel: the icon in a recessed tile, the name under a Platinum header band. */
+.win[data-win^="music:"] .body {
+  background: linear-gradient(#f2f2f2, #dcdcdc);
+}
+
 .instrument {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  padding: 18px 16px 20px;
-  text-align: center;
+  gap: 4px 16px;
+  padding: 22px 20px 24px;
+}
+
+.instrument-tile {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  background: radial-gradient(circle at 40% 30%, #fff, #ececf4 70%, #d2d2de);
+  border: 1px solid #555;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #9a9a9a,
+    1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.instrument-tile svg {
+  filter: drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.4));
 }
 
 .instrument h3,
 .instrument p {
   margin: 0;
-}
-
-/* Garage Brittany: a Platinum-era media deck. Title in a recessed well, transport on bevelled buttons. */
-.garage {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-}
-
-.garage-title {
-  padding: 6px 10px;
-  font-weight: bold;
-  text-align: center;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.garage-note {
-  margin: 4px 0 0;
-  text-align: center;
-  font-size: 11px;
+.instrument h3 {
+  align-self: end;
+  font-size: 15px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #9a9a9a;
+  box-shadow: 0 1px 0 #fff;
+}
+
+.instrument p {
+  align-self: start;
+  padding-top: 4px;
   color: #444;
 }
 
-.garage-deck {
+/* A line-less instrument is just icon and name, so the name centres on the tile. */
+.instrument h3:last-child {
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+/* ---------- Garage Brittany ---------- */
+.win[data-win="garage"] .body {
+  background: #bcbcbc;
+}
+
+.garage {
+  display: block;
+}
+
+/* Brushed-metal faceplate: horizontal grain noise over a soft light-to-dark gradient. */
+.garage-face {
+  padding: 16px 18px 18px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 40%, rgba(0, 0, 0, 0.12)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='300' height='120' filter='url(%23b)'/%3E%3C/svg%3E"),
+    linear-gradient(#d9d9d9, #b4b4b4);
+}
+
+/* The LCD: the play state, title and note on the left, elapsed over total time on the right. */
+.garage-lcd {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  background: linear-gradient(#1a2016, #0d110b);
+  border: 1px solid #000;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 -1px 0 rgba(0, 0, 0, 0.25);
+  color: #c4f06a;
+}
+
+/* Scanlines and a glass sheen over the whole readout. */
+.garage-lcd::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px),
+    linear-gradient(172deg, rgba(255, 255, 255, 0.12), transparent 42%);
+}
+
+.garage-readout {
+  min-width: 0;
+}
+
+.garage-state {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  font:
+    bold 9px "Charcoal",
+    "Chicago",
+    Geneva,
+    "Helvetica Neue",
+    sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* A lit triangle while playing, two lit bars while paused. */
+.garage-state::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 6px solid #c4f06a;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  filter: drop-shadow(0 0 2px rgba(196, 240, 106, 0.7));
+}
+
+.garage-lcd[data-state="pause"] .garage-state::before {
+  width: 6px;
+  height: 8px;
+  border: 0;
+  background: linear-gradient(90deg, #c4f06a 0 2px, transparent 2px 4px, #c4f06a 4px 6px);
+}
+
+.garage-title {
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+  font:
+    bold 15px Monaco,
+    Menlo,
+    "Courier New",
+    monospace;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 4px rgba(196, 240, 106, 0.55);
+}
+
+.garage-note {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font:
+    10.5px Monaco,
+    Menlo,
+    "Courier New",
+    monospace;
+  color: #86a85a;
+}
+
+.garage-time {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+  text-align: right;
+}
+
+/* Unlit "88:88" ghost digits sit under the live ones, like a real LCD. */
+.garage-digits {
+  display: inline-grid;
+  justify-items: end;
+  font:
+    bold 24px Monaco,
+    Menlo,
+    "Courier New",
+    monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.garage-digits > * {
+  grid-area: 1 / 1;
+}
+
+.garage-ghost {
+  color: rgba(196, 240, 106, 0.08);
+}
+
+.garage-elapsed {
+  text-shadow: 0 0 5px rgba(196, 240, 106, 0.6);
+}
+
+.garage-time small {
+  display: block;
+  margin-top: 2px;
+  font:
+    10px Monaco,
+    Menlo,
+    "Courier New",
+    monospace;
+  color: #86a85a;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Position strip along the foot of the LCD. */
+.garage-pos {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 3px;
+  background: #1f2a17;
+  box-shadow:
+    inset 0 1px 2px #000,
+    0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.garage-pos i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--p, 0%);
+  border-radius: 3px;
+  background: linear-gradient(#d6f78c, #8fc23c);
+  box-shadow: 0 0 4px rgba(196, 240, 106, 0.6);
+}
+
+.garage-pos b {
+  position: absolute;
+  top: -3px;
+  left: var(--p, 0%);
+  width: 4px;
+  height: 12px;
+  margin-left: -2px;
+  border-radius: 1px;
+  background: #e9ffc0;
+  box-shadow: 0 0 5px #c4f06a;
+}
+
+.garage-engr {
+  font:
+    bold 9px "Charcoal",
+    "Chicago",
+    Geneva,
+    "Helvetica Neue",
+    sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #4a4a4a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.garage-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.garage-transport {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 5px 0 0 5px;
+}
+
+.garage-key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Round metal key; the recessed collar is a ring behind it. */
+.garage-btn {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 1px solid #2a2a2a;
+  background: radial-gradient(circle at 50% 30%, #fff, #e2e2e2 40%, #a9a9a9 85%, #8a8a8a);
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.35),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.18),
+    inset 0 2px 1px #fff;
+}
+
+.garage-btn::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  border-radius: 50%;
+  background: linear-gradient(#8f8f8f, #f2f2f2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 .garage-play {
-  flex: 0 0 auto;
-  min-width: 76px;
-  min-height: 40px;
-  font-size: 15px;
-  font-weight: bold;
+  width: 52px;
+  height: 52px;
 }
 
-.garage-scrub {
-  flex: 1 1 auto;
+.garage-pause {
+  width: 38px;
+  height: 38px;
+}
+
+.garage-btn:active,
+.garage-btn.pressed {
+  background: radial-gradient(circle at 50% 70%, #f4f4f4, #cfcfcf 45%, #9a9a9a 90%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.garage-sliders {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
   min-width: 0;
 }
 
-.garage-scrub input,
-.garage-volume input {
+/* Position and Volume: a recessed groove filled up to the knob (--p), and a ridged metal knob. */
+.garage-slider {
   width: 100%;
-  accent-color: var(--accent);
+  height: 20px;
+  margin: 0 0 4px;
+  cursor: pointer;
+  appearance: none;
+  background: transparent;
 }
 
-.garage-times {
-  display: flex;
-  justify-content: space-between;
-  font-variant-numeric: tabular-nums;
-  font-size: 12px;
+.garage-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background:
+    linear-gradient(#9fb6e6, #3d6fb6) 0 0 / var(--p, 0%) 100% no-repeat,
+    linear-gradient(#6d6d6d, #9d9d9d);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.garage-volume {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
+.garage-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(#6d6d6d, #9d9d9d);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.garage-volume input {
-  flex: 1 1 auto;
-  min-width: 0;
+.garage-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(#9fb6e6, #3d6fb6);
 }
 
-.garage-play:focus-visible,
-.garage input:focus-visible {
+.garage-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 20px;
+  margin-top: -7px;
+  border: 1px solid #222;
+  border-radius: 3px 3px 8px 8px;
+  background:
+    repeating-linear-gradient(#777 0 1px, #fff 1px 2px, transparent 2px 3px) 50% 4px / 6px 7px
+    no-repeat,
+    linear-gradient(90deg, #fff, #d9d9d9 50%, #9b9b9b);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 0 #fff;
+}
+
+.garage-slider::-moz-range-thumb {
+  width: 14px;
+  height: 18px;
+  border: 1px solid #222;
+  border-radius: 3px 3px 8px 8px;
+  background: linear-gradient(90deg, #fff, #d9d9d9 50%, #9b9b9b);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 0 #fff;
+}
+
+.garage-slider:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.garage-btn:focus-visible,
+.garage-slider:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
+}
+
+/* Phone: the face fills the screen width; keys get a comfortable touch size. */
+@media (max-width: 700px) {
+  .win[data-win="garage"] .body,
+  .garage {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .garage,
+  .garage-face {
+    flex: 1;
+  }
+
+  .garage-controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .garage-transport {
+    justify-content: center;
+  }
+
+  .garage-slider {
+    height: 28px;
+  }
 }

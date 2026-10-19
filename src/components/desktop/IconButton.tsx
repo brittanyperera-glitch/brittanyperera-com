@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PixelIcon } from "@/components/PixelIcon";
+import { MacIcon } from "@/components/icons/MacIcon";
 import type { IconName } from "@/lib/types";
 import { useDesktop } from "./Desktop";
 
@@ -41,7 +41,7 @@ export function IconButton({ icon, label, onOpen, selected, onSelect, openId }: 
         }
       }}
     >
-      <PixelIcon name={icon} size={40} />
+      <MacIcon name={icon} size={32} />
       <span className="label">{label}</span>
     </button>
   );

@@ -26,7 +26,7 @@ export function ContactWindow() {
         <PixelIcon name="mail" size={40} />
         <p>{copy.contactInvite}</p>
       </div>
-      <p>{contact.email}</p>
+      <p className="email-field">{contact.email}</p>
       <p>
         {contact.linkedin && (
           <button

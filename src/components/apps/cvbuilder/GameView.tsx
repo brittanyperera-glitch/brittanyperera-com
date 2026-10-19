@@ -1,8 +1,10 @@
-import type { Dispatch } from "react";
+import type { CSSProperties, Dispatch } from "react";
 import { cvBuilder } from "@/content/cvbuilder";
 import { PALETTE } from "@/lib/pixel/icons";
 import { COLS, type Game, type Kind, pieceCells } from "@/lib/tetris";
+import { Banner } from "./Banner";
 import type { GameAction } from "./gameReducer";
+import { Lcd } from "./Lcd";
 
 // Muted palette keys from the desktop icons, one per piece.
 const COLOUR: Record<Kind, string> = {
@@ -15,28 +17,38 @@ const COLOUR: Record<Kind, string> = {
   L: PALETTE.o,
 };
 
-type Shown = { kind: Kind; label?: string } | null;
+type Shown = { kind: Kind; live: boolean } | null;
 
 function shownCells(g: Game): Shown[] {
-  const cells: Shown[] = g.board.flatMap((row) => row.map((k) => (k ? { kind: k } : null)));
+  const cells: Shown[] = g.board.flatMap((row) =>
+    row.map((k) => (k ? { kind: k, live: false } : null)),
+  );
   if (g.piece) {
-    const own = pieceCells(g.piece);
-    own.forEach(([c, r], i) => {
-      cells[r * COLS + c] = { kind: g.piece?.kind as Kind, label: i === 0 ? g.piece?.label : "" };
-    });
+    const kind = g.piece.kind;
+    for (const [c, r] of pieceCells(g.piece)) cells[r * COLS + c] = { kind, live: true };
   }
   return cells;
 }
 
-function Block({ kind, label }: { kind: Kind; label?: string }) {
+/** The face and four bevel shades are derived from `--c` in the stylesheet. */
+function Block({ kind, live }: { kind: Kind; live?: boolean }) {
   return (
-    <span className="cvb-block" style={{ background: COLOUR[kind] }}>
-      {label ? <span className="cvb-tag">{label}</span> : null}
-    </span>
+    <span
+      className={live ? "cvb-block cvb-live" : "cvb-block"}
+      style={{ "--c": COLOUR[kind] } as CSSProperties}
+    />
   );
 }
 
-function NextPreview({ kind }: { kind: Kind }) {
+function PiecePreview({
+  kind,
+  className,
+  label,
+}: {
+  kind: Kind;
+  className: string;
+  label: string;
+}) {
   const shape = pieceCells({ kind, rot: 0, x: 0, y: 0 });
   const on = new Set(shape.map(([c, r]) => `${c},${r}`));
   // Crop to the piece's own box: the empty rows of the 4x4 would push the label away from it.
@@ -56,14 +68,32 @@ function NextPreview({ kind }: { kind: Kind }) {
     }
   }
   return (
-    <div
-      className="cvb-next-grid"
-      data-cols={cols}
-      style={{ gridTemplateColumns: `repeat(${cols}, 10px)` }}
-      aria-hidden="true"
-    >
-      {cells}
-    </div>
+    <>
+      <div
+        className={className}
+        data-cols={cols}
+        style={{ gridTemplateColumns: `repeat(${cols}, var(--cvb-mini))` }}
+        aria-hidden="true"
+      >
+        {cells}
+      </div>
+      <b title={label}>{label}</b>
+    </>
+  );
+}
+
+function Tick() {
+  return (
+    <svg className="cvb-tick" viewBox="0 0 11 11" aria-hidden="true">
+      <path
+        d="M1.5 6L4.3 8.8L9.6 2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -75,7 +105,8 @@ type Props = {
 };
 
 export function GameView({ game, paused, phone, dispatch }: Props) {
-  const filed = Math.min(game.lines, cvBuilder.entries.length);
+  const total = cvBuilder.entries.length;
+  const filed = Math.min(game.lines, total);
   const c = cvBuilder.controls;
   const pad: [keyof typeof c, GameAction["type"]][] = [
     ["left", "left"],
@@ -85,30 +116,32 @@ export function GameView({ game, paused, phone, dispatch }: Props) {
   ];
   return (
     <div className="cvb">
-      <p className="cvb-intro">{cvBuilder.intro}</p>
-      <div className="cvb-main">
+      <Banner />
+      <div className="cvb-arena">
         <div className="cvb-left">
-          <div
-            className="cvb-board well"
-            role="img"
-            aria-label={cvBuilder.boardLabel}
-            data-piece-x={game.piece?.x}
-            data-piece-y={game.piece?.y}
-            data-piece-rot={game.piece?.rot}
-            style={{ gridTemplateColumns: `repeat(${COLS}, var(--cvb-cell))` }}
-          >
-            {shownCells(game).map((cell, i) =>
-              cell ? (
-                // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is identity
-                <Block key={i} kind={cell.kind} label={cell.label} />
-              ) : (
-                // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is identity
-                <span key={i} className="cvb-gap" />
-              ),
-            )}
-            {paused && game.status === "playing" ? (
-              <span className="cvb-paused">{cvBuilder.pausedLabel}</span>
-            ) : null}
+          <div className="cvb-cabinet">
+            <div
+              className="cvb-board"
+              role="img"
+              aria-label={cvBuilder.boardLabel}
+              data-piece-x={game.piece?.x}
+              data-piece-y={game.piece?.y}
+              data-piece-rot={game.piece?.rot}
+              style={{ gridTemplateColumns: `repeat(${COLS}, var(--cvb-cell))` }}
+            >
+              {shownCells(game).map((cell, i) =>
+                cell ? (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is identity
+                  <Block key={i} kind={cell.kind} live={cell.live} />
+                ) : (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is identity
+                  <span key={i} className="cvb-gap" />
+                ),
+              )}
+              {paused && game.status === "playing" ? (
+                <span className="cvb-paused">{cvBuilder.pausedLabel}</span>
+              ) : null}
+            </div>
           </div>
           {phone ? (
             <div className="cvb-pad">
@@ -116,7 +149,7 @@ export function GameView({ game, paused, phone, dispatch }: Props) {
                 <button
                   key={key}
                   type="button"
-                  className="pbtn"
+                  className="pbtn cvb-padkey"
                   aria-label={c[key].label}
                   onClick={() => dispatch({ type: action } as GameAction)}
                 >
@@ -125,46 +158,90 @@ export function GameView({ game, paused, phone, dispatch }: Props) {
               ))}
             </div>
           ) : (
-            <p className="cvb-hint">{cvBuilder.hint}</p>
+            <div className="cvb-hint">
+              {pad.map(([key]) => (
+                <span key={key} className="cvb-key" aria-hidden="true">
+                  {c[key].glyph}
+                </span>
+              ))}
+              <span>{cvBuilder.hint}</span>
+            </div>
           )}
         </div>
         <aside className="cvb-side">
-          <div className="cvb-doc well">
-            <div className="cvb-doc-head">
-              <span>{cvBuilder.panelTitle}</span>
-              <span>
-                {filed}/{cvBuilder.entries.length} {cvBuilder.filedLabel}
-              </span>
+          <div className="cvb-doc cvb-panel">
+            <div className="cvb-list">
+              <div className="cvb-list-head">
+                <span>{cvBuilder.panelTitle}</span>
+                <span>
+                  {filed}/{total} {cvBuilder.filedLabel}
+                </span>
+              </div>
+              <ol>
+                {cvBuilder.entries.map((e, i) =>
+                  i < filed ? (
+                    <li
+                      key={e.label}
+                      className={i === filed - 1 ? "cvb-entry cvb-fresh" : "cvb-entry"}
+                    >
+                      <Tick />
+                      <b>{e.when}</b>
+                      <span>{e.label}</span>
+                    </li>
+                  ) : (
+                    <li key={e.label} className="cvb-entry cvb-blank" aria-hidden="true">
+                      <span />
+                      <span className="cvb-when" />
+                      <span className="cvb-what" />
+                    </li>
+                  ),
+                )}
+              </ol>
             </div>
-            <ol>
-              {cvBuilder.entries.map((e, i) =>
-                i < filed ? (
-                  <li key={e.label} className="cvb-entry">
-                    <b>{e.when}</b> {e.label}
-                  </li>
-                ) : (
-                  <li key={e.label} className="cvb-entry cvb-blank" aria-hidden="true" />
-                ),
-              )}
-            </ol>
+            <div
+              className="cvb-progress"
+              role="progressbar"
+              aria-label={cvBuilder.panelTitle}
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={filed}
+            >
+              <i style={{ width: `${(filed / total) * 100}%` }} />
+            </div>
           </div>
-          <div className="cvb-stats">
+          <div className="cvb-lcd">
             <div>
-              {cvBuilder.scoreLabel} {game.score}
+              <span className="cvb-lcd-label" aria-hidden="true">
+                {cvBuilder.scoreLabel}
+              </span>
+              <Lcd value={game.score} digits={6} label={`${cvBuilder.scoreLabel} ${game.score}`} />
             </div>
             <div>
-              {cvBuilder.linesLabel} {game.lines}
+              <span className="cvb-lcd-label" aria-hidden="true">
+                {cvBuilder.linesLabel}
+              </span>
+              <Lcd value={game.lines} digits={2} label={`${cvBuilder.linesLabel} ${game.lines}`} />
             </div>
+          </div>
+          <div className="cvb-pieces">
             {game.piece ? (
-              <div>
-                {cvBuilder.fallingLabel}: <b>{game.piece.label}</b>
+              <div className="cvb-panel cvb-now">
+                <h5>{cvBuilder.fallingLabel}</h5>
+                <PiecePreview
+                  kind={game.piece.kind}
+                  className="cvb-now-grid"
+                  label={game.piece.label}
+                />
               </div>
             ) : null}
-          </div>
-          <div className="cvb-next">
-            <span>{cvBuilder.nextLabel}</span>
-            <NextPreview kind={game.next.kind} />
-            <b>{game.next.label}</b>
+            <div className="cvb-panel cvb-next">
+              <h5>{cvBuilder.nextLabel}</h5>
+              <PiecePreview
+                kind={game.next.kind}
+                className="cvb-next-grid"
+                label={game.next.label}
+              />
+            </div>
           </div>
           {game.status === "playing" ? null : (
             <button type="button" className="pbtn" onClick={() => dispatch({ type: "restart" })}>

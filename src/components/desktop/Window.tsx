@@ -11,7 +11,7 @@ type Placement = { left: number | string; top: number | string; width: number };
 
 // From the approved mockup. Percentages are resolved to pixels the first time a window opens.
 const PLACEMENT: Record<string, Placement> = {
-  cv: { left: 30, top: 40, width: 380 },
+  cv: { left: 30, top: 40, width: 640 },
   projects: { left: 300, top: 110, width: 370 },
   contact: { left: "36%", top: "28%", width: 360 },
   trash: { left: "46%", top: "22%", width: 390 },
@@ -139,6 +139,7 @@ export function Window({
         </button>
         <span className="t">{title}</span>
         <span className="zoom" aria-hidden="true" />
+        <span className="shade" aria-hidden="true" />
       </div>
       <div className="body well">{children}</div>
     </section>
