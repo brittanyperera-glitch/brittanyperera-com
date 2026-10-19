@@ -1,78 +1,92 @@
 /* Phones: the desktop becomes a grid of big icons and each window opens full screen, one at a time.
-   Keyed on data-mode, which Desktop sets from the same (max-width: 700px) query. Window omits its
-   inline left, top and width in phone mode, so none of these need !important. */
-body:has(.desktop .menubar) {
-  font-size: 13px;
-}
+   Layout is keyed on the same (max-width: 700px) query Desktop uses for its mode, so it applies on
+   the server-rendered HTML and without JavaScript. Before hydration a window still carries its
+   desktop inline left, top and width, hence the !important on those three. data-mode is kept only
+   for behaviour (drag is off in phone mode). */
+@media (max-width: 700px) {
+  body:has(.desktop .menubar) {
+    font-size: 13px;
+  }
 
-.desktop[data-mode="phone"] .menu:nth-child(4),
-.desktop[data-mode="phone"] .menubar .clock {
-  display: none;
-}
+  .desktop .menu:nth-child(4),
+  .desktop .menubar .clock {
+    display: none;
+  }
 
-.desktop[data-mode="phone"] .icons {
-  top: 34px;
-  left: 12px;
-  right: 12px;
-  bottom: auto;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  justify-content: flex-start;
-  gap: 14px 0;
-}
+  .desktop .icons {
+    top: 34px;
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    gap: 14px 0;
+  }
 
-.desktop[data-mode="phone"] .icon {
-  width: 33.33%;
-  padding: 6px 0;
-}
+  .desktop .icon {
+    width: 33.33%;
+    padding: 6px 0;
+  }
 
-.desktop[data-mode="phone"] .icon svg {
-  width: 52px;
-  height: 52px;
-}
+  .desktop .icon svg {
+    width: 52px;
+    height: 52px;
+  }
 
-.desktop[data-mode="phone"] .icon .label {
-  font-size: 12px;
-}
+  .desktop .icon .label {
+    font-size: 12px;
+  }
 
-.desktop[data-mode="phone"] .win:not([hidden]) {
-  position: fixed;
-  left: 0;
-  top: 22px;
-  right: 0;
-  bottom: 0;
-  width: auto;
-  max-width: none;
-  display: flex;
-  flex-direction: column;
-  box-shadow: none;
+  /* No :not([hidden]) here: the no-JS stylesheet shows About while it still carries the attribute. */
+  .desktop .win {
+    position: fixed;
+    /* biome-ignore lint/complexity/noImportantStyles: beats the inline desktop position on server-rendered HTML */
+    left: 0 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: beats the inline desktop position on server-rendered HTML */
+    top: 22px !important;
+    right: 0;
+    bottom: 0;
+    /* biome-ignore lint/complexity/noImportantStyles: beats the inline desktop width on server-rendered HTML */
+    width: auto !important;
+    max-width: none;
+    flex-direction: column;
+    box-shadow: none;
+  }
+
+  .desktop .win:not([hidden]) {
+    display: flex;
+  }
+
+  .desktop .win .titlebar {
+    height: 34px;
+  }
+
+  .desktop .win .titlebar .close {
+    width: 26px;
+    height: 26px;
+    top: 3px;
+  }
+
+  .desktop .win .titlebar .zoom {
+    display: none;
+  }
+
+  .desktop .win .body {
+    max-height: none;
+    flex: 1;
+  }
+
+  .desktop .folder-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .desktop .timeline li {
+    grid-template-columns: 56px 1fr;
+  }
 }
 
 .desktop[data-mode="phone"] .win .titlebar {
   cursor: default;
-  height: 34px;
-}
-
-.desktop[data-mode="phone"] .win .titlebar .close {
-  width: 26px;
-  height: 26px;
-  top: 3px;
-}
-
-.desktop[data-mode="phone"] .win .titlebar .zoom {
-  display: none;
-}
-
-.desktop[data-mode="phone"] .win .body {
-  max-height: none;
-  flex: 1;
-}
-
-.desktop[data-mode="phone"] .folder-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.desktop[data-mode="phone"] .timeline li {
-  grid-template-columns: 56px 1fr;
 }

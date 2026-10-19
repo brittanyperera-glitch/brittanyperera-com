@@ -1,4 +1,5 @@
 import { Desktop } from "@/components/desktop/Desktop";
+import { SetupFlow } from "@/components/setup/SetupFlow";
 import { AboutWindow } from "@/components/windows/AboutWindow";
 import { ContactWindow } from "@/components/windows/ContactWindow";
 import { CvWindow } from "@/components/windows/CvWindow";
@@ -23,5 +24,9 @@ const windows: Partial<Record<WinId, React.ReactNode>> = {
 };
 
 export default function Home() {
-  return <Desktop windows={windows} />;
+  return (
+    <Desktop windows={windows}>
+      <SetupFlow />
+    </Desktop>
+  );
 }
