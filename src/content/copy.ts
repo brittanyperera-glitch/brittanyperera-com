@@ -157,6 +157,14 @@ export const copy = {
     soundOn: "Sound: on",
     soundOff: "Sound: off",
   },
+  windows: {
+    projectsInfo: "{n} items",
+    openHint: "Double-click an icon (or select it and press Return) to open it.",
+    cvPageLink: "the full CV, as a page",
+    copyEmail: "Copy email",
+    github: "GitHub",
+    linkedin: "LinkedIn",
+  },
   contactInvite: "want to work together, hire me, or just say hi?",
   firstWindows: {
     recruiter: ["about", "cv"],

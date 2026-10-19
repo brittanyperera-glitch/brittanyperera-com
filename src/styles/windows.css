@@ -1,0 +1,59 @@
+/* Window-body styles. Shared bits (.row, .timeline, .folder-grid, .info, .tag, .open-hint) live in desktop.css. */
+.win .body .shot {
+  margin: 8px 0;
+  padding: 6px;
+  font-size: 11px;
+  color: #555;
+}
+
+.win .body .shot .info {
+  margin: 0 0 6px;
+}
+
+.win .body .shot iframe {
+  display: block;
+  width: 100%;
+  height: 300px;
+  border: 1px solid var(--edge);
+  background: #fff;
+}
+
+.win .body .org::before {
+  content: ", ";
+}
+
+.win .body .when::before {
+  content: ". ";
+}
+
+.win .body .actions-right {
+  text-align: right;
+}
+
+.win .body .linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 10px;
+  font: inherit;
+  color: #1a3fa3;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.win .body .trash-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+.win .body .trash-list li {
+  padding: 4px 0;
+  border-bottom: 1px dotted #aaa;
+}
+
+@media (max-width: 700px) {
+  .win .body .shot iframe {
+    height: 240px;
+  }
+}
