@@ -49,12 +49,16 @@ export function MenuBar() {
       const menu = barRef.current?.querySelector(".menu.open");
       if (menu?.contains(document.activeElement)) titleRefs.current[openMenu]?.focus();
       setOpenMenu(null);
+      // The menu is the innermost thing Esc dismisses; windows' Esc handlers skip a handled key.
+      e.preventDefault();
+      e.stopPropagation();
     };
     document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKey);
+    // Capture, so this runs before any window's bubble-phase listener whatever order they registered in.
+    document.addEventListener("keydown", onKey, true);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("keydown", onKey, true);
     };
   }, [openMenu, alertOpen]);
 

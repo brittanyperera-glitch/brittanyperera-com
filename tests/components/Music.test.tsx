@@ -82,6 +82,13 @@ describe("GarageWindow", () => {
     expect(play).not.toHaveBeenCalled();
   });
 
+  it("fetches nothing until the window is opened, then loads metadata for the length", async () => {
+    const user = mount(track);
+    expect(audio()).toHaveAttribute("preload", "none");
+    await user.click(screen.getByText("test-open-garage"));
+    expect(audio()).toHaveAttribute("preload", "metadata");
+  });
+
   it("shows the track note under the title when there is one, and none otherwise", async () => {
     const user = mount({ ...track, note: "a fixture note" });
     await user.click(screen.getByText("test-open-garage"));

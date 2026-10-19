@@ -67,6 +67,43 @@ for (const size of DESKTOP_SIZES) {
   });
 }
 
+// A window whose title bar is buried under others cannot be grabbed or brought forward. Sample
+// points across each title bar and require at least one to be the topmost element.
+async function buriedTitleBars(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    for (const w of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
+      const bar = w.querySelector<HTMLElement>(".titlebar");
+      if (!bar) continue;
+      const r = bar.getBoundingClientRect();
+      const y = r.top + r.height / 2;
+      let reachable = false;
+      for (let i = 1; i < 20 && !reachable; i++) {
+        const x = r.left + (r.width * i) / 20;
+        if (x < 0 || x >= window.innerWidth || y < 0 || y >= window.innerHeight) continue;
+        reachable = w.contains(document.elementFromPoint(x, y));
+      }
+      if (!reachable) out.push(w.dataset.win ?? "?");
+    }
+    return out;
+  });
+}
+
+for (const size of DESKTOP_SIZES.filter((s) => s.width >= 1024 && s.width > s.height)) {
+  test(`landing at ${size.width}x${size.height}: every open window's title bar is reachable`, async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+    await blockSites(page);
+    await page.setViewportSize(size);
+    await skipSetup(page, "recruiter");
+    await page.goto("/");
+    await settle(page, info);
+    await expect(openWindows(page)).not.toHaveCount(0);
+    expect(await buriedTitleBars(page)).toEqual([]);
+  });
+}
+
 test("every window opened at 390x844: controls stay on screen", async ({ page }, info) => {
   test.skip(info.project.name !== "phone", "phone size runs in the phone project");
   await blockSites(page);

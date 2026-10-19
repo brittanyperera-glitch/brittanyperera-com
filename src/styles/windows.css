@@ -88,6 +88,17 @@
   font: 12px / 1.55 var(--doc-serif);
 }
 
+/* A portrait promo: capped height so the About window stays short, centred on black. */
+.win .promo {
+  display: block;
+  width: 100%;
+  height: min(360px, 50vh);
+  margin-top: 12px;
+  background: #000;
+  border: 1px solid #5a5a5a;
+  box-shadow: inset 1px 1px 0 #000;
+}
+
 /* The full CV: same markup as /cv (CvDocument), laid out here with CSS only. */
 .win .cv-doc > h3 {
   margin: 0;
@@ -222,6 +233,57 @@
   .win .cv-doc .cv-head > * {
     grid-column: 1;
   }
+}
+
+/* Stickies: a yellow note with a slim title bar and only a close box. */
+.win[data-win="note"] {
+  background: #fff6a3;
+  border-color: #a8973a;
+  box-shadow:
+    2px 3px 0 rgba(0, 0, 0, 0.16),
+    0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.win[data-win="note"]::after,
+.win[data-win="note"] .titlebar::before,
+.win[data-win="note"] .titlebar .zoom,
+.win[data-win="note"] .titlebar .shade {
+  display: none;
+}
+
+.win[data-win="note"] .titlebar {
+  height: 18px;
+  margin-bottom: 0;
+  background: linear-gradient(#fffbc8, #f3e472);
+  border-bottom: 1px solid #c8b64c;
+}
+
+.win[data-win="note"] .titlebar .close {
+  top: 2px;
+}
+
+.win[data-win="note"] .titlebar .t {
+  background: none;
+  color: #6b5d12;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.win[data-win="note"] .body {
+  background: #fff6a3;
+  border: 0;
+  box-shadow: none;
+  padding: 10px 12px 12px;
+  font:
+    13px / 1.45 "Geneva",
+    "Lucida Grande",
+    "Verdana",
+    sans-serif;
+  color: #3a3410;
+}
+
+.win[data-win="note"] .sticky-note p {
+  margin: 0 0 6px;
 }
 
 @media (max-width: 700px) {

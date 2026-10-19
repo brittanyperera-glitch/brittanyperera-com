@@ -50,8 +50,8 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
   }
 }
 
-/** The one window a phone shows: the last of the visitor's first windows (cv, projects, contact). */
+/** The one window a phone shows: the last of the visitor's first windows, skipping the note. */
 export function phoneWindow(visitor: Visitor): WinId {
-  const wins = copy.firstWindows[visitor];
+  const wins = copy.firstWindows[visitor].filter((id) => id !== "note");
   return wins[wins.length - 1];
 }

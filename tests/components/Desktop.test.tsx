@@ -106,6 +106,14 @@ describe("desktop shell", () => {
     expect(screen.queryByRole("button", { name: "Open CV" })).toBeNull();
   });
 
+  it("Escape that closes a menu is marked handled, so no window acts on it too", async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole("button", { name: "File" }));
+    expect(fireEvent.keyDown(document.body, { key: "Escape" })).toBe(false);
+    expect(fireEvent.keyDown(document.body, { key: "Escape" })).toBe(true);
+    expect(screen.getByRole("button", { name: "File" })).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("Escape closes the alert first, then the menu that is still open behind it", async () => {
     // A click outside the open menu now closes it, so the only way to have both open is an alert
     // raised without a pointer press (here a keyboard Enter on a child, as a timed alert would).

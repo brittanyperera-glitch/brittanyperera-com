@@ -18,6 +18,13 @@ const KEYS: Record<string, GameAction["type"]> = {
   " ": "drop",
 };
 
+const FORM = "input, select, textarea, [contenteditable]:not([contenteditable=false])";
+// Space activates these natively, so the game must leave it to them.
+const ACTIVATES = "button, a[href], summary, [role=button], [role=menuitem]";
+
+const targetIs = (t: EventTarget | null, selector: string) =>
+  t instanceof Element && t.closest(selector) !== null;
+
 type Props = {
   /** Test seam: a ready-made game in place of the default first game. */
   startGame?: () => Game;
@@ -39,6 +46,8 @@ export function CvBuilderWindow({ startGame }: Props) {
     const onKey = (e: KeyboardEvent) => {
       const action = KEYS[e.key];
       if (!action || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (targetIs(e.target, FORM)) return;
+      if (e.key === " " && targetIs(e.target, ACTIVATES)) return;
       e.preventDefault();
       dispatch({ type: action } as GameAction);
     };

@@ -56,6 +56,29 @@ describe("Photos content", () => {
     expect(photos.albums[0].id).toBe("general");
     expect(photos.albums[0].title).toBe("General");
   });
+
+  it("names an album with photos to open on", () => {
+    const album = photos.albums.find((a) => a.id === photos.openAlbum);
+    expect(album?.items.length).toBeGreaterThan(0);
+  });
+});
+
+describe("Photos opening album", () => {
+  it("opens straight on the openAlbum album, not the album list", async () => {
+    const user = setup([
+      ...fixtures,
+      { id: photos.openAlbum, title: "Opener", items: [item("o1")] },
+    ]);
+    await openPhotos(user);
+    expect(within(body()).getByText(counter(1, 1))).toBeInTheDocument();
+    expect(within(body()).getByRole("img", { name: "Fixture o1" })).toBeInTheDocument();
+  });
+
+  it("shows the album list when openAlbum is not among the albums", async () => {
+    const user = setup();
+    await openPhotos(user);
+    expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
+  });
 });
 
 describe("Photos album list", () => {
@@ -159,6 +182,25 @@ describe("Photos viewer", () => {
     expect(within(body()).getByText(counter(1, 2))).toBeInTheDocument();
     await user.keyboard("{Escape}");
     expect(within(body()).queryByText("caption m1")).toBeNull();
+    expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
+  });
+
+  it("opening an album puts focus on the viewer's first button, not the page body", async () => {
+    const user = setup();
+    await openAlbum(user, "General");
+    expect(document.activeElement).toBe(within(body()).getByRole("button", { name: ui.back }));
+  });
+
+  it("one Escape closes an open menu and leaves the album where it is", async () => {
+    const user = setup();
+    await openAlbum(user, "General");
+    const file = screen.getByRole("button", { name: "File" });
+    await user.click(file);
+    expect(file).toHaveAttribute("aria-expanded", "true");
+    await user.keyboard("{Escape}");
+    expect(file).toHaveAttribute("aria-expanded", "false");
+    expect(within(body()).getByText(counter(1, 3))).toBeInTheDocument();
+    await user.keyboard("{Escape}");
     expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
   });
 

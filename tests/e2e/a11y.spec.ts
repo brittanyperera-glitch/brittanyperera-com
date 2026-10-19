@@ -15,7 +15,13 @@ test("Tab reaches the CV icon and Enter opens it", async ({ page }) => {
   await expect(win(page, "cv")).toBeVisible();
   await win(page, "cv").locator(".close").click();
   await expect(win(page, "cv")).toBeHidden();
-  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  // blur() alone leaves the browser's Tab starting point inside the closed window, so the walk
+  // would run through every other open window first; focus the page top instead.
+  await page.evaluate(() => {
+    document.body.tabIndex = -1;
+    document.body.focus();
+    document.body.removeAttribute("tabindex");
+  });
   const cvIcon = page.locator('.icons [data-open="cv"]');
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press("Tab");

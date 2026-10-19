@@ -7,6 +7,10 @@ import { youtube } from "./youtube";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
 
+// What a laptop visitor lands on, back to front. Brittany 2026-10-19: "have loads of the screens open".
+// The Stickies note sits above all but the visitor's main window, which is always in front.
+const LANDING: WinId[] = ["youtube", "cvbuilder", "photos", "garage", "projects", "note"];
+
 export const copy = {
   boot: {
     name: "Brittany's Mac",
@@ -148,6 +152,7 @@ export const copy = {
     garage: music.appName,
     photos: photos.title,
     youtube: youtube.ui.title,
+    note: "Start here",
   } as Record<Exclude<WinId, `project:${string}` | `browser:${string}`>, string>,
   chrome: {
     menuTitles: {
@@ -173,10 +178,17 @@ export const copy = {
     linkedin: "LinkedIn",
   },
   contactInvite: "want to work together, hire me, or just say hi?",
+  // Opened in order, so the last is in front (and is the one window a phone shows).
   firstWindows: {
-    recruiter: ["cv"],
-    collab: ["cv", "projects"],
-    client: ["cv", "contact"],
-    friend: ["cv"],
+    recruiter: [...LANDING, "cv"],
+    collab: [...LANDING.filter((id) => id !== "projects"), "cv", "projects"],
+    client: [...LANDING, "cv", "contact"],
+    friend: [...LANDING, "cv"],
   } as Record<Visitor, WinId[]>,
+  // The Stickies note open on the desktop after setup.
+  note: [
+    "hi! the CV's open, or play CV Builder and it builds it for you.",
+    "my piano piece is in Garage, press play.",
+    "projects, videos and photos are open too. poke around",
+  ],
 };

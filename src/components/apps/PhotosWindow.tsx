@@ -25,7 +25,7 @@ export function PhotosWindow({ albums = photos.albums }: { albums?: PhotoAlbum[]
   const { state } = useDesktop();
   const alertOpen = useAlertOpen();
   const shown = useMemo(() => shownAlbums(albums), [albums]);
-  const [albumId, setAlbumId] = useState<string | null>(null);
+  const [albumId, setAlbumId] = useState<string | null>(photos.openAlbum);
   const [index, setIndex] = useState(0);
   // The album just left, so the list can put focus back on its folder.
   const [returnTo, setReturnTo] = useState<string | null>(null);

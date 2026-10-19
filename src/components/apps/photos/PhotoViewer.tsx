@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { photos } from "@/content/photos";
 import { youtube } from "@/content/youtube";
@@ -19,11 +20,18 @@ export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
   const item = album.items[index];
   const counter = ui.counter.replace("{n}", String(index + 1)).replace("{total}", String(total));
   const videoIds = album.videoIds ?? [];
+  const back = useRef<HTMLButtonElement>(null);
+
+  // Opening an album unmounts the folder that held focus, which would leave it on the body.
+  useEffect(() => {
+    const a = document.activeElement;
+    if (!a || a === document.body) back.current?.focus();
+  }, []);
 
   return (
     <div className="photo-view">
       <div className="scrap-toolbar">
-        <button type="button" className="pbtn photo-back" onClick={onBack}>
+        <button type="button" className="pbtn photo-back" ref={back} onClick={onBack}>
           {ui.back}
         </button>
         <span className="scrap-sep" aria-hidden="true" />

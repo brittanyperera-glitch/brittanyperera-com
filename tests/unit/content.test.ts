@@ -61,12 +61,14 @@ describe("content strings", () => {
     expect(cv.email).toBe("brittanykawshalya@gmail.com");
     expect(all.some((s) => s.value.includes("gmai.com"))).toBe(false);
   });
+  // Brittany 2026-10-19: "have loads of the screens open already"; the main window stays in front.
   it("opens the right first windows per visitor", () => {
+    const landing = ["youtube", "cvbuilder", "photos", "garage", "projects", "note"];
     expect(copy.firstWindows).toEqual({
-      recruiter: ["cv"],
-      collab: ["cv", "projects"],
-      client: ["cv", "contact"],
-      friend: ["cv"],
+      recruiter: [...landing, "cv"],
+      collab: ["youtube", "cvbuilder", "photos", "garage", "note", "cv", "projects"],
+      client: [...landing, "cv", "contact"],
+      friend: [...landing, "cv"],
     });
   });
   it("has no About me window, icon or menu item (the Apple menu's About Brittany's Mac stays)", () => {

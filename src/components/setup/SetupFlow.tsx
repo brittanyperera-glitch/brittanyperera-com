@@ -144,16 +144,17 @@ export function SetupFlow() {
     }
   }, [s.phase, s.visitor, desk.mode, open, alert]);
 
-  // Once the windows are open and the desktop is no longer inert, put keyboard focus on the front
-  // window's close box instead of leaving it on <body>.
+  // Once the windows are open and the desktop is no longer inert, put keyboard focus on the
+  // visitor's main window's close box (not the Stickies note on top) instead of leaving it on <body>.
   const front = topWindow(desk);
   useEffect(() => {
     const pending = focusPending.current;
     if (!pending || s.phase !== "done" || !front) return;
     focusPending.current = null;
-    document.querySelector<HTMLElement>(`section[data-win="${front}"] .close`)?.focus();
+    const main = phoneWindow(s.visitor);
+    document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
     if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
-  }, [s.phase, front, alert]);
+  }, [s.phase, s.visitor, front, alert]);
 
   if (s.phase === "done") return null;
 

@@ -13,6 +13,9 @@ export function YouTubeWindow() {
   const [playing, setPlaying] = useState(false);
 
   const isOpen = state.open.includes("youtube");
+  // The window is mounted while closed; request no thumbnails from YouTube until it has been opened once.
+  const [opened, setOpened] = useState(isOpen);
+  if (isOpen && !opened) setOpened(true);
   // The window stays mounted while closed, so closing is what unloads the iframe (and stops audio).
   useEffect(() => {
     if (!isOpen) setPlaying(false);
@@ -39,11 +42,17 @@ export function YouTubeWindow() {
         </span>
       </div>
       <div className="yt-page">
-        <VideoPlayer video={video} playing={isOpen && playing} onPlay={() => setPlaying(true)} />
+        <VideoPlayer
+          video={video}
+          playing={isOpen && playing}
+          thumbs={opened}
+          onPlay={() => setPlaying(true)}
+        />
         <aside className="yt-side">
           <h3 className="yt-more">{youtube.ui.moreVideos}</h3>
           <VideoList
             selected={index}
+            thumbs={opened}
             onSelect={(i) => {
               setIndex(i);
               setPlaying(false);

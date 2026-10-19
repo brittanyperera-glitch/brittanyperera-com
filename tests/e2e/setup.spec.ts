@@ -1,13 +1,19 @@
 import { expect, type Page, test } from "@playwright/test";
 import { copy } from "../../src/content/copy";
+import type { Visitor } from "../../src/lib/types";
 import { collectPageErrors, isPhone, runAssistant, settle, skipSetup, win } from "./helpers";
 
-// Recruiter lands on the CV alone, on a desktop and on a phone (the phone also shows its alert).
-async function expectRecruiterLanding(page: Page, phone: boolean) {
+// A laptop lands on the full landing set (copy.firstWindows); a phone on the CV alone, with its alert.
+async function expectLanding(page: Page, phone: boolean, visitor: Visitor = "recruiter") {
   await expect(win(page, "cv")).toBeVisible();
-  await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
-  await expect(win(page, "projects")).toBeHidden();
-  if (phone) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
+  if (phone) {
+    await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
+    await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
+    return;
+  }
+  const open = page.locator("section[data-win]:not([hidden])");
+  await expect(open).toHaveCount(copy.firstWindows[visitor].length);
+  for (const id of copy.firstWindows[visitor]) await expect(win(page, id)).toBeVisible();
 }
 
 test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead) lands on the CV", async ({
@@ -15,7 +21,7 @@ test("fresh visit: the recruiter flow (Continue, I'm hiring, Continue, Go Ahead)
 }, info) => {
   await page.goto("/");
   await runAssistant(page, "recruiter");
-  await expectRecruiterLanding(page, isPhone(info));
+  await expectLanding(page, isPhone(info));
 });
 
 test("fresh visit: the friend flow lands on the CV, not an About me window", async ({
@@ -23,8 +29,7 @@ test("fresh visit: the friend flow lands on the CV, not an About me window", asy
 }, info) => {
   await page.goto("/");
   await runAssistant(page, "friend");
-  await expect(win(page, "cv")).toBeVisible();
-  await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
+  await expectLanding(page, isPhone(info), "friend");
   await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
   if (isPhone(info)) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
 });
@@ -36,13 +41,13 @@ test("Esc on first paint skips setup to the CV", async ({ page }, info) => {
     await page.keyboard.press("Escape");
     await expect(page.locator(".boot, .setup")).toHaveCount(0, { timeout: 500 });
   }).toPass();
-  await expectRecruiterLanding(page, isPhone(info));
+  await expectLanding(page, isPhone(info));
 });
 
 test("after finishing, a reload skips setup", async ({ page }, info) => {
   await page.goto("/");
   await runAssistant(page, "recruiter");
-  await expectRecruiterLanding(page, isPhone(info));
+  await expectLanding(page, isPhone(info));
   await page.reload();
   // The server HTML always carries the boot screen; hydration must remove it without the assistant.
   await expect(page.locator(".boot, .setup")).toHaveCount(0);
@@ -98,7 +103,7 @@ test("after setup, focus lands on the front window's close box instead of <body>
 }, info) => {
   await page.goto("/");
   await runAssistant(page, "recruiter");
-  await expectRecruiterLanding(page, isPhone(info));
+  await expectLanding(page, isPhone(info));
   if (isPhone(info)) await page.keyboard.press("Escape");
   await expect(win(page, "cv").locator(".close")).toBeFocused();
 });
@@ -129,6 +134,6 @@ test("setup completes with no page errors when localStorage throws", async ({ pa
   });
   await page.goto("/");
   await runAssistant(page, "recruiter");
-  await expectRecruiterLanding(page, isPhone(info));
+  await expectLanding(page, isPhone(info));
   expect(errors.map((e) => e.message)).toEqual([]);
 });

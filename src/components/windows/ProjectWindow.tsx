@@ -12,6 +12,18 @@ export function ProjectWindow({ project }: { project: Project }) {
         <h3>{project.title}</h3>
         {project.about && <p>{project.about}</p>}
       </div>
+      {project.video && (
+        // biome-ignore lint/a11y/useMediaCaption: no speech to caption; per the promo's STORYBOARD-v3.md every word is on-screen text and the audio is sound effects
+        <video
+          className="promo"
+          src={project.video.src}
+          poster={project.video.poster}
+          aria-label={project.video.label}
+          preload="none"
+          controls
+          playsInline
+        />
+      )}
       <p className="actions-right">
         <button
           type="button"

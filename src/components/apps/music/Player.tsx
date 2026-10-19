@@ -14,6 +14,9 @@ export function Player({ track, active }: { track: Track; active: boolean }) {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  // The window is mounted while closed; fetch nothing until it has been opened once.
+  const [opened, setOpened] = useState(active);
+  if (active && !opened) setOpened(true);
 
   useEffect(() => {
     if (active) return;
@@ -69,7 +72,7 @@ export function Player({ track, active }: { track: Track; active: boolean }) {
         <audio
           ref={ref}
           src={track.src}
-          preload="metadata"
+          preload={opened ? "metadata" : "none"}
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onDurationChange={(e) => setDuration(e.currentTarget.duration)}
           onTimeUpdate={(e) => setCurrent(e.currentTarget.currentTime)}

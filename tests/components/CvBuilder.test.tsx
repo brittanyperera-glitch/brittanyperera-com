@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -234,5 +235,76 @@ describe("CV Builder window", () => {
     } finally {
       restore();
     }
+  });
+});
+
+describe("CV Builder keyboard scope", () => {
+  const closeBox = () =>
+    within(document.querySelector("section[data-win=cvbuilder]") as HTMLElement).getByRole(
+      "button",
+      { name: /close/i },
+    );
+
+  it("Space on a focused button presses that button and does not drop the piece", () => {
+    setup(nearLine());
+    const btn = closeBox();
+    btn.focus();
+    const notPrevented = fireEvent.keyDown(btn, { key: " " });
+    expect(notPrevented).toBe(true);
+    expect(board().dataset.pieceY).toBe("0");
+    expect(filed()).toHaveLength(0);
+  });
+
+  it("no game key is taken while focus is in a form control", () => {
+    setup(nearLine());
+    const input = document.createElement("input");
+    document.body.append(input);
+    input.focus();
+    for (const key of [" ", "ArrowLeft", "ArrowDown"]) {
+      expect(fireEvent.keyDown(input, { key })).toBe(true);
+    }
+    expect(board().dataset.pieceY).toBe("0");
+    input.remove();
+  });
+
+  it("arrow keys still play when focus has been left on a button", () => {
+    setup(nearLine());
+    const btn = closeBox();
+    btn.focus();
+    const x = Number(board().dataset.pieceX);
+    fireEvent.keyDown(btn, { key: "ArrowRight" });
+    expect(Number(board().dataset.pieceX)).toBe(x + 1);
+  });
+});
+
+describe("CV Builder stylesheet", () => {
+  const css = readFileSync("src/styles/cvbuilder.css", "utf8");
+  const lum = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const ratio = (a: string, b: string) => {
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  it("the phone pad keys out-rank .pbtn, so their 44px hit area is not overridden", () => {
+    // .pbtn (platinum.css, loaded later) is one class; equal specificity would let it win.
+    expect(css).toMatch(/\.cvb-pad\s+\.cvb-padkey\s*\{[^}]*min-height:\s*44px/);
+  });
+
+  it("focus rings inside the game are at least 3:1 against the dark ground", () => {
+    const ground =
+      /\.win\[data-win="cvbuilder"\] \.body\s*\{[^}]*background:\s*(#[0-9a-f]{6})/i.exec(
+        css,
+      )?.[1] as string;
+    const ring = /\.cvb\s+:focus-visible\s*\{[^}]*outline-color:\s*(#[0-9a-f]{6})/i.exec(
+      css,
+    )?.[1] as string;
+    expect(ring).toBeDefined();
+    expect(ratio(ring, ground)).toBeGreaterThanOrEqual(3);
   });
 });

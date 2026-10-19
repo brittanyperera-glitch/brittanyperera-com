@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Desktop } from "@/components/desktop/Desktop";
 import { SetupFlow } from "@/components/setup/SetupFlow";
 import { copy } from "@/content/copy";
+import type { Visitor } from "@/lib/types";
 
 const PHONE = "(max-width: 700px)";
 const REDUCED = "(prefers-reduced-motion: reduce)";
@@ -26,6 +27,13 @@ const bootOverlay = (c: HTMLElement) => c.querySelector(".boot");
 const advance = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
 const click = (name: string | RegExp, role: "button" | "radio" = "button") =>
   fireEvent.click(screen.getByRole(role, { name }));
+
+// The windows open after setup, sorted, against what the content says a visitor lands on.
+const openIds = () =>
+  [...document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")]
+    .map((w) => w.dataset.win)
+    .sort();
+const landing = (v: Visitor) => [...copy.firstWindows[v]].sort();
 
 function renderFlow() {
   return render(
@@ -73,9 +81,8 @@ describe("SetupFlow", () => {
     expect(bootOverlay(container)).toBeNull();
     expect(setupDialog()).toBeNull();
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(win("Projects")).toHaveAttribute("hidden");
     expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
-    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
+    expect(openIds()).toEqual(landing("recruiter"));
   });
 
   it("clicking the boot screen skips too", () => {
@@ -92,7 +99,7 @@ describe("SetupFlow", () => {
     expect(screen.getByText("1 of 3")).toBeInTheDocument();
   });
 
-  it("three steps as 'I'm hiring' then Go Ahead opens only the CV and stores the choice", () => {
+  it("three steps as 'I'm hiring' then Go Ahead opens the landing windows and stores the choice", () => {
     renderFlow();
     runToConclusion(/I'm hiring/);
     expect(screen.getByText("3 of 3")).toBeInTheDocument();
@@ -100,7 +107,7 @@ describe("SetupFlow", () => {
     advance(20000);
     expect(setupDialog()).toBeNull();
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
+    expect(openIds()).toEqual(landing("recruiter"));
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
@@ -138,13 +145,13 @@ describe("SetupFlow", () => {
     expect(win("Projects")).not.toHaveAttribute("hidden");
   });
 
-  it("a friend lands on the CV and nothing else", () => {
+  it("a friend lands on the CV and the rest of the landing windows", () => {
     renderFlow();
     runToConclusion(/Friend/);
     click(copy.setup.goAhead);
     advance(20000);
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(document.querySelectorAll("section[data-win]:not([hidden])")).toHaveLength(1);
+    expect(openIds()).toEqual(landing("friend"));
   });
 
   it("install lines hold 1s each, or 2s under reduced motion", () => {

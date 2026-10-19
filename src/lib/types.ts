@@ -15,6 +15,7 @@ export type WinId =
   | "garage"
   | "photos"
   | "youtube"
+  | "note"
   | `project:${ProjectId}`
   | `browser:${ProjectId}`;
 

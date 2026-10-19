@@ -113,6 +113,20 @@ describe("YouTube desktop icon", () => {
 });
 
 describe("YouTube window", () => {
+  it("requests no thumbnail until the window has been opened", async () => {
+    const user = setup();
+    expect(document.querySelectorAll('img[src*="ytimg"]')).toHaveLength(0);
+    await openYouTube(user);
+    expect(document.querySelectorAll('img[src*="ytimg"]').length).toBeGreaterThan(0);
+  });
+
+  it("play moves focus into the player, not the page body", async () => {
+    const user = setup();
+    await openYouTube(user);
+    await user.click(within(body()).getByRole("button", { name: playLabel(TITLES[0]) }));
+    expect(document.activeElement).toBe(iframes()[0]);
+  });
+
   it("lists the four videos with exact titles and mqdefault thumbnails, lazily loaded", async () => {
     const user = setup();
     await openYouTube(user);

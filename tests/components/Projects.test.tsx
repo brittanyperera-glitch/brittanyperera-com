@@ -86,6 +86,20 @@ describe("About window", () => {
     expect(w.querySelector(".body p:not(.actions-right)")).toBeNull();
   });
 
+  it("plays the Delulu promo, loading nothing until asked", () => {
+    const delulu = projects.find((p) => p.id === "delulu");
+    if (!delulu?.video) throw new Error("Delulu has no promo video in content");
+    setup(["project:delulu"]);
+    const video = win("project:delulu").querySelector("video");
+    expect(video).not.toBeNull();
+    expect(video).toHaveAttribute("src", delulu.video.src);
+    expect(video).toHaveAttribute("poster", delulu.video.poster);
+    expect(video).toHaveAttribute("preload", "none");
+    expect(video).toHaveAttribute("controls");
+    expect(video).toHaveAttribute("aria-label", delulu.video.label);
+    expect(win("project:trip").querySelector("video")).toBeNull();
+  });
+
   it("shows the about text when there is one", () => {
     setup(["project:trip"], {
       "project:trip": <ProjectWindow project={{ ...trip, about: "fixture about" }} />,

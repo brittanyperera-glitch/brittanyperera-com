@@ -1,15 +1,23 @@
+import { useEffect, useRef } from "react";
 import { youtube } from "@/content/youtube";
 import { embedUrl, thumbUrl, type Video } from "./urls";
 
-type Props = { video: Video; playing: boolean; onPlay(): void };
+type Props = { video: Video; playing: boolean; thumbs: boolean; onPlay(): void };
 
 // Click-to-load facade: no request to YouTube's player until the visitor asks for it.
-export function VideoPlayer({ video, playing, onPlay }: Props) {
+export function VideoPlayer({ video, playing, thumbs, onPlay }: Props) {
+  const frame = useRef<HTMLIFrameElement>(null);
+  // The facade button is replaced by the iframe, which would drop focus to the body.
+  useEffect(() => {
+    if (playing) frame.current?.focus();
+  }, [playing]);
+
   return (
     <div className="yt-main">
       <div className="yt-stage">
         {playing ? (
           <iframe
+            ref={frame}
             key={video.id}
             className="yt-frame"
             src={embedUrl(video.id)}
@@ -25,8 +33,10 @@ export function VideoPlayer({ video, playing, onPlay }: Props) {
             aria-label={youtube.ui.playLabel.replace("{title}", video.title)}
             onClick={onPlay}
           >
-            {/* biome-ignore lint/performance/noImgElement: plain img by design, the thumbnail is remote */}
-            <img src={thumbUrl(video.id)} alt="" decoding="async" />
+            {thumbs ? (
+              // biome-ignore lint/performance/noImgElement: plain img by design, the thumbnail is remote
+              <img src={thumbUrl(video.id)} alt="" decoding="async" />
+            ) : null}
             <span className="yt-play" aria-hidden="true" />
           </button>
         )}

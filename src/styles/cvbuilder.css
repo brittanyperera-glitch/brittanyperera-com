@@ -19,6 +19,11 @@
   line-height: 1.3;
 }
 
+/* The default accent ring is 2.65:1 on this ground; white is well over the 3:1 a focus ring needs. */
+.cvb :focus-visible {
+  outline-color: #ffffff;
+}
+
 .cvb {
   /* 1024x600 is the tight case: ~330px of banner, padding, cabinet and hint sit around the 16 rows. */
   --cvb-cell: clamp(15px, calc((100vh - 330px) / 16), 21px);
@@ -210,7 +215,8 @@
   margin-top: 10px;
 }
 
-.cvb-padkey {
+/* Two classes: .pbtn (platinum.css, loaded later) would otherwise win the tie and cut this to 24px. */
+.cvb-pad .cvb-padkey {
   min-height: 44px;
   height: auto;
   padding: 0;

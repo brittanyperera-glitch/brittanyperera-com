@@ -10,6 +10,8 @@ export type Project = {
   siteUrl: string;
   /** Title of the browser window. */
   siteLabel: string;
+  /** A promo video shown in the About window, hosted in public/video. */
+  video?: { src: string; poster: string; label: string };
 };
 
 export const projects: Project[] = [
@@ -20,6 +22,12 @@ export const projects: Project[] = [
     about: "",
     siteUrl: "https://100-days-of-delulu.vercel.app",
     siteLabel: "100 Days of Delulu, live site",
+    // Web encode of the promo animatic (archived as a release on the Delulu repo, which is private).
+    video: {
+      src: "/video/delulu-promo.mp4",
+      poster: "/video/delulu-promo-poster.jpg",
+      label: "100 Days of Delulu promo video",
+    },
   },
   {
     id: "trip",
