@@ -1,0 +1,88 @@
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+html,
+body {
+  margin: 0;
+  background: #fff;
+  color: #000;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.45;
+}
+
+.cv {
+  max-width: 180mm;
+  margin: 0 auto;
+  padding: 15mm 16px;
+}
+
+.cv h1 {
+  font-size: 22pt;
+  margin: 0 0 2pt;
+}
+
+.cv h2 {
+  font-size: 11pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2pt;
+  margin: 16pt 0 8pt;
+  break-after: avoid;
+}
+
+.cv a {
+  color: #000;
+}
+
+.cv ul {
+  margin: 4pt 0 0;
+  padding-left: 16pt;
+}
+
+.cv p {
+  margin: 2pt 0;
+}
+
+.cv-item {
+  margin: 0 0 10pt;
+  break-inside: avoid;
+}
+
+.cv-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12pt;
+  font-weight: 600;
+}
+
+.cv-when {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+@media print {
+  body {
+    font-size: 10pt;
+    line-height: 1.35;
+  }
+
+  .cv {
+    padding: 0;
+    max-width: none;
+  }
+
+  .cv h2 {
+    margin: 12pt 0 6pt;
+  }
+
+  .cv-item {
+    margin-bottom: 7pt;
+  }
+}
