@@ -1,0 +1,74 @@
+.bevel {
+  background: var(--platinum, #dddddd);
+  border: 1px solid var(--edge, #000);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--plat-dark, #a0a0a0);
+}
+.pbtn {
+  cursor: pointer;
+  background: linear-gradient(#fafafa, #d2d2d2);
+  border: 1px solid var(--edge, #000);
+  border-radius: 4px;
+  padding: 3px 14px;
+  min-height: 24px;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+.pbtn:active {
+  background: linear-gradient(#bdbdbd, #d8d8d8);
+}
+.pbtn.default {
+  box-shadow:
+    0 0 0 2px var(--platinum, #dddddd),
+    0 0 0 3px var(--edge, #000),
+    inset 1px 1px 0 #fff;
+  font-weight: bold;
+}
+.pbtn[disabled] {
+  color: #8a8a8a;
+  cursor: default;
+}
+.pbtn:focus-visible {
+  outline: 2px solid var(--accent, #3a6ea5);
+  outline-offset: 2px;
+}
+.alert-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 8000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 18vh;
+  background: rgba(0, 0, 0, 0.08);
+}
+.alert {
+  width: min(420px, calc(100vw - 32px));
+  padding: 16px 16px 12px;
+  display: flex;
+  gap: 14px;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--plat-dark, #a0a0a0),
+    3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+.alert > svg {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+.alert-main {
+  flex: 1;
+  line-height: 1.45;
+}
+.alert-main .specs {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.alert-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
