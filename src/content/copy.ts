@@ -91,7 +91,7 @@ export const copy = {
       cancel: "Cancel",
       ok: "Open",
     },
-    phone: "this is better on a laptop but go off",
+    phone: "might be better on laptop btw",
     aboutMac: {
       title: "Brittany's Mac",
       specs: [
