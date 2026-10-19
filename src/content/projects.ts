@@ -35,9 +35,9 @@ export const projects: Project[] = [
     id: "trip",
     title: "Group Trip Hero",
     icon: "palm",
-    // Draft for Brittany to keep or change (2026-10-19).
+    // Brittany's words, 2026-10-19.
     about:
-      "i built this to plan our group trip to sri lanka. everyone takes a quiz, votes on where we stay and what we do, and knockout rounds settle the arguments.",
+      "i didnt want the group chat drama. i made an app to optimize the trip for us- we vote, the ai makes sure we're all happy",
     siteUrl: "https://grouptriphero.brittanyperera.com/#/guest",
     siteLabel: "Group Trip Hero, live site",
   },
