@@ -1,4 +1,16 @@
 /* Window-body styles. Shared bits (.row, .timeline, .folder-grid, .info, .tag, .open-hint) live in desktop.css. */
+
+/* The mockup's framed portrait; flex: none stops the row squashing it. */
+.win .portrait {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  border: 1px dashed var(--edge);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .win .body .shot {
   margin: 8px 0;
   padding: 6px;

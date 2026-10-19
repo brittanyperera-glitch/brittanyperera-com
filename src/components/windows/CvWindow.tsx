@@ -18,7 +18,8 @@ export function CvWindow() {
       </p>
       {cv.roles.map((r) => (
         <p key={`${r.title}-${r.when}`}>
-          <b>{r.title}</b> <span className="org">{r.org}</span>{" "}
+          <b>{r.title}</b>
+          <span className="org">{r.org}</span>
           <span className="when">{r.when}</span>
         </p>
       ))}

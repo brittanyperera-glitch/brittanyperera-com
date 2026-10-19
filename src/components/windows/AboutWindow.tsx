@@ -10,7 +10,9 @@ export function AboutWindow() {
   return (
     <>
       <div className="row">
-        <PixelIcon name="person" size={60} label={copy.setup.portraitAlt} />
+        <div className="portrait">
+          <PixelIcon name="person" size={60} label={copy.setup.portraitAlt} />
+        </div>
         <div>
           <h3>{about.heading}</h3>
           {about.paragraphs.map((p) => (
