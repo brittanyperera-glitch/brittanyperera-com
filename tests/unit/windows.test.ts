@@ -148,6 +148,14 @@ describe("helpers", () => {
     expect(parentOf("projects")).toBeNull();
   });
 
+  it("parentOf maps instrument windows and the Garage player to the Music folder", () => {
+    expect(parentOf("music:guitar")).toBe("music");
+    expect(parentOf("music:piano")).toBe("music");
+    expect(parentOf("music:ukulele")).toBe("music");
+    expect(parentOf("garage")).toBe("music");
+    expect(parentOf("music")).toBeNull();
+  });
+
   it("initialWindows is empty desktop with nextZ 10", () => {
     expect(initialWindows).toEqual({ open: [], z: {}, pos: {}, nextZ: 10, mode: "desktop" });
   });

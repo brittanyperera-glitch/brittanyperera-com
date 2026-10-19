@@ -1,5 +1,9 @@
 import type { IconName, Visitor, WinId } from "@/lib/types";
 import { contact } from "./contact";
+import { cvBuilder } from "./cvbuilder";
+import { music } from "./music";
+import { photos } from "./photos";
+import { travel } from "./travel";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
 
@@ -112,6 +116,10 @@ export const copy = {
     view: [
       { label: "About me", open: "about" },
       { label: "Projects", open: "projects" },
+      { label: music.folderTitle, open: "music" },
+      { label: travel.title, open: "travel" },
+      { label: photos.title, open: "photos" },
+      { label: cvBuilder.title, open: "cvbuilder" },
       { label: "Contact", open: "contact" },
       { label: "Trash", open: "trash" },
     ] as MenuItem[],
@@ -124,7 +132,11 @@ export const copy = {
   desktopIcons: [
     { open: "about", label: "About me", icon: "mac" },
     { open: "cv", label: "CV", icon: "doc" },
+    { open: "cvbuilder", label: cvBuilder.title, icon: "game" },
     { open: "projects", label: "Projects", icon: "folder" },
+    { open: "music", label: music.folderTitle, icon: "musicfolder" },
+    { open: "travel", label: travel.title, icon: "map" },
+    { open: "photos", label: photos.title, icon: "camera" },
     { open: "contact", label: "Contact", icon: "mail" },
     { open: "trash", label: "Trash", icon: "trash" },
   ] as { open: WinId; label: string; icon: IconName }[],
@@ -134,7 +146,15 @@ export const copy = {
     projects: "Projects",
     contact: "Say hi",
     trash: "Trash",
-  } as Record<"about" | "cv" | "projects" | "contact" | "trash", string>,
+    cvbuilder: cvBuilder.title,
+    music: music.folderTitle,
+    "music:guitar": music.instruments[0].name,
+    "music:piano": music.instruments[1].name,
+    "music:ukulele": music.instruments[2].name,
+    garage: music.appName,
+    travel: travel.title,
+    photos: photos.title,
+  } as Record<Exclude<WinId, `project:${string}`>, string>,
   chrome: {
     menuTitles: {
       apple: "Apple menu",

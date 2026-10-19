@@ -1,3 +1,4 @@
+import { appWindows } from "@/components/apps/appWindows";
 import { Desktop } from "@/components/desktop/Desktop";
 import { SetupFlow } from "@/components/setup/SetupFlow";
 import { AboutWindow } from "@/components/windows/AboutWindow";
@@ -19,6 +20,7 @@ const windows: Partial<Record<WinId, React.ReactNode>> = {
   projects: <ProjectsWindow />,
   contact: <ContactWindow />,
   trash: <TrashWindow />,
+  ...appWindows,
   ...Object.fromEntries(
     projects.map((p) => [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />]),
   ),

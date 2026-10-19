@@ -2,7 +2,21 @@ export type Visitor = "recruiter" | "collab" | "client" | "friend";
 
 export type ProjectId = "trip" | "delulu" | "whereflix" | "gift" | "schengen";
 
-export type WinId = "about" | "cv" | "projects" | "contact" | "trash" | `project:${ProjectId}`;
+export type WinId =
+  | "about"
+  | "cv"
+  | "projects"
+  | "contact"
+  | "trash"
+  | "cvbuilder"
+  | "music"
+  | "music:guitar"
+  | "music:piano"
+  | "music:ukulele"
+  | "garage"
+  | "travel"
+  | "photos"
+  | `project:${ProjectId}`;
 
 export type IconName =
   | "happymac"
@@ -22,4 +36,13 @@ export type IconName =
   | "apple"
   | "caution"
   | "note"
-  | "bomb";
+  | "bomb"
+  | "game"
+  | "musicfolder"
+  | "guitar"
+  | "piano"
+  | "ukulele"
+  | "garage"
+  | "map"
+  | "camera"
+  | "play";

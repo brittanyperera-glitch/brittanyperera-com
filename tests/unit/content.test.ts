@@ -5,9 +5,13 @@ import { about } from "@/content/about";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
+import { cvBuilder } from "@/content/cvbuilder";
 import { meta } from "@/content/meta";
+import { music } from "@/content/music";
+import { photos } from "@/content/photos";
 import { projects } from "@/content/projects";
 import { trash, trashHeader } from "@/content/trash";
+import { travel } from "@/content/travel";
 
 type Walked = { path: string; value: string };
 
@@ -27,6 +31,7 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
+  ...walk({ cvBuilder, music, travel, photos }, "apps", []),
 ];
 
 const wordExempt = (p: string) =>

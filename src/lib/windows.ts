@@ -38,7 +38,9 @@ const Z_BASE = 10;
 const Z_CEILING = 4000;
 
 export function parentOf(id: WinId): WinId | null {
-  return id.startsWith("project:") ? "projects" : null;
+  if (id.startsWith("project:")) return "projects";
+  if (id.startsWith("music:") || id === "garage") return "music";
+  return null;
 }
 
 export function topWindow(s: WinState): WinId | null {

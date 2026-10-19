@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { copy } from "../../src/content/copy";
+import { music } from "../../src/content/music";
 import { projects } from "../../src/content/projects";
 import type { Visitor, WinId } from "../../src/lib/types";
 
@@ -48,6 +49,12 @@ export async function openWin(page: Page, id: WinId) {
     if (!title) throw new Error(`unknown project window ${id}`);
     if (!(await win(page, "projects").isVisible())) await openWin(page, "projects");
     await win(page, "projects").locator("button.icon", { hasText: title }).focus();
+  } else if (id === "garage" || id.startsWith("music:")) {
+    const name =
+      id === "garage" ? music.appName : music.instruments.find((i) => `music:${i.id}` === id)?.name;
+    if (!name) throw new Error(`unknown music window ${id}`);
+    if (!(await win(page, "music").isVisible())) await openWin(page, "music");
+    await win(page, "music").locator("button.icon", { hasText: name }).focus();
   } else {
     await page.locator(`.icons [data-open="${id}"]`).focus();
   }
@@ -80,5 +87,13 @@ export const ALL_WINDOWS: WinId[] = [
   "projects",
   "contact",
   "trash",
+  "cvbuilder",
+  "music",
+  "music:guitar",
+  "music:piano",
+  "music:ukulele",
+  "garage",
+  "travel",
+  "photos",
   ...projects.map((p) => `project:${p.id}` as WinId),
 ];
