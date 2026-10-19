@@ -8,9 +8,8 @@ import { cvBuilder } from "@/content/cvbuilder";
 import { meta } from "@/content/meta";
 import { music } from "@/content/music";
 import { photos } from "@/content/photos";
-import { projects } from "@/content/projects";
+import { projects, projectUi } from "@/content/projects";
 import { trash, trashHeader } from "@/content/trash";
-import { travel } from "@/content/travel";
 import { youtube } from "@/content/youtube";
 
 type Walked = { path: string; value: string };
@@ -30,10 +29,10 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
-  ...walk({ cvBuilder, music, travel, photos, youtube }, "apps", []),
+  ...walk({ cvBuilder, music, photos, youtube, projectUi }, "apps", []),
 ];
 
-const wordExempt = (p: string) => /^projects\[\d+\]\.blurb$/.test(p) || p.startsWith("cv");
+const wordExempt = (p: string) => /^projects\[\d+\]\.about$/.test(p) || p.startsWith("cv");
 
 describe("content strings", () => {
   it("collects strings from every module", () => {
@@ -97,6 +96,27 @@ describe("content strings", () => {
   });
   it("has an OK label in copy.chrome", () => {
     expect(copy.chrome.ok).toBe("OK");
+  });
+  it("walks the photo albums, project UI strings and project sites", () => {
+    const paths = all.map((s) => s.path);
+    expect(paths).toContain("apps.photos.albums[0].title");
+    expect(paths).toContain("apps.photos.ui.watchVideo");
+    expect(paths).toContain("apps.projectUi.openSite");
+    expect(paths).toContain("projects[0].siteUrl");
+  });
+  it("lists photo albums with unique ids, General first, and videos that exist", () => {
+    const ids = photos.albums.map((a) => a.id);
+    expect(ids[0]).toBe("general");
+    expect(photos.albums[0].title).toBe("General");
+    expect(new Set(ids).size).toBe(ids.length);
+    const known = new Set(youtube.videos.map((v) => v.id));
+    for (const a of photos.albums)
+      for (const id of a.videoIds ?? []) expect(known.has(id)).toBe(true);
+  });
+  it("has no Travel, Whereflix, Gift Finder or SchengenKit entry in the UI content", () => {
+    const menus = [...copy.menus.view, ...copy.desktopIcons];
+    expect(menus.some((m) => /travel/i.test(m.label))).toBe(false);
+    expect(projects.map((p) => p.title)).toEqual(["100 Days of Delulu", "Group Trip Hero"]);
   });
 });
 

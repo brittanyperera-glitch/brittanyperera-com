@@ -8,7 +8,6 @@ import { copy } from "@/content/copy";
 import { cvBuilder } from "@/content/cvbuilder";
 import { music } from "@/content/music";
 import { photos } from "@/content/photos";
-import { travel } from "@/content/travel";
 import type { WinId } from "@/lib/types";
 
 function setup() {
@@ -24,7 +23,6 @@ describe("new desktop apps", () => {
   const apps: { label: string; id: WinId; title: string }[] = [
     { label: cvBuilder.title, id: "cvbuilder", title: cvBuilder.title },
     { label: music.folderTitle, id: "music", title: music.folderTitle },
-    { label: travel.title, id: "travel", title: travel.title },
     { label: photos.title, id: "photos", title: photos.title },
   ];
 
@@ -53,7 +51,6 @@ describe("new desktop apps", () => {
       "music:piano",
       "music:ukulele",
       "garage",
-      "travel",
       "photos",
     ];
     for (const id of ids) {
@@ -68,7 +65,7 @@ describe("new desktop apps", () => {
     const body = (id: string) =>
       document.querySelector(`section[data-win="${id}"] .body`) as HTMLElement;
     const empty = [
-      ...(photos.items.length === 0 ? [["photos", photos.title] as const] : []),
+      ...(photos.albums.some((a) => a.items.length > 0) ? [] : [["photos", photos.title] as const]),
       ...(music.track ? [] : [["garage", music.appName] as const]),
     ];
     for (const [id, title] of empty) {
@@ -77,13 +74,11 @@ describe("new desktop apps", () => {
     }
   });
 
-  it("travel shows the map, with no placeholder text", () => {
+  it("has no Travel app: no window, desktop icon or View menu entry", () => {
     setup();
-    const win = document.querySelector('section[data-win="travel"]') as HTMLElement;
-    const body = win.querySelector(".body") as HTMLElement;
-    expect(win.getAttribute("aria-label")).toBe(travel.title);
-    expect(body.querySelector('[role="img"]')).not.toBeNull();
-    expect(body.textContent ?? "").not.toMatch(/placeholder|goes here|lorem|\[ /i);
+    expect(document.querySelector('section[data-win="travel"]')).toBeNull();
+    expect(copy.desktopIcons.some((i) => /travel/i.test(i.label))).toBe(false);
+    expect(copy.menus.view.some((m) => /travel/i.test(m.label))).toBe(false);
   });
 });
 
@@ -132,11 +127,10 @@ describe("Music folder", () => {
 });
 
 describe("View menu", () => {
-  it("lists Music, Travel, Photos and CV Builder, each opening its window", async () => {
+  it("lists Music, Photos and CV Builder, each opening its window", async () => {
     const user = setup();
     for (const [label, id] of [
       [music.folderTitle, "music"],
-      [travel.title, "travel"],
       [photos.title, "photos"],
       [cvBuilder.title, "cvbuilder"],
     ] as const) {

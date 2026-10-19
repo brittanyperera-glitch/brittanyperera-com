@@ -8,7 +8,7 @@ import { VideoPlayer } from "./youtube/VideoPlayer";
 import "@/styles/youtube.css";
 
 export function YouTubeWindow() {
-  const { state, actions } = useDesktop();
+  const { state, actions, videoRequest } = useDesktop();
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
 
@@ -17,6 +17,16 @@ export function YouTubeWindow() {
   useEffect(() => {
     if (!isOpen) setPlaying(false);
   }, [isOpen]);
+
+  // A request (the Photos window's "watch the video") picks the video and starts it. An id that is
+  // not in the list still opens the window, on whatever was selected, without playing.
+  useEffect(() => {
+    if (!videoRequest) return;
+    const i = youtube.videos.findIndex((v) => v.id === videoRequest.id);
+    if (i < 0) return;
+    setIndex(i);
+    setPlaying(true);
+  }, [videoRequest]);
 
   const video = youtube.videos[index];
 

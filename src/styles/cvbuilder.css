@@ -150,7 +150,6 @@
 
 .cvb-next-grid {
   display: grid;
-  grid-template-columns: repeat(4, 10px);
   grid-auto-rows: 10px;
   width: max-content;
 }

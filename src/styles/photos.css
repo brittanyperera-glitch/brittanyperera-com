@@ -1,39 +1,19 @@
-/* Photos window body. Grid of square-cropped thumbnails, or one large photo with a button bar. */
-.photo-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.photo-thumb {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  padding: 2px;
-  cursor: pointer;
-  background: var(--platinum);
-  border: 1px solid var(--edge);
-  box-shadow: inset 1px 1px 0 #fff;
-}
-
-.photo-thumb:active {
-  background: #bdbdbd;
-}
-
-.photo-thumb img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
+/* Photos window body: Finder-style album folders, then a Scrapbook page with a Platinum scroll bar. */
 .photo-view {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* The scrapbook page: a beveled sheet holding one photo and its caption. */
+.scrap-page {
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--edge);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--plat-dark),
+    2px 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .photo-stage {
@@ -46,15 +26,74 @@
 .photo-stage img {
   display: block;
   max-width: 100%;
-  max-height: 44vh;
+  max-height: 40vh;
   object-fit: contain;
 }
 
 .win .body .photo-caption {
-  margin: 0;
+  margin: 8px 0 0;
 }
 
-.photo-bar {
+/* Arrow buttons at the ends of a grey track, like a Platinum horizontal scroll bar. */
+.scrap-scrollbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scrap-scroll {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  background: transparent;
+}
+
+.scrap-scroll::-webkit-slider-runnable-track {
+  height: 16px;
+  background: repeating-linear-gradient(90deg, #c9c9c9 0 1px, #dddddd 1px 2px);
+  border: 1px solid var(--edge);
+  box-shadow: inset 1px 1px 0 #8a8a8a;
+}
+
+.scrap-scroll::-moz-range-track {
+  height: 14px;
+  background: repeating-linear-gradient(90deg, #c9c9c9 0 1px, #dddddd 1px 2px);
+  border: 1px solid var(--edge);
+  box-shadow: inset 1px 1px 0 #8a8a8a;
+}
+
+.scrap-scroll::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 16px;
+  background: linear-gradient(#fafafa, #bdbdbd);
+  border: 1px solid var(--edge);
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+.scrap-scroll::-moz-range-thumb {
+  width: 20px;
+  height: 14px;
+  border-radius: 0;
+  background: linear-gradient(#fafafa, #bdbdbd);
+  border: 1px solid var(--edge);
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+.scrap-scroll:focus-visible {
+  outline: 2px solid var(--accent, #3d6fb6);
+  outline-offset: 2px;
+}
+
+.scrap-scroll:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.scrap-foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -62,22 +101,28 @@
 }
 
 .photo-count {
-  min-width: 56px;
-  text-align: center;
+  min-width: 84px;
 }
 
 .photo-back {
   margin-left: auto;
 }
 
-/* Phone: two columns, and the large view fills the window. */
+/* Phone: two album columns, and the page fills the window. */
 @media (max-width: 700px) {
-  .photo-grid {
+  .desktop .folder-grid.photo-albums {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .photo-view {
     min-height: 100%;
+  }
+
+  .scrap-page {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .photo-stage {
@@ -91,7 +136,8 @@
     height: 100%;
   }
 
-  .photo-bar .pbtn {
+  .scrap-scrollbar .pbtn,
+  .scrap-foot .pbtn {
     min-height: 40px;
   }
 }

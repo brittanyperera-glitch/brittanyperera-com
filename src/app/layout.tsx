@@ -31,6 +31,7 @@ const NO_JS_CSS = `
 html:has(.desktop), body:has(.desktop) { height: auto !important; overflow: auto !important; }
 .desktop { position: static !important; }
 .desktop .menubar, .desktop .icons, .desktop .win[data-win="projects"] { display: none !important; }
+.desktop .win[data-win^="browser:"], .desktop .win[data-win^="browser:"][hidden] { display: none !important; }
 .desktop .win, .desktop .win[hidden] {
   display: block !important;
   position: static !important;

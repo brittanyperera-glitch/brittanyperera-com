@@ -5,12 +5,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useAlert } from "@/components/alert/AlertProvider";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { projects } from "@/content/projects";
+import { projects, projectUi } from "@/content/projects";
 
 function setup(children?: React.ReactNode) {
   const utils = render(<Desktop windows={{}}>{children}</Desktop>);
   return { user: userEvent.setup(), ...utils };
 }
+
+const aboutTitle = (title: string) => projectUi.aboutTitle.replace("{title}", title);
 
 // Closed windows are `hidden`, which removes their accessible name, so find them by aria-label.
 const win = (name: string) => screen.getByLabelText(name, { selector: "section" });
@@ -140,11 +142,13 @@ describe("desktop shell", () => {
     expect(cv).toHaveAttribute("hidden");
   });
 
-  it("renders a hidden window for every project, titled from the project", () => {
+  it("renders a hidden About window and browser window for every project", () => {
     setup();
     for (const p of projects) {
-      expect(win(p.title)).toHaveAttribute("hidden");
-      expect(win(p.title)).toHaveAttribute("data-win", `project:${p.id}`);
+      expect(win(aboutTitle(p.title))).toHaveAttribute("hidden");
+      expect(win(aboutTitle(p.title))).toHaveAttribute("data-win", `project:${p.id}`);
+      expect(win(p.siteLabel)).toHaveAttribute("hidden");
+      expect(win(p.siteLabel)).toHaveAttribute("data-win", `browser:${p.id}`);
     }
   });
 
@@ -373,8 +377,8 @@ describe("extension seams", () => {
     await user.click(screen.getByRole("button", { name: "Open CV" }));
     expect(label(win("CV.pdf"))).toBe(copy.chrome.closeLabel);
     await user.click(screen.getByRole("button", { name: "open project" }));
-    expect(win(projects[0].title)).not.toHaveAttribute("hidden");
-    expect(label(win(projects[0].title))).toBe(copy.chrome.back);
+    expect(win(aboutTitle(projects[0].title))).not.toHaveAttribute("hidden");
+    expect(label(win(aboutTitle(projects[0].title)))).toBe(copy.chrome.back);
   });
 
   it("keeps inline left, top and width on desktop", async () => {

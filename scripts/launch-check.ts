@@ -2,14 +2,14 @@
 import { contact } from "../src/content/contact";
 import { music } from "../src/content/music";
 import { photos } from "../src/content/photos";
-import { travel } from "../src/content/travel";
+import { projects } from "../src/content/projects";
 import { youtube } from "../src/content/youtube";
 
 // Instrument lines are optional (Brittany, 2026-10-19: "no lines needed for instruments").
 const missing: string[] = [
   ...(music.track ? [] : ["music: no audio track for Garage Brittany"]),
-  ...(travel.places.length ? [] : ["travel: no places"]),
-  ...(photos.items.length ? [] : ["photos: no photos"]),
+  ...(photos.albums.some((a) => a.items.length > 0) ? [] : ["photos: no album with photos"]),
+  ...projects.filter((p) => !p.about.trim()).map((p) => `projects: no about text for ${p.title}`),
   ...(contact.youtube && youtube.videos.length ? [] : ["youtube: no channel URL or videos"]),
 ];
 

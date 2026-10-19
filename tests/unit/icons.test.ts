@@ -27,7 +27,7 @@ const NAMES: IconName[] = [
   "piano",
   "ukulele",
   "garage",
-  "map",
+  "globe",
   "camera",
   "play",
 ];

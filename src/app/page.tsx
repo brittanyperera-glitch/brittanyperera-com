@@ -1,6 +1,7 @@
 import { appWindows } from "@/components/apps/appWindows";
 import { Desktop } from "@/components/desktop/Desktop";
 import { SetupFlow } from "@/components/setup/SetupFlow";
+import { BrowserWindow } from "@/components/windows/BrowserWindow";
 import { ContactWindow } from "@/components/windows/ContactWindow";
 import { CvWindow } from "@/components/windows/CvWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
@@ -20,7 +21,10 @@ const windows: Partial<Record<WinId, React.ReactNode>> = {
   trash: <TrashWindow />,
   ...appWindows,
   ...Object.fromEntries(
-    projects.map((p) => [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />]),
+    projects.flatMap((p) => [
+      [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />],
+      [`browser:${p.id}`, <BrowserWindow key={`browser-${p.id}`} project={p} />],
+    ]),
   ),
 };
 

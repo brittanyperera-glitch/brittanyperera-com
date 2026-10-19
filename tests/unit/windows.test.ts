@@ -147,9 +147,25 @@ describe("windowsReducer", () => {
 
 describe("helpers", () => {
   it("parentOf maps project windows to projects, others to null", () => {
-    expect(parentOf("project:gift")).toBe("projects");
+    expect(parentOf("project:delulu")).toBe("projects");
     expect(parentOf("cv")).toBeNull();
     expect(parentOf("projects")).toBeNull();
+  });
+
+  it("parentOf maps a browser window back to its About window", () => {
+    expect(parentOf("browser:trip")).toBe("project:trip");
+    expect(parentOf("browser:delulu")).toBe("project:delulu");
+  });
+
+  it("phone mode: closing a browser window goes back to its About window, then to projects", () => {
+    let s = run([
+      { type: "setMode", mode: "phone" },
+      { type: "open", id: "browser:trip" },
+      { type: "close", id: "browser:trip" },
+    ]);
+    expect(s.open).toEqual(["project:trip"]);
+    s = windowsReducer(s, { type: "close", id: "project:trip" });
+    expect(s.open).toEqual(["projects"]);
   });
 
   it("parentOf maps instrument windows and the Garage player to the Music folder", () => {

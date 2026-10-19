@@ -1,7 +1,15 @@
 import { expect, type Page, test } from "@playwright/test";
+import { projects } from "../../src/content/projects";
 import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup } from "./helpers";
 
 type Size = { width: number; height: number };
+
+// The browser windows would load the live sites; layout does not need them, and the run stays offline.
+async function blockSites(page: Page) {
+  for (const p of projects) {
+    await page.route(`${new URL(p.siteUrl).origin}/**`, (r) => r.abort());
+  }
+}
 
 const DESKTOP_SIZES: Size[] = [
   { width: 1680, height: 1050 },
@@ -46,6 +54,7 @@ for (const size of DESKTOP_SIZES) {
     page,
   }, info) => {
     test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+    await blockSites(page);
     await page.setViewportSize(size);
     await skipSetup(page, "friend");
     await page.goto("/");
@@ -60,6 +69,7 @@ for (const size of DESKTOP_SIZES) {
 
 test("every window opened at 390x844: controls stay on screen", async ({ page }, info) => {
   test.skip(info.project.name !== "phone", "phone size runs in the phone project");
+  await blockSites(page);
   await page.setViewportSize(PHONE_SIZE);
   await skipSetup(page, "friend");
   await page.goto("/");

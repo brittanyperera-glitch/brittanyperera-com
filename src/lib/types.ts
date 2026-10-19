@@ -1,6 +1,6 @@
 export type Visitor = "recruiter" | "collab" | "client" | "friend";
 
-export type ProjectId = "trip" | "delulu" | "whereflix" | "gift" | "schengen";
+export type ProjectId = "delulu" | "trip";
 
 export type WinId =
   | "cv"
@@ -13,10 +13,10 @@ export type WinId =
   | "music:piano"
   | "music:ukulele"
   | "garage"
-  | "travel"
   | "photos"
   | "youtube"
-  | `project:${ProjectId}`;
+  | `project:${ProjectId}`
+  | `browser:${ProjectId}`;
 
 export type IconName =
   | "happymac"
@@ -43,6 +43,6 @@ export type IconName =
   | "piano"
   | "ukulele"
   | "garage"
-  | "map"
+  | "globe"
   | "camera"
   | "play";

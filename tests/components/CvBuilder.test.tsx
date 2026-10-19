@@ -192,6 +192,28 @@ describe("CV Builder window", () => {
     expect(board().dataset.pieceY).toBe("1");
   });
 
+  it("crops the next-piece preview to the piece, so its label sits right under it", () => {
+    setup();
+    const grid = document.querySelector(".cvb-next-grid") as HTMLElement;
+    const cells = [...grid.children];
+    const cols = Number(grid.dataset.cols);
+    expect(cols).toBeGreaterThan(0);
+    expect(cells.length % cols).toBe(0);
+    const rows = cells.length / cols;
+    expect(cells.length).toBeLessThan(16);
+    for (let r = 0; r < rows; r++) {
+      expect(
+        cells.slice(r * cols, (r + 1) * cols).some((c) => c.classList.contains("cvb-block")),
+      ).toBe(true);
+    }
+    for (let c = 0; c < cols; c++) {
+      expect(
+        cells.filter((_, i) => i % cols === c).some((x) => x.classList.contains("cvb-block")),
+      ).toBe(true);
+    }
+    expect(grid.nextElementSibling?.tagName).toBe("B");
+  });
+
   it("shows no on-screen buttons on a laptop", () => {
     setup(nearLine());
     expect(screen.queryByRole("button", { name: cvBuilder.controls.left.label })).toBeNull();

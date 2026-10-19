@@ -3,7 +3,6 @@ import { contact } from "./contact";
 import { cvBuilder } from "./cvbuilder";
 import { music } from "./music";
 import { photos } from "./photos";
-import { travel } from "./travel";
 import { youtube } from "./youtube";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
@@ -114,7 +113,6 @@ export const copy = {
     view: [
       { label: "Projects", open: "projects" },
       { label: music.folderTitle, open: "music" },
-      { label: travel.title, open: "travel" },
       { label: photos.title, open: "photos" },
       { label: youtube.ui.title, open: "youtube" },
       { label: cvBuilder.title, open: "cvbuilder" },
@@ -132,7 +130,6 @@ export const copy = {
     { open: "cvbuilder", label: cvBuilder.title, icon: "game" },
     { open: "projects", label: "Projects", icon: "folder" },
     { open: "music", label: music.folderTitle, icon: "musicfolder" },
-    { open: "travel", label: travel.title, icon: "map" },
     { open: "photos", label: photos.title, icon: "camera" },
     { open: "youtube", label: youtube.ui.title, icon: "play" },
     { open: "contact", label: "Contact", icon: "mail" },
@@ -149,10 +146,9 @@ export const copy = {
     "music:piano": music.instruments[1].name,
     "music:ukulele": music.instruments[2].name,
     garage: music.appName,
-    travel: travel.title,
     photos: photos.title,
     youtube: youtube.ui.title,
-  } as Record<Exclude<WinId, `project:${string}`>, string>,
+  } as Record<Exclude<WinId, `project:${string}` | `browser:${string}`>, string>,
   chrome: {
     menuTitles: {
       apple: "Apple menu",

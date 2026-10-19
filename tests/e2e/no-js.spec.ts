@@ -23,7 +23,9 @@ test("no JavaScript on a phone: the CV fills the screen, no desktop placement", 
   const cvWin = page.locator('section[data-win="cv"]');
   await expect(cvWin).toBeVisible();
   const box = await cvWin.boundingBox();
-  expect(box).toMatchObject({ x: 0, y: 22, width: 390, height: 822 });
+  expect(box).toMatchObject({ x: 0, y: 22, width: 390 });
+  // At least one screen tall; the full CV is longer, and without JS the page itself scrolls.
+  expect(box?.height).toBeGreaterThanOrEqual(822);
   const close = await cvWin.locator(".close").boundingBox();
   expect(close?.x).toBeGreaterThanOrEqual(0);
   expect(close?.y).toBeGreaterThanOrEqual(22);
@@ -64,8 +66,9 @@ for (const size of NO_JS_SIZES) {
     await expect(inWin("cv").getByText(cv.roles[1].title)).toBeVisible();
     for (const p of projects) {
       const w = inWin(`project:${p.id}`);
-      await expect(w.getByRole("heading", { name: p.heading })).toBeVisible();
-      await expect(w.getByText(p.blurb)).toBeVisible();
+      await expect(w.getByRole("heading", { name: p.title })).toBeVisible();
+      // A browser with no page to load is not worth showing to a visitor without scripts.
+      await expect(inWin(`browser:${p.id}`)).toBeHidden();
     }
     await expect(inWin("contact").getByText(contact.email)).toBeVisible();
 

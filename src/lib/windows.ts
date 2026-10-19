@@ -39,6 +39,7 @@ const Z_CEILING = 4000;
 
 export function parentOf(id: WinId): WinId | null {
   if (id.startsWith("project:")) return "projects";
+  if (id.startsWith("browser:")) return `project:${id.slice("browser:".length)}` as WinId;
   if (id.startsWith("music:") || id === "garage") return "music";
   return null;
 }

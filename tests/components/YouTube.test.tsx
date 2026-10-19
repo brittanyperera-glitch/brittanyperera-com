@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { appWindows } from "@/components/apps/appWindows";
-import { Desktop } from "@/components/desktop/Desktop";
+import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { youtube } from "@/content/youtube";
@@ -31,6 +31,47 @@ const iframes = () => document.querySelectorAll("iframe");
 async function openYouTube(user: ReturnType<typeof userEvent.setup>) {
   await user.dblClick(icon(copy.windowTitles.youtube));
 }
+
+describe("requestVideo", () => {
+  function Requester({ id }: { id: string }) {
+    const { requestVideo } = useDesktop();
+    return (
+      <button type="button" onClick={() => requestVideo(id)}>
+        request it
+      </button>
+    );
+  }
+
+  it("opens the closed window already playing the requested video", async () => {
+    render(
+      <Desktop windows={appWindows}>
+        <Requester id={IDS[2]} />
+      </Desktop>,
+    );
+    const user = userEvent.setup();
+    expect(win()).toHaveAttribute("hidden");
+    await user.click(screen.getByRole("button", { name: "request it" }));
+    expect(win()).not.toHaveAttribute("hidden");
+    expect(iframes()).toHaveLength(1);
+    expect(iframes()[0]).toHaveAttribute(
+      "src",
+      `https://www.youtube-nocookie.com/embed/${IDS[2]}?autoplay=1`,
+    );
+    expect(within(body()).getByRole("heading", { name: TITLES[2] })).toBeInTheDocument();
+  });
+
+  it("an id that is not in the list opens the window without playing anything", async () => {
+    render(
+      <Desktop windows={appWindows}>
+        <Requester id="not-a-real-id" />
+      </Desktop>,
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "request it" }));
+    expect(win()).not.toHaveAttribute("hidden");
+    expect(iframes()).toHaveLength(0);
+  });
+});
 
 describe("YouTube content", () => {
   it("holds the channel and the four videos verbatim, in order", () => {

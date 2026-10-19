@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { music } from "../../src/content/music";
-import { projects } from "../../src/content/projects";
+import { projects, projectUi } from "../../src/content/projects";
 import type { Visitor, WinId } from "../../src/lib/types";
 
 export const SETUP_KEY = "bp:setup-done";
@@ -44,7 +44,12 @@ export async function settle(page: Page, info: TestInfo) {
 
 /** Opens a window the way a keyboard user would: focus its icon and press Enter. */
 export async function openWin(page: Page, id: WinId) {
-  if (id.startsWith("project:")) {
+  if (id.startsWith("browser:")) {
+    // The way in is the About window's default button, as for a visitor.
+    const about = `project:${id.slice("browser:".length)}` as WinId;
+    if (!(await win(page, about).isVisible())) await openWin(page, about);
+    await win(page, about).getByRole("button", { name: projectUi.openSite }).focus();
+  } else if (id.startsWith("project:")) {
     const title = projects.find((p) => `project:${p.id}` === id)?.title;
     if (!title) throw new Error(`unknown project window ${id}`);
     if (!(await win(page, "projects").isVisible())) await openWin(page, "projects");
@@ -92,8 +97,7 @@ export const ALL_WINDOWS: WinId[] = [
   "music:piano",
   "music:ukulele",
   "garage",
-  "travel",
   "photos",
   "youtube",
-  ...projects.map((p) => `project:${p.id}` as WinId),
+  ...projects.flatMap((p) => [`project:${p.id}`, `browser:${p.id}`] as WinId[]),
 ];

@@ -11,31 +11,44 @@
   align-items: center;
   justify-content: center;
 }
-.win .body .shot {
-  margin: 8px 0;
-  padding: 6px;
+/* The full CV inside its window; same markup as /cv (CvDocument), window-sized type. */
+.win .cv-doc h3 {
+  margin: 4px 0 2px;
+}
+
+.win .cv-doc h4 {
+  margin: 14px 0 6px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--edge);
   font-size: 11px;
-  color: #555;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.win .body .shot .info {
-  margin: 0 0 6px;
+.win .cv-doc .cv-item {
+  margin-bottom: 8px;
 }
 
-.win .body .shot iframe {
-  display: block;
-  width: 100%;
-  height: 300px;
-  border: 1px solid var(--edge);
-  background: #fff;
+.win .cv-doc .cv-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: bold;
 }
 
-.win .body .org::before {
-  content: ", ";
+.win .cv-doc .cv-when {
+  flex: none;
+  font-weight: normal;
+  color: #444;
 }
 
-.win .body .when::before {
-  content: ". ";
+.win .cv-doc p {
+  margin: 0 0 4px;
+}
+
+.win .cv-doc ul {
+  margin: 2px 0 4px;
+  padding-left: 18px;
 }
 
 .win .body .actions-right {
@@ -62,10 +75,4 @@
 .win .body .trash-list li {
   padding: 4px 0;
   border-bottom: 1px dotted #aaa;
-}
-
-@media (max-width: 700px) {
-  .win .body .shot iframe {
-    height: 240px;
-  }
 }

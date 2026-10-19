@@ -14,7 +14,7 @@ import {
 } from "react";
 import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
 import { copy } from "@/content/copy";
-import { projects } from "@/content/projects";
+import { projects, projectUi } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
 import { removeKey } from "@/lib/storage";
 import type { WinId } from "@/lib/types";
@@ -54,6 +54,10 @@ export type DesktopApi = {
   accent: string;
   setAccent(hex: string): void;
   actions: DesktopActions;
+  /** Opens the YouTube window playing this video id (one from content/youtube). */
+  requestVideo(id: string): void;
+  /** The latest requestVideo call, for the YouTube window to act on; `seq` makes repeats distinct. */
+  videoRequest: { id: string; seq: number } | null;
   /** Runs a menu action by name; `leave` needs an href so it is not reachable from here. */
   runAction(name: string): void;
   soundOn: boolean;
@@ -113,6 +117,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const [soundOn, setSoundOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const closedId = useRef<WinId | null>(null);
+  const [videoRequest, setVideoRequest] = useState<DesktopApi["videoRequest"]>(null);
 
   // Re-clamp every open window to the current viewport. Only open windows are measured: a hidden
   // one has no layout, and Window re-clamps it when it next opens.
@@ -177,6 +182,10 @@ function DesktopInner({ windows, children }: DesktopProps) {
     target?.focus();
   }, [state]);
   const focus = useCallback((id: WinId) => dispatch({ type: "focus", id }), []);
+  const requestVideo = useCallback((id: string) => {
+    setVideoRequest((r) => ({ id, seq: (r?.seq ?? 0) + 1 }));
+    dispatch({ type: "open", id: "youtube" });
+  }, []);
 
   const actions = useMemo<DesktopActions>(() => {
     const a = copy.alerts;
@@ -292,12 +301,26 @@ function DesktopInner({ windows, children }: DesktopProps) {
       accent,
       setAccent,
       actions,
+      requestVideo,
+      videoRequest,
       runAction,
       soundOn,
       toggleSound,
       setBusy,
     }),
-    [state, open, close, focus, accent, actions, runAction, soundOn, toggleSound],
+    [
+      state,
+      open,
+      close,
+      focus,
+      accent,
+      actions,
+      requestVideo,
+      videoRequest,
+      runAction,
+      soundOn,
+      toggleSound,
+    ],
   );
 
   const ids: { id: WinId; title: string }[] = [
@@ -305,7 +328,13 @@ function DesktopInner({ windows, children }: DesktopProps) {
       id,
       title,
     })),
-    ...projects.map((p) => ({ id: `project:${p.id}` as WinId, title: p.title })),
+    ...projects.flatMap((p) => [
+      {
+        id: `project:${p.id}` as WinId,
+        title: projectUi.aboutTitle.replace("{title}", p.title),
+      },
+      { id: `browser:${p.id}` as WinId, title: p.siteLabel },
+    ]),
   ];
 
   return (

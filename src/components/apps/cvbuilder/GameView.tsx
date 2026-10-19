@@ -37,10 +37,15 @@ function Block({ kind, label }: { kind: Kind; label?: string }) {
 }
 
 function NextPreview({ kind }: { kind: Kind }) {
-  const on = new Set(pieceCells({ kind, rot: 0, x: 0, y: 0 }).map(([c, r]) => `${c},${r}`));
+  const shape = pieceCells({ kind, rot: 0, x: 0, y: 0 });
+  const on = new Set(shape.map(([c, r]) => `${c},${r}`));
+  // Crop to the piece's own box: the empty rows of the 4x4 would push the label away from it.
+  const [c0, c1] = [Math.min(...shape.map(([c]) => c)), Math.max(...shape.map(([c]) => c))];
+  const [r0, r1] = [Math.min(...shape.map(([, r]) => r)), Math.max(...shape.map(([, r]) => r))];
+  const cols = c1 - c0 + 1;
   const cells = [];
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
+  for (let r = r0; r <= r1; r++) {
+    for (let c = c0; c <= c1; c++) {
       cells.push(
         on.has(`${c},${r}`) ? (
           <Block key={`${c},${r}`} kind={kind} />
@@ -51,7 +56,12 @@ function NextPreview({ kind }: { kind: Kind }) {
     }
   }
   return (
-    <div className="cvb-next-grid" aria-hidden="true">
+    <div
+      className="cvb-next-grid"
+      data-cols={cols}
+      style={{ gridTemplateColumns: `repeat(${cols}, 10px)` }}
+      aria-hidden="true"
+    >
       {cells}
     </div>
   );

@@ -1,1 +1,1 @@
-export type PhotoItem = { src: string; alt: string; caption: string };
+export type { PhotoAlbum, PhotoItem } from "@/content/photos";

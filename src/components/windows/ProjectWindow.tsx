@@ -1,40 +1,24 @@
 "use client";
 
 import { useDesktop } from "@/components/desktop/Desktop";
-import type { Project } from "@/content/projects";
+import { type Project, projectUi } from "@/content/projects";
 
+// A SimpleText-style read-me; its one button opens the site in the browser window.
 export function ProjectWindow({ project }: { project: Project }) {
-  const { actions } = useDesktop();
-  const { embed, link } = project;
+  const { open } = useDesktop();
   return (
     <>
-      <h3>{project.heading}</h3>
-      <p>{project.blurb}</p>
-      {embed && (
-        <div className="shot well">
-          <p className="info">{embed.note}</p>
-          <iframe
-            title={project.title}
-            src={embed.url}
-            loading="lazy"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          />
-        </div>
-      )}
-      <p>
-        {project.tags.map((t) => (
-          <span className="tag" key={t}>
-            {t}
-          </span>
-        ))}
+      <h3>{project.title}</h3>
+      {project.about && <p>{project.about}</p>}
+      <p className="actions-right">
+        <button
+          type="button"
+          className="pbtn default"
+          onClick={() => open(`browser:${project.id}`)}
+        >
+          {projectUi.openSite}
+        </button>
       </p>
-      {link && (
-        <p>
-          <button type="button" className="pbtn" onClick={() => actions.leave(link.href)}>
-            {link.label}
-          </button>
-        </p>
-      )}
     </>
   );
 }

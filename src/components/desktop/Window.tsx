@@ -21,14 +21,13 @@ const PLACEMENT: Record<string, Placement> = {
   "music:piano": { left: 330, top: 150, width: 340 },
   "music:ukulele": { left: 360, top: 170, width: 340 },
   garage: { left: 320, top: 120, width: 380 },
-  travel: { left: 160, top: 70, width: 540 },
   photos: { left: 220, top: 80, width: 480 },
   youtube: { left: 180, top: 60, width: 620 },
-  "project:trip": { left: 110, top: 70, width: 500 },
-  "project:delulu": { left: 150, top: 90, width: 450 },
-  "project:whereflix": { left: 190, top: 110, width: 430 },
-  "project:gift": { left: 230, top: 130, width: 430 },
-  "project:schengen": { left: 270, top: 150, width: 410 },
+  "project:delulu": { left: 150, top: 70, width: 400 },
+  "project:trip": { left: 110, top: 70, width: 400 },
+  // Below the About window that opens them, so the button that was pressed stays visible.
+  "browser:delulu": { left: 150, top: 200, width: 680 },
+  "browser:trip": { left: 110, top: 200, width: 680 },
 };
 const FALLBACK: Placement = { left: 120, top: 80, width: 420 };
 
