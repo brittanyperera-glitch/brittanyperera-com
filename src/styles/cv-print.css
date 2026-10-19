@@ -70,7 +70,7 @@ body {
 @media print {
   body {
     font-size: 10pt;
-    line-height: 1.35;
+    line-height: 1.3;
   }
 
   .cv {
@@ -79,10 +79,10 @@ body {
   }
 
   .cv h2 {
-    margin: 12pt 0 6pt;
+    margin: 9pt 0 4pt;
   }
 
   .cv-item {
-    margin-bottom: 7pt;
+    margin-bottom: 5pt;
   }
 }

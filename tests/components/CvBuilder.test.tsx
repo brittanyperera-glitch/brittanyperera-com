@@ -79,7 +79,7 @@ describe("CV Builder content", () => {
       { when: "2018", label: "playground" },
       { when: "2020–24", label: "Oxford" },
       { when: "2023–24", label: "F1" },
-      { when: "2024", label: "jet engines" },
+      { when: "2025", label: "jet engines" },
       { when: "Now", label: "PangeAI" },
     ]);
     expect(cvBuilder.pieceLabels.slice(0, TOTAL)).toEqual(cvBuilder.entries.map((e) => e.label));

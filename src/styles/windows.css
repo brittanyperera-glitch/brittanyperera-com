@@ -1,4 +1,4 @@
-/* Window-body styles. Shared bits (.row, .timeline, .folder-grid, .info, .tag, .open-hint) live in desktop.css. */
+/* Window-body styles. Shared bits (.row, .folder-grid, .info, .tag, .open-hint) live in desktop.css. */
 
 /* The mockup's framed portrait; flex: none stops the row squashing it. */
 .win .portrait {

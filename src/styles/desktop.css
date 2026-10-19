@@ -188,20 +188,6 @@ body:has(.desktop) {
   align-items: flex-start;
 }
 
-.timeline {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.timeline li {
-  display: grid;
-  grid-template-columns: 66px 1fr;
-  gap: 8px;
-  padding: 5px 0;
-  border-bottom: 1px dotted #aaa;
-}
-
 .folder-grid {
   display: grid;
   grid-template-columns: repeat(3, 100px);

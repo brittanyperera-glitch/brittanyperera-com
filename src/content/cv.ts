@@ -12,33 +12,38 @@ export const cv = {
   tags: ["Python", "TypeScript", "ML", "Geospatial", "SQL"],
   roles: [
     {
-      title: "Geospatial Engineer",
+      title: "AI Software Engineer",
       org: "PangeAI",
-      when: "Now",
+      when: "May 2026 to now",
       summary:
         "Working with satellite images and extracting analysis from them for hazards, risks and changes to the earth over time.",
       bullets: [] as string[],
     },
     {
-      title: "Powerplant Engineer & Software Developer",
-      org: "Airline",
-      when: "2024",
+      title: "Aviation Powerplant and Software Engineer (ML and predictive maintenance)",
+      org: "VietJet Air",
+      when: "Feb 2025 to May 2026",
       summary: "",
       bullets: [
-        "Built fleet-wide machine learning models that forecast engine deterioration and optimise maintenance across an airline fleet.",
-        "Designed an interactive Powerplant Dashboard turning predictive models into real-time decision support for airline management.",
-        "Modelled engine wash effectiveness and built wash scheduling strategies with measurable fuel and cost savings.",
+        "Built intelligent software into the airline dashboard for the Powerplant, Maintenance and Financial Management teams.",
+        "Trained individual machine learning models for each engine in the fleet to predict deterioration, maintenance effectiveness, scheduling and shop visit optimisation.",
+        "Built end-to-end data pipelines, feature engineering and simulation tools that forecast engine health.",
       ],
+    },
+    {
+      title: "Private Tutor",
+      org: "Oakley Tutors",
+      when: "Dec 2023 to May 2026",
+      summary: "",
+      bullets: ["Taught A-level physics and maths part-time and remotely."],
     },
     {
       title: "Undergraduate Researcher",
       org: "Mercedes-AMG Petronas F1",
-      when: "2023 to 2024",
+      when: "Oct 2023 to Jul 2024",
       summary: "",
       bullets: [
-        "Optimised a radiator design for an F1 car using simulation and optimisation algorithms.",
-        "Combined computational fluid dynamics with algorithmic design to improve cooling while cutting drag and mass.",
-        "Built parametric simulation frameworks in MATLAB and Python to test designs across operating conditions.",
+        "Optimised a radiator design for an F1 car using computational fluid dynamics and optimisation algorithms, as my master's project.",
       ],
     },
   ],
@@ -46,7 +51,9 @@ export const cv = {
     {
       title: "MEng Engineering Science",
       org: "University of Oxford, St Edmund Hall",
-      when: "2020 to 2024",
+      when: "Oct 2020 to Jun 2024",
+      summary:
+        "Master's project: cooling unit optimisation for Mercedes-AMG Petronas F1. Key modules: Thermodynamics, Control Systems, Chemical Processes, Biomechanics, Biomedical Imaging.",
     },
     {
       title: "A-levels in Maths, Physics and Chemistry (3 As)",
@@ -56,16 +63,24 @@ export const cv = {
   ],
   leadership: [
     {
-      title: "College President",
+      title: "St Edmund Hall President",
       org: "St Edmund Hall, Oxford",
-      when: "2021 to 2022",
-      summary: "Represented 700+ students and led a 16-person committee.",
+      when: "Jan 2022 to Jan 2023",
+      summary:
+        "Represented 700+ students and led a committee of 15. Negotiated the student rent increase down from 13% to 8%.",
     },
     {
-      title: "May Ball President",
+      title: "Ball President",
       org: "St Edmund Hall, Oxford",
-      when: "2022",
-      summary: "Organised a 950-person event with a 6-figure budget.",
+      when: "Jun 2021 to Jun 2022",
+      summary: "Ran an event for 900+ guests on a self-funded budget and managed contractors.",
+    },
+    {
+      title: "Summer Camp Counsellor",
+      org: "USA",
+      when: "Jun to Aug 2022",
+      summary:
+        "Looked after children aged 6 to 17 with sports, woodwork, and camping and paddle-boarding expeditions.",
     },
   ],
   skills: [

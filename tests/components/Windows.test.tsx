@@ -47,6 +47,18 @@ function win(id: string): HTMLElement {
 }
 
 describe("CV", () => {
+  it("lists the new roles in order", () => {
+    setup(["cv"]);
+    const w = within(win("cv"));
+    for (const t of [
+      "AI Software Engineer",
+      "VietJet Air",
+      "Oakley Tutors",
+      "Mercedes-AMG Petronas F1",
+    ])
+      expect(w.getByText(t, { exact: false })).toBeInTheDocument();
+  });
+
   it("links to the full CV page, which works without JavaScript", () => {
     setup(["cv"]);
     const link = within(win("cv")).getByRole("link", { name: copy.windows.cvPageLink });
@@ -66,8 +78,15 @@ describe("CV", () => {
     expect(w.getByText(edu.title)).toBeInTheDocument();
     expect(w.getByText(edu.org, { exact: false })).toBeInTheDocument();
     expect(w.getByText(edu.when, { exact: false })).toBeInTheDocument();
-    expect(w.getByText("Now")).toBeInTheDocument();
-    expect(w.queryByText("now")).toBeNull();
+    expect(w.getByText("May 2026 to now")).toBeInTheDocument();
+  });
+
+  it("shows the open hint at the bottom of the window", () => {
+    setup(["cv"]);
+    const hint = win("cv").querySelector(".open-hint");
+    expect(hint).not.toBeNull();
+    expect(hint).toHaveTextContent(copy.windows.openHint);
+    expect(win("cv").querySelector(".body")?.lastElementChild).toBe(hint);
   });
 
   it("links to the full CV page with a plain anchor", () => {

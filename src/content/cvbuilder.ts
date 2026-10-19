@@ -6,7 +6,7 @@ const timeline = [
   { when: "2018", label: "playground" },
   { when: "2020–24", label: "Oxford" },
   { when: "2023–24", label: "F1" },
-  { when: "2024", label: "jet engines" },
+  { when: "2025", label: "jet engines" },
   { when: "Now", label: "PangeAI" },
 ];
 

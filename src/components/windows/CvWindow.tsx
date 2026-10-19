@@ -37,6 +37,7 @@ export function CvWindow() {
       <p className="info">
         <a href="/cv">{copy.windows.cvPageLink}</a>
       </p>
+      <p className="open-hint">{copy.windows.openHint}</p>
     </>
   );
 }
