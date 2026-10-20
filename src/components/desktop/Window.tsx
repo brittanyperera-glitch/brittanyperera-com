@@ -12,11 +12,11 @@ type Placement = { left: number | string; top: number | string; width: number };
 // From the approved mockup. Percentages are resolved to pixels the first time a window opens.
 const PLACEMENT: Record<string, Placement> = {
   // The landing set (copy.firstWindows), laid out at 1440x900 as percentages so every title bar
-  // stays reachable at smaller sizes (layout.spec checks). Back to front: see copy.ts LANDING.
+  // stays reachable at smaller sizes (layout.spec checks). Back to front: see copy.ts firstWindows.
   cv: { left: "48.6%", top: 40, width: 640 },
   note: { left: "76%", top: "71%", width: 230 },
   projects: { left: "28.5%", top: "75%", width: 370 },
-  contact: { left: "36%", top: "28%", width: 360 },
+  contact: { left: "23%", top: "78%", width: 360 },
   trash: { left: "46%", top: "22%", width: 390 },
   cvbuilder: { left: 16, top: 40, width: 560 },
   music: { left: 260, top: 100, width: 360 },
@@ -24,8 +24,8 @@ const PLACEMENT: Record<string, Placement> = {
   "music:piano": { left: 330, top: 150, width: 340 },
   "music:ukulele": { left: 360, top: 170, width: 340 },
   garage: { left: 16, top: "68%", width: 380 },
-  photos: { left: "23%", top: 70, width: 370 },
-  youtube: { left: "50%", top: "76%", width: 620 },
+  photos: { left: "4%", top: 40, width: 370 },
+  youtube: { left: "30%", top: "72%", width: 620 },
   "project:delulu": { left: 150, top: 70, width: 400 },
   "project:trip": { left: 110, top: 70, width: 400 },
   // Below the About window that opens them, so the button that was pressed stays visible.

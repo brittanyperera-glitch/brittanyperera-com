@@ -61,15 +61,21 @@ describe("content strings", () => {
     expect(cv.email).toBe("brittanykawshalya@gmail.com");
     expect(all.some((s) => s.value.includes("gmai.com"))).toBe(false);
   });
-  // Brittany 2026-10-19: "have loads of the screens open already"; the main window stays in front.
+  // Brittany 2026-10-20: "too much stuff open by default", "always have the photo and cv open. not
+  // the tetris ever". The main window stays in front.
   it("opens the right first windows per visitor", () => {
-    const landing = ["youtube", "cvbuilder", "photos", "garage", "projects", "note"];
     expect(copy.firstWindows).toEqual({
-      recruiter: [...landing, "cv"],
-      collab: ["youtube", "cvbuilder", "photos", "garage", "note", "cv", "projects"],
-      client: [...landing, "cv", "contact"],
-      friend: [...landing, "cv"],
+      recruiter: ["photos", "note", "cv"],
+      collab: ["photos", "note", "cv", "projects"],
+      client: ["photos", "note", "cv", "contact"],
+      friend: ["youtube", "garage", "photos", "note", "cv"],
     });
+  });
+  it("lands every visitor on photos and the CV, and never on CV Builder", () => {
+    for (const wins of Object.values(copy.firstWindows)) {
+      expect(wins).toEqual(expect.arrayContaining(["photos", "cv"]));
+      expect(wins).not.toContain("cvbuilder");
+    }
   });
   it("has no About me window, icon or menu item (the Apple menu's About Brittany's Mac stays)", () => {
     const menus = [...copy.menus.brittany, ...copy.menus.view, ...copy.menus.apple];

@@ -451,14 +451,17 @@
 }
 
 .cvb-pieces b {
-  display: block;
   margin-top: 6px;
   padding: 2px 6px;
   overflow: hidden;
   text-align: center;
-  font-size: 12px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  font-size: 10.5px;
+  line-height: 1.2;
+  /* Three lines always (the longest CV line wraps to three here), so the panel does not jump. */
+  min-height: calc(3.6em + 6px);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   background: #fff;
   border: 1px solid #777;
   box-shadow: inset 1px 1px 0 #cfcfcf;

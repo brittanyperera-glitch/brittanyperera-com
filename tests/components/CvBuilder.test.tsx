@@ -77,12 +77,14 @@ afterEach(() => {
 describe("CV Builder content", () => {
   it("has one panel entry and one piece label per timeline entry, in order", () => {
     expect(cvBuilder.entries).toEqual([
-      { when: "2018", label: "playground" },
-      { when: "2020–24", label: "Oxford" },
-      { when: "2023–24", label: "F1" },
-      { when: "2025", label: "jet engines" },
-      { when: "Now", label: "PangeAI" },
+      { when: "2018", label: "Built a playground in Sri Lanka" },
+      { when: "2020–24", label: "Studied engineering at Oxford" },
+      { when: "2023–24", label: "Optimised an F1 car's radiator" },
+      { when: "2025", label: "ML for jet engines at VietJet" },
+      { when: "Now", label: "Satellite AI at PangeAI" },
     ]);
+    // Brittany 2026-10-20: pieces carry whole CV lines, never a bare word.
+    for (const l of cvBuilder.pieceLabels) expect(l.split(" ").length).toBeGreaterThanOrEqual(3);
     expect(cvBuilder.pieceLabels.slice(0, TOTAL)).toEqual(cvBuilder.entries.map((e) => e.label));
     expect(cvBuilder.pieceLabels.length).toBeGreaterThan(TOTAL);
   });
