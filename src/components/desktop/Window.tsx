@@ -12,7 +12,7 @@ type Placement = { left: number | string; top: number | string; width: number };
 // From the approved mockup. Percentages are resolved to pixels the first time a window opens.
 const PLACEMENT: Record<string, Placement> = {
   // The landing set (copy.firstWindows), laid out at 1440x900 as percentages so every title bar
-  // stays reachable at smaller sizes (layout.spec checks). Back to front: see copy.ts LANDING.
+  // stays reachable at smaller sizes (layout.spec checks). Back to front: see copy.ts firstWindows.
   cv: { left: "48.6%", top: 40, width: 640 },
   note: { left: "76%", top: "71%", width: 230 },
   projects: { left: "28.5%", top: "75%", width: 370 },
