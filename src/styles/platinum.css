@@ -124,23 +124,6 @@ a {
   display: none;
 }
 
-/* Zoomed: the whole screen below the menu bar (Window.tsx sets the width and height). The body takes
-   whatever the title bar leaves, so it needs no cap. */
-.win.zoomed:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-  max-width: none;
-}
-
-.win.zoomed .body {
-  flex: 1;
-  max-height: none;
-}
-
-.win.zoomed .titlebar {
-  cursor: default;
-}
-
 .titlebar {
   height: 22px;
   position: relative;
@@ -292,6 +275,23 @@ a {
   box-shadow:
     0 0 0 1px #f4f4f4,
     inset 1px 1px 0 #d6d6d6;
+}
+
+/* Zoomed: the whole screen below the menu bar (Window.tsx sets the width and height). The body takes
+   whatever the title bar leaves, so it needs no cap. */
+.win.zoomed:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+}
+
+.win.zoomed .body {
+  flex: 1;
+  max-height: none;
+}
+
+.win.zoomed .titlebar {
+  cursor: default;
 }
 
 .win .body h3 {
