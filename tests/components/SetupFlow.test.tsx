@@ -267,6 +267,52 @@ describe("SetupFlow", () => {
   });
 });
 
+describe("visitor links (?for=)", () => {
+  afterEach(() => window.history.replaceState(null, "", "/"));
+
+  it.each(["recruiter", "collab", "client", "friend"] as Visitor[])(
+    "?for=%s skips setup, lands for that visitor and stores it",
+    (v) => {
+      window.history.replaceState(null, "", `/?for=${v}`);
+      const { container } = renderFlow();
+      expect(bootOverlay(container)).toBeNull();
+      expect(setupDialog()).toBeNull();
+      expect(openIds()).toEqual(landing(v));
+      expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+        visitor: v,
+      });
+    },
+  );
+
+  it("beats a visitor stored earlier", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    window.history.replaceState(null, "", "/?for=client");
+    renderFlow();
+    expect(openIds()).toEqual(landing("client"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "client",
+    });
+  });
+
+  it("on a phone lands on the one window and no alert", () => {
+    mockMedia([PHONE]);
+    window.history.replaceState(null, "", "/?for=client");
+    renderFlow();
+    expect(win("Say hi")).not.toHaveAttribute("hidden");
+    expect(openIds()).toHaveLength(1);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+  });
+
+  it("an unknown value falls back to the normal flow", () => {
+    window.history.replaceState(null, "", "/?for=boss");
+    const { container } = renderFlow();
+    expect(bootOverlay(container)).not.toBeNull();
+    throughBoot();
+    expect(setupDialog()).not.toBeNull();
+    expect(window.localStorage.getItem("bp:setup-done")).toBeNull();
+  });
+});
+
 describe("Break something > Restart", () => {
   it("replays the boot splash, keeps the stored visitor and lands on the same first windows", () => {
     window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));

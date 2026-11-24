@@ -56,6 +56,12 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
   }
 }
 
+/** `/?for=recruiter|collab|client|friend`: the visitor a link was made for, else null. */
+export function visitorFromQuery(search: string): Visitor | null {
+  const v = new URLSearchParams(search).get("for");
+  return copy.setup.visitors.find((x) => x.id === v)?.id ?? null;
+}
+
 /** The one window a phone shows: the last of the visitor's first windows, skipping the note. */
 export function phoneWindow(visitor: Visitor): WinId {
   const wins = copy.firstWindows[visitor].filter((id) => id !== "note");

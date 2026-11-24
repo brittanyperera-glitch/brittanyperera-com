@@ -103,7 +103,6 @@ test("after setup, focus lands on the front window's close box instead of <body>
   await page.goto("/");
   await runAssistant(page, "recruiter");
   await expectLanding(page, isPhone(info));
-  if (isPhone(info)) await page.keyboard.press("Escape");
   await expect(win(page, "cv").locator(".close")).toBeFocused();
 });
 
@@ -118,6 +117,25 @@ test.describe("reduced motion", () => {
     await expect(dialog).toBeVisible({ timeout: 1000 });
     await expect(page.locator(".hello")).toHaveCount(0);
     await expect(page.locator(".hello-all [lang]")).toHaveCount(copy.setup.hello.length);
+  });
+});
+
+test("a visitor link (?for=client) skips setup and lands for that visitor", async ({
+  page,
+}, info) => {
+  const errors = collectPageErrors(page);
+  await page.goto("/?for=client");
+  await settle(page, info);
+  await expect(page.getByRole("dialog", { name: copy.setup.windowTitle })).toHaveCount(0);
+  if (isPhone(info)) await expect(win(page, "contact")).toBeVisible();
+  else for (const id of copy.firstWindows.client) await expect(win(page, id)).toBeVisible();
+  expect(errors.map((e) => e.message)).toEqual([]);
+});
+
+test("an unknown ?for= value runs the normal setup", async ({ page }) => {
+  await page.goto("/?for=boss");
+  await expect(page.getByRole("dialog", { name: copy.setup.windowTitle })).toBeVisible({
+    timeout: 15_000,
   });
 });
 

@@ -4,7 +4,13 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react"
 import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { initialSetup, phoneWindow, REPLAY_EVENT, setupReducer } from "@/lib/setup";
+import {
+  initialSetup,
+  phoneWindow,
+  REPLAY_EVENT,
+  setupReducer,
+  visitorFromQuery,
+} from "@/lib/setup";
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { Visitor } from "@/lib/types";
 import { topWindow } from "@/lib/windows";
@@ -53,10 +59,14 @@ export function SetupFlow() {
   // see the boot screen flash and the server render stays identical to the first client render.
   useLayoutEffect(() => {
     setReduced(window.matchMedia(REDUCED_QUERY).matches);
+    // A visitor link (?for=) wins over anything stored: it was made for whoever opens it.
     const saved = readJSON<{ visitor?: unknown } | null>(DONE_KEY, null);
-    if (saved && isVisitor(saved.visitor)) {
+    const visitor =
+      visitorFromQuery(window.location.search) ??
+      (isVisitor(saved?.visitor) ? saved?.visitor : null);
+    if (visitor) {
       resumed.current = true;
-      dispatch({ type: "resume", visitor: saved.visitor });
+      dispatch({ type: "resume", visitor });
     }
   }, []);
 
