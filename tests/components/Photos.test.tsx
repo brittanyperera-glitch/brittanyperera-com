@@ -52,9 +52,8 @@ async function openAlbum(user: User, title: string) {
 const slider = () => within(body()).getByRole("slider");
 
 describe("Photos content", () => {
-  it("lists the General album first", () => {
-    expect(photos.albums[0].id).toBe("general");
-    expect(photos.albums[0].title).toBe("General");
+  it("has no empty album", () => {
+    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
   });
 
   it("names an album with photos to open on", () => {

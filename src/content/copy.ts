@@ -44,15 +44,7 @@ export const copy = {
       { id: "client", label: "I have a project", hint: "how to reach me" },
       { id: "friend", label: "Friend / just nosy", hint: "the fun stuff" },
     ] as { id: Visitor; label: string; hint: string }[],
-    swatches: [
-      { name: "Blueberry", hex: "#3d6fb6" },
-      { name: "Bondi Blue", hex: "#2f8aa3" },
-      { name: "Tangerine", hex: "#c9772f" },
-      { name: "Strawberry", hex: "#b8475f" },
-      { name: "Grape", hex: "#6e55a8" },
-      { name: "Lime", hex: "#5f8f35" },
-      { name: "Graphite", hex: "#5e6670" },
-    ],
+    accent: "#3d6fb6",
     summaryVisitor: "Visitor:",
     count: "{n} of {total}",
     installLines: [

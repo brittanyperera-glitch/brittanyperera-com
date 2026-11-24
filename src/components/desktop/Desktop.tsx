@@ -114,7 +114,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [state, dispatch] = useReducer(windowsReducer, initialWindows);
-  const [accent, setAccent] = useState(copy.setup.swatches[0].hex);
+  const [accent, setAccent] = useState(copy.setup.accent);
   const [soundOn, setSoundOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const closedId = useRef<WinId | null>(null);

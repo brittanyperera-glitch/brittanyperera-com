@@ -1,3 +1,4 @@
+import { contact } from "./contact";
 import data from "./cv-data.json";
 
 const link = (needle: string) => data.contact.find((c) => c.text.includes(needle))?.href ?? "";
@@ -15,10 +16,9 @@ export const cv = {
   name: data.name,
   headline: data.title,
   profile: data.profile,
-  email: "brittanykawshalya@gmail.com",
+  email: contact.email,
   linkedin: link("linkedin"),
   github: link("github"),
-  tags: ["Python", "TypeScript", "ML", "Geospatial", "SQL"],
   roles: data.experience.map((e) => ({
     title: e.role,
     org: e.org,

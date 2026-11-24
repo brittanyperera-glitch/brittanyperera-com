@@ -111,9 +111,7 @@ describe("SetupFlow", () => {
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(
-      copy.setup.swatches[0].hex,
-    );
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(copy.setup.accent);
   });
 
   it("Continue on the visitor step is disabled until a radio is picked", () => {
