@@ -91,18 +91,27 @@
     gap: 6px;
     width: auto;
     max-width: 84px;
-    height: 30px;
-    top: 7px;
+    height: 32px;
+    top: 6px;
     left: 8px;
     padding: 0 10px 0 8px;
     font: inherit;
     font-size: 14px;
     font-weight: bold;
     color: #fff;
-    background: linear-gradient(#6f97d6, #3a68b3);
+    background: linear-gradient(#3f6fb8, #2d5a9e);
     border: 1px solid #2d5a9e;
     border-radius: 6px;
     box-shadow: none;
+  }
+
+  /* The 32px button reaches 44px with this 6px halo (platinum.css gives a 5px one). */
+  .desktop .win .titlebar .close::after {
+    inset: -6px;
+  }
+
+  .desktop .win .pbtn {
+    min-height: 44px;
   }
 
   .desktop .win .titlebar .close::before {
@@ -333,7 +342,7 @@
     margin: 0;
     font-size: 17px;
     color: #fff;
-    background: linear-gradient(#6f97d6, #3a68b3);
+    background: linear-gradient(#3f6fb8, #2d5a9e);
     border: 1px solid #2d5a9e;
     border-radius: 10px;
     box-shadow: none;

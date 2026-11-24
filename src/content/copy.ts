@@ -156,8 +156,6 @@ export const copy = {
       special: "Special",
     },
     close: "Close",
-    back: "‹ Back",
-    closeLabel: "Close",
     home: "Home",
     ok: "OK",
     soundOn: "Sound: on",
