@@ -45,6 +45,9 @@ export const cvBuilder = {
   scoreLabel: "score",
   linesLabel: "lines",
   pausedLabel: "paused",
+  startLabel: "press space to start",
+  startLabelPhone: "tap to start",
+  openCvLabel: "open my full CV",
   hint: "arrows to move and turn, space to drop it fast",
   entries: timeline,
   /** Falling pieces carry these in order, then round again. */

@@ -100,11 +100,14 @@ function Tick() {
 type Props = {
   game: Game;
   paused: boolean;
+  /** Nothing has been pressed yet, so the first piece is still held. */
+  waiting: boolean;
+  onOpenCv: () => void;
   phone: boolean;
   dispatch: Dispatch<GameAction>;
 };
 
-export function GameView({ game, paused, phone, dispatch }: Props) {
+export function GameView({ game, paused, waiting, onOpenCv, phone, dispatch }: Props) {
   const total = cvBuilder.entries.length;
   const filed = Math.min(game.lines, total);
   const c = cvBuilder.controls;
@@ -138,7 +141,11 @@ export function GameView({ game, paused, phone, dispatch }: Props) {
                   <span key={i} className="cvb-gap" />
                 ),
               )}
-              {paused && game.status === "playing" ? (
+              {game.status !== "playing" ? null : waiting ? (
+                <span className="cvb-paused">
+                  {phone ? cvBuilder.startLabelPhone : cvBuilder.startLabel}
+                </span>
+              ) : paused ? (
                 <span className="cvb-paused">{cvBuilder.pausedLabel}</span>
               ) : null}
             </div>
@@ -182,11 +189,20 @@ export function GameView({ game, paused, phone, dispatch }: Props) {
                   i < filed ? (
                     <li
                       key={e.label}
-                      className={i === filed - 1 ? "cvb-entry cvb-fresh" : "cvb-entry"}
+                      className={
+                        i === filed - 1 ? "cvb-entry cvb-filed cvb-fresh" : "cvb-entry cvb-filed"
+                      }
                     >
-                      <Tick />
-                      <b>{e.when}</b>
-                      <span>{e.label}</span>
+                      <button
+                        type="button"
+                        className="cvb-open"
+                        title={cvBuilder.openCvLabel}
+                        onClick={onOpenCv}
+                      >
+                        <Tick />
+                        <b>{e.when}</b>
+                        <span>{e.label}</span>
+                      </button>
                     </li>
                   ) : (
                     <li key={e.label} className="cvb-entry cvb-blank" aria-hidden="true">

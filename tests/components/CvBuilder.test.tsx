@@ -240,6 +240,79 @@ describe("CV Builder window", () => {
   });
 });
 
+describe("CV Builder start", () => {
+  const fall = (ticks: number) =>
+    act(() => {
+      vi.advanceTimersByTime(gravityMs(0) * ticks + 10);
+    });
+
+  it("holds the first piece, and says how to start, until the first input", () => {
+    vi.useFakeTimers();
+    setup();
+    expect(screen.getByText(cvBuilder.startLabel)).toBeInTheDocument();
+    fall(5);
+    expect(board().dataset.pieceY).toBe("0");
+  });
+
+  it("space starts the game without dropping the piece, then gravity runs", () => {
+    vi.useFakeTimers();
+    setup();
+    press(" ");
+    expect(board().dataset.pieceY).toBe("0");
+    expect(screen.queryByText(cvBuilder.startLabel)).toBeNull();
+    fall(2);
+    expect(board().dataset.pieceY).toBe("2");
+  });
+
+  it("an arrow key starts the game and moves the piece", () => {
+    vi.useFakeTimers();
+    setup();
+    const x = Number(board().dataset.pieceX);
+    press("ArrowLeft");
+    expect(Number(board().dataset.pieceX)).toBe(x - 1);
+    fall(1);
+    expect(board().dataset.pieceY).toBe("1");
+  });
+
+  it("a click on the board starts the game", () => {
+    vi.useFakeTimers();
+    setup();
+    fireEvent.click(board());
+    fall(1);
+    expect(board().dataset.pieceY).toBe("1");
+  });
+
+  it("does not start while another window is in front", () => {
+    vi.useFakeTimers();
+    setup(undefined, CV_THEN_PROJECTS);
+    press(" ");
+    fireEvent.pointerDown(document.querySelector("section[data-win=cvbuilder]") as HTMLElement);
+    fall(3);
+    expect(board().dataset.pieceY).toBe("0");
+  });
+});
+
+describe("CV Builder filed rows", () => {
+  it("each filed row is a button that opens the CV window", () => {
+    render(
+      <Desktop
+        windows={{ cvbuilder: <CvBuilderWindow startGame={nearLine()} />, cv: <p>the cv</p> }}
+      >
+        <Open ids={CV_ONLY} />
+      </Desktop>,
+    );
+    const cvWin = document.querySelector("section[data-win=cv]") as HTMLElement;
+    expect(cvWin).toHaveAttribute("hidden");
+    press(" ");
+    const row = within(panel()).getByRole("button", {
+      name: new RegExp(cvBuilder.entries[0].label),
+    });
+    expect(row).toHaveTextContent(cvBuilder.entries[0].when);
+    fireEvent.click(row);
+    expect(cvWin).not.toHaveAttribute("hidden");
+  });
+});
+
 describe("CV Builder keyboard scope", () => {
   const closeBox = () =>
     within(document.querySelector("section[data-win=cvbuilder]") as HTMLElement).getByRole(

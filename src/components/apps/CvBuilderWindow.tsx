@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { cvBuilder } from "@/content/cvbuilder";
@@ -26,15 +26,19 @@ const targetIs = (t: EventTarget | null, selector: string) =>
   t instanceof Element && t.closest(selector) !== null;
 
 type Props = {
-  /** Test seam: a ready-made game in place of the default first game. */
+  /** Test seam: a ready-made game in place of the default first game. It is already under way. */
   startGame?: () => Game;
 };
 
 export function CvBuilderWindow({ startGame }: Props) {
-  const { state, actions } = useDesktop();
+  const { state, actions, open } = useDesktop();
   const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [game, dispatch] = useReducer(gameReducer, undefined, () => startGame?.() ?? newGame());
+
+  // The first piece waits for the first key or click, so a visitor who opened the window by accident
+  // does not lose the game while looking elsewhere.
+  const [started, setStarted] = useState(startGame !== undefined);
 
   const isOpen = state.open.includes("cvbuilder");
   const isFront = isOpen && topWindow(state) === "cvbuilder";
@@ -49,17 +53,31 @@ export function CvBuilderWindow({ startGame }: Props) {
       if (targetIs(e.target, FORM)) return;
       if (e.key === " " && targetIs(e.target, ACTIVATES)) return;
       e.preventDefault();
+      setStarted(true);
+      // Space starts the game; it does not also drop the first piece.
+      if (!started && e.key === " ") return;
       dispatch({ type: action } as GameAction);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [active]);
+  }, [active, started]);
+
+  // A click in the window starts the game too, but a filed row goes to the CV instead.
+  useEffect(() => {
+    if (!active || started) return;
+    const onClick = (e: MouseEvent) => {
+      if (targetIs(e.target, 'section[data-win="cvbuilder"]') && !targetIs(e.target, ".cvb-entry"))
+        setStarted(true);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [active, started]);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || !started) return;
     const id = window.setInterval(() => dispatch({ type: "tick" }), gravityMs(game.lines));
     return () => window.clearInterval(id);
-  }, [active, game.lines]);
+  }, [active, started, game.lines]);
 
   const { download } = actions;
   useEffect(() => {
@@ -87,6 +105,8 @@ export function CvBuilderWindow({ startGame }: Props) {
         <GameView
           game={game}
           paused={!isFront}
+          waiting={!started}
+          onOpenCv={() => open("cv")}
           phone={state.mode === "phone"}
           dispatch={dispatch}
         />
