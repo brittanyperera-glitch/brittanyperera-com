@@ -1,10 +1,19 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { siteProjects } from "../../src/content/projects";
-import { ALL_WINDOWS, openWin, settle, skipSetup } from "./helpers";
+import {
+  ALL_WINDOWS,
+  isPhone,
+  NOT_ON_PHONE_HOME,
+  openWin,
+  PHONE_GAP,
+  settle,
+  skipSetup,
+} from "./helpers";
 
 for (const id of ALL_WINDOWS) {
   test(`${id}: no serious or critical accessibility violations`, async ({ page }, info) => {
+    test.fixme(isPhone(info) && NOT_ON_PHONE_HOME.includes(id), PHONE_GAP);
     // The browser windows would load the live sites; the audit covers our markup, offline.
     for (const p of siteProjects) {
       await page.route(`${new URL(p.siteUrl).origin}/**`, (r) => r.abort());

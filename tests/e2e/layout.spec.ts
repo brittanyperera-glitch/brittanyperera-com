@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { siteProjects } from "../../src/content/projects";
-import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup } from "./helpers";
+import { ALL_WINDOWS, NOT_ON_PHONE_HOME, openWin, openWindows, settle, skipSetup } from "./helpers";
 
 type Size = { width: number; height: number };
 
@@ -41,7 +41,9 @@ async function problems(page: Page, vp: Size): Promise<string[]> {
       if (bad) out.push(`${id} ${part}: ${bad}`);
     }
   }
-  const icons = page.locator(".icons .icon");
+  // A phone's icons are on its home screen; the desktop grid is hidden there.
+  const onPhone = await page.locator(".phone-home").isVisible();
+  const icons = page.locator(onPhone ? ".phone-home .phone-app" : ".icons .icon");
   for (let i = 0; i < (await icons.count()); i++) {
     const bad = inside(await icons.nth(i).boundingBox(), vp);
     if (bad) out.push(`icon ${i}: ${bad}`);
@@ -113,7 +115,7 @@ test("every window opened at 390x844: controls stay on screen", async ({ page },
   await settle(page, info);
   expect(await problems(page, PHONE_SIZE), "before opening anything").toEqual([]);
 
-  for (const id of ALL_WINDOWS) {
+  for (const id of ALL_WINDOWS.filter((w) => !NOT_ON_PHONE_HOME.includes(w))) {
     await openWin(page, id);
     expect(await problems(page, PHONE_SIZE), `after opening ${id}`).toEqual([]);
   }

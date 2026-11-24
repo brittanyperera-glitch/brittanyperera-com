@@ -12,6 +12,8 @@ test("phone: the back button says Home on a top-level app and the parent title o
 
   const label = (id: "cv" | "projects" | "project:trip") => win(page, id).locator(".close-label");
 
+  // Nothing is open on landing; the CV is one tap away from the home screen.
+  await openWin(page, "cv");
   await expect(label("cv")).toBeVisible();
   await expect(label("cv")).toHaveText(copy.chrome.home);
 
