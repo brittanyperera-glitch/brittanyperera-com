@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
@@ -139,7 +140,7 @@ function tsxFiles(dir: string): string[] {
 }
 
 describe("components carry no user-visible literals", () => {
-  const root = new URL("../../src", import.meta.url).pathname;
+  const root = fileURLToPath(new URL("../../src", import.meta.url));
   const files = [...tsxFiles(join(root, "components")), ...tsxFiles(join(root, "app"))];
 
   it("finds the component files", () => {
