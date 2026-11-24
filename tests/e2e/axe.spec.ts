@@ -1,12 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { projects } from "../../src/content/projects";
+import { siteProjects } from "../../src/content/projects";
 import { ALL_WINDOWS, openWin, settle, skipSetup } from "./helpers";
 
 for (const id of ALL_WINDOWS) {
   test(`${id}: no serious or critical accessibility violations`, async ({ page }, info) => {
     // The browser windows would load the live sites; the audit covers our markup, offline.
-    for (const p of projects) {
+    for (const p of siteProjects) {
       await page.route(`${new URL(p.siteUrl).origin}/**`, (r) => r.abort());
     }
     await skipSetup(page, "friend");
