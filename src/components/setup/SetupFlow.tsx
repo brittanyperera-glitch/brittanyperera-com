@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
-import { useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
+import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { initialSetup, phoneWindow, setupReducer } from "@/lib/setup";
+import {
+  initialSetup,
+  phoneWindow,
+  REPLAY_EVENT,
+  setupReducer,
+  visitorFromQuery,
+} from "@/lib/setup";
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { Visitor } from "@/lib/types";
 import { topWindow } from "@/lib/windows";
@@ -37,7 +43,6 @@ const isVisitor = (v: unknown): v is Visitor => copy.setup.visitors.some((x) => 
  */
 export function SetupFlow() {
   const { open, setBusy, state: desk } = useDesktop();
-  const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [s, dispatch] = useReducer(setupReducer, undefined, initialSetup);
   const [marched, setMarched] = useState(0);
@@ -47,19 +52,32 @@ export function SetupFlow() {
   const finished = useRef(false);
   const resumed = useRef(false);
   // Set when this visit's setup ends. Focus moves once the windows are open and the desktop has
-  // stopped being inert. On a phone the laptop alert waits for that, so dismissing it hands focus
-  // back to the close box rather than <body>.
-  const focusPending = useRef<{ phone: boolean } | null>(null);
+  // stopped being inert.
+  const focusPending = useRef(false);
 
   // Storage and matchMedia are read after hydration, before paint, so a returning visitor does not
   // see the boot screen flash and the server render stays identical to the first client render.
   useLayoutEffect(() => {
     setReduced(window.matchMedia(REDUCED_QUERY).matches);
+    // A visitor link (?for=) wins over anything stored: it was made for whoever opens it.
     const saved = readJSON<{ visitor?: unknown } | null>(DONE_KEY, null);
-    if (saved && isVisitor(saved.visitor)) {
+    const visitor =
+      visitorFromQuery(window.location.search) ??
+      (isVisitor(saved?.visitor) ? saved?.visitor : null);
+    if (visitor) {
       resumed.current = true;
-      dispatch({ type: "resume", visitor: saved.visitor });
+      dispatch({ type: "resume", visitor });
     }
+  }, []);
+
+  useEffect(() => {
+    const replay = () => {
+      finished.current = false;
+      resumed.current = true;
+      dispatch({ type: "replay" });
+    };
+    window.addEventListener(REPLAY_EVENT, replay);
+    return () => window.removeEventListener(REPLAY_EVENT, replay);
   }, []);
 
   // Everything but the overlays is inert, and unreachable by Tab, until setup is over.
@@ -146,27 +164,24 @@ export function SetupFlow() {
     const visitor = s.visitor;
     writeJSON(DONE_KEY, { visitor });
     const phone = desk.mode === "phone";
-    if (!resumed.current) focusPending.current = { phone };
+    if (!resumed.current) focusPending.current = true;
     if (phone) {
       open(phoneWindow(visitor));
-      if (resumed.current) alert({ icon: "note", body: copy.alerts.phone });
     } else {
       for (const id of copy.firstWindows[visitor]) open(id);
     }
-  }, [s.phase, s.visitor, desk.mode, open, alert]);
+  }, [s.phase, s.visitor, desk.mode, open]);
 
   // Once the windows are open and the desktop is no longer inert, put keyboard focus on the
   // visitor's main window's close box (not the Stickies note on top) instead of leaving it on <body>.
   const front = topWindow(desk);
   useEffect(() => {
-    const pending = focusPending.current;
-    if (!pending || s.phase !== "done" || !front) return;
+    if (!focusPending.current || s.phase !== "done" || !front) return;
     if (!s.visitor) throw new Error("visitor not picked");
-    focusPending.current = null;
+    focusPending.current = false;
     const main = phoneWindow(s.visitor);
     document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
-    if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
-  }, [s.phase, s.visitor, front, alert]);
+  }, [s.phase, s.visitor, front]);
 
   if (s.phase === "done") return null;
 

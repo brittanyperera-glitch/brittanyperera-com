@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { copy } from "@/content/copy";
 import { contrastRatio, pickInk } from "@/lib/contrast";
 
-const SWATCHES = copy.setup.swatches.map((s) => s.hex);
+const SWATCHES = [copy.setup.accent];
 
 describe("contrast", () => {
   it("white on black is 21", () => {

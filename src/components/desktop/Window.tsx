@@ -22,7 +22,6 @@ const WIDTH: Record<string, number> = {
   youtube: 620,
   "project:delulu": 400,
   "project:trip": 400,
-  "browser:delulu": 680,
   "browser:trip": 680,
 };
 const FALLBACK_WIDTH = 420;

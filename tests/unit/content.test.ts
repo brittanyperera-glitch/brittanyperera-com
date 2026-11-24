@@ -104,6 +104,12 @@ describe("content strings", () => {
     expect(cv.metaTitle).toBeTruthy();
     expect(Object.values(cv.sections).every((v) => v.length > 0)).toBe(true);
   });
+  it("has no dead content: no cv.tags, no swatches, one accent, the CV email is the contact email", () => {
+    expect("tags" in cv).toBe(false);
+    expect("swatches" in copy.setup).toBe(false);
+    expect(copy.setup.accent).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(cv.email).toBe(contact.email);
+  });
   it("has an OK label in copy.chrome", () => {
     expect(copy.chrome.ok).toBe("OK");
   });
@@ -112,12 +118,11 @@ describe("content strings", () => {
     expect(paths).toContain("apps.photos.albums[0].title");
     expect(paths).toContain("apps.photos.ui.watchVideo");
     expect(paths).toContain("apps.projectUi.openSite");
-    expect(paths).toContain("projects[0].siteUrl");
+    expect(paths).toContain("projects[1].siteUrl");
   });
-  it("lists photo albums with unique ids, General first, and videos that exist", () => {
+  it("lists photo albums with unique ids, none empty, and videos that exist", () => {
     const ids = photos.albums.map((a) => a.id);
-    expect(ids[0]).toBe("general");
-    expect(photos.albums[0].title).toBe("General");
+    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
     expect(new Set(ids).size).toBe(ids.length);
     const known = new Set(youtube.videos.map((v) => v.id));
     for (const a of photos.albums)

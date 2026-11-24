@@ -3,12 +3,12 @@ import { copy } from "../../src/content/copy";
 import type { Visitor } from "../../src/lib/types";
 import { collectPageErrors, isPhone, runAssistant, settle, skipSetup, win } from "./helpers";
 
-// A laptop lands on the full landing set (copy.firstWindows); a phone on the CV alone, with its alert.
+// A laptop lands on the full landing set (copy.firstWindows); a phone on the CV alone.
 async function expectLanding(page: Page, phone: boolean, visitor: Visitor = "recruiter") {
   await expect(win(page, "cv")).toBeVisible();
   if (phone) {
     await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
-    await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
     return;
   }
   const open = page.locator("section[data-win]:not([hidden])");
@@ -31,7 +31,6 @@ test("fresh visit: the friend flow lands on the CV, not an About me window", asy
   await runAssistant(page, "friend");
   await expectLanding(page, isPhone(info), "friend");
   await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
-  if (isPhone(info)) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
 });
 
 test("Esc on first paint skips setup to the CV", async ({ page }, info) => {
@@ -104,7 +103,6 @@ test("after setup, focus lands on the front window's close box instead of <body>
   await page.goto("/");
   await runAssistant(page, "recruiter");
   await expectLanding(page, isPhone(info));
-  if (isPhone(info)) await page.keyboard.press("Escape");
   await expect(win(page, "cv").locator(".close")).toBeFocused();
 });
 
@@ -119,6 +117,25 @@ test.describe("reduced motion", () => {
     await expect(dialog).toBeVisible({ timeout: 1000 });
     await expect(page.locator(".hello")).toHaveCount(0);
     await expect(page.locator(".hello-all [lang]")).toHaveCount(copy.setup.hello.length);
+  });
+});
+
+test("a visitor link (?for=client) skips setup and lands for that visitor", async ({
+  page,
+}, info) => {
+  const errors = collectPageErrors(page);
+  await page.goto("/?for=client");
+  await settle(page, info);
+  await expect(page.getByRole("dialog", { name: copy.setup.windowTitle })).toHaveCount(0);
+  if (isPhone(info)) await expect(win(page, "contact")).toBeVisible();
+  else for (const id of copy.firstWindows.client) await expect(win(page, id)).toBeVisible();
+  expect(errors.map((e) => e.message)).toEqual([]);
+});
+
+test("an unknown ?for= value runs the normal setup", async ({ page }) => {
+  await page.goto("/?for=boss");
+  await expect(page.getByRole("dialog", { name: copy.setup.windowTitle })).toBeVisible({
+    timeout: 15_000,
   });
 });
 

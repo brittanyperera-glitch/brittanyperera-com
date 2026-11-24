@@ -2,10 +2,12 @@
 
 import { useDesktop } from "@/components/desktop/Desktop";
 import { type Project, projectUi } from "@/content/projects";
+import type { WinId } from "@/lib/types";
 
 // A SimpleText-style read-me; its one button opens the site in the browser window.
 export function ProjectWindow({ project }: { project: Project }) {
-  const { open } = useDesktop();
+  const { open, actions } = useDesktop();
+  const { codeUrl } = project;
   return (
     <>
       <div className="readme">
@@ -28,9 +30,11 @@ export function ProjectWindow({ project }: { project: Project }) {
         <button
           type="button"
           className="pbtn default"
-          onClick={() => open(`browser:${project.id}`)}
+          onClick={() =>
+            codeUrl ? actions.leave(codeUrl) : open(`browser:${project.id}` as WinId)
+          }
         >
-          {projectUi.openSite}
+          {codeUrl ? projectUi.viewCode : projectUi.openSite}
         </button>
       </p>
     </>

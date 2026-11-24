@@ -14,7 +14,7 @@ const item = (name: string) => ({
   caption: `caption ${name}`,
 });
 
-// General is deliberately NOT first here: the window must put it first itself.
+// Content order is kept as given; empty albums are filtered out by the window.
 const fixtures: PhotoAlbum[] = [
   { id: "vietnam", title: "Vietnam", videoIds: [youtube.videos[1].id], items: [item("v1")] },
   { id: "empty", title: "Empty album", items: [] },
@@ -52,9 +52,8 @@ async function openAlbum(user: User, title: string) {
 const slider = () => within(body()).getByRole("slider");
 
 describe("Photos content", () => {
-  it("lists the General album first", () => {
-    expect(photos.albums[0].id).toBe("general");
-    expect(photos.albums[0].title).toBe("General");
+  it("has no empty album", () => {
+    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
   });
 
   it("names an album with photos to open on", () => {
@@ -82,11 +81,11 @@ describe("Photos opening album", () => {
 });
 
 describe("Photos album list", () => {
-  it("shows one folder per album that has items, General first, in a Finder-style grid", async () => {
+  it("shows one folder per album that has items, in content order, in a Finder-style grid", async () => {
     const user = setup();
     await openPhotos(user);
     const folders = within(body()).getAllByRole("button");
-    expect(folders.map((b) => b.textContent)).toEqual(["General", "Vietnam", "Morocco"]);
+    expect(folders.map((b) => b.textContent)).toEqual(["Vietnam", "General", "Morocco"]);
     expect(body().querySelector(".folder-grid")).not.toBeNull();
     expect(within(body()).queryByRole("button", { name: "Empty album" })).toBeNull();
     expect(body().querySelector("img")).toBeNull();

@@ -99,7 +99,7 @@ for (const size of NO_JS_SIZES) {
     }
   });
 
-  test(`no JavaScript at ${size.width}x${size.height}: the full-CV link is visible and goes to /cv`, async ({
+  test(`no JavaScript at ${size.width}x${size.height}: the CV window shows the whole CV, down to the last section`, async ({
     page,
   }, info) => {
     test.skip(
@@ -108,10 +108,8 @@ for (const size of NO_JS_SIZES) {
     );
     await page.setViewportSize(size);
     await page.goto("/");
-    const link = page.getByRole("link", { name: copy.windows.cvPageLink });
-    await expect(link).toBeVisible();
-    await link.click();
-    await expect(page).toHaveURL(/\/cv$/);
-    await expect(page.getByRole("heading", { name: cv.name })).toBeVisible();
+    const cvWin = page.locator('section[data-win="cv"]');
+    await expect(cvWin.getByRole("heading", { name: cv.sections.languages })).toBeVisible();
+    await expect(cvWin.locator('a[href="/cv"]')).toHaveCount(0);
   });
 }

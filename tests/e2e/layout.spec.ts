@@ -1,12 +1,12 @@
 import { expect, type Page, test } from "@playwright/test";
-import { projects } from "../../src/content/projects";
+import { siteProjects } from "../../src/content/projects";
 import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup, win } from "./helpers";
 
 type Size = { width: number; height: number };
 
 // The browser windows would load the live sites; layout does not need them, and the run stays offline.
 async function blockSites(page: Page) {
-  for (const p of projects) {
+  for (const p of siteProjects) {
     await page.route(`${new URL(p.siteUrl).origin}/**`, (r) => r.abort());
   }
 }

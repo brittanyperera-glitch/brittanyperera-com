@@ -111,9 +111,7 @@ describe("SetupFlow", () => {
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(
-      copy.setup.swatches[0].hex,
-    );
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(copy.setup.accent);
   });
 
   it("Continue on the visitor step is disabled until a radio is picked", () => {
@@ -248,7 +246,7 @@ describe("SetupFlow", () => {
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
 
-  it("on a phone, opens only the visitor's most relevant window and shows the laptop alert", () => {
+  it("on a phone, opens only the visitor's most relevant window and shows no alert", () => {
     mockMedia([PHONE]);
     renderFlow();
     runToConclusion(/I'm hiring/);
@@ -256,7 +254,7 @@ describe("SetupFlow", () => {
     advance(20000);
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
-    expect(screen.getByRole("alertdialog")).toHaveTextContent(copy.alerts.phone);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
   it("on a phone, a returning visitor gets one window too", () => {
@@ -265,6 +263,77 @@ describe("SetupFlow", () => {
     renderFlow();
     expect(win("Say hi")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).toHaveAttribute("hidden");
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+  });
+});
+
+describe("visitor links (?for=)", () => {
+  afterEach(() => window.history.replaceState(null, "", "/"));
+
+  it.each(["recruiter", "collab", "client", "friend"] as Visitor[])(
+    "?for=%s skips setup, lands for that visitor and stores it",
+    (v) => {
+      window.history.replaceState(null, "", `/?for=${v}`);
+      const { container } = renderFlow();
+      expect(bootOverlay(container)).toBeNull();
+      expect(setupDialog()).toBeNull();
+      expect(openIds()).toEqual(landing(v));
+      expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+        visitor: v,
+      });
+    },
+  );
+
+  it("beats a visitor stored earlier", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    window.history.replaceState(null, "", "/?for=client");
+    renderFlow();
+    expect(openIds()).toEqual(landing("client"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "client",
+    });
+  });
+
+  it("on a phone lands on the one window and no alert", () => {
+    mockMedia([PHONE]);
+    window.history.replaceState(null, "", "/?for=client");
+    renderFlow();
+    expect(win("Say hi")).not.toHaveAttribute("hidden");
+    expect(openIds()).toHaveLength(1);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+  });
+
+  it("an unknown value falls back to the normal flow", () => {
+    window.history.replaceState(null, "", "/?for=boss");
+    const { container } = renderFlow();
+    expect(bootOverlay(container)).not.toBeNull();
+    throughBoot();
+    expect(setupDialog()).not.toBeNull();
+    expect(window.localStorage.getItem("bp:setup-done")).toBeNull();
+  });
+});
+
+describe("Break something > Restart", () => {
+  it("replays the boot splash, keeps the stored visitor and lands on the same first windows", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    const { container } = renderFlow();
+    expect(openIds()).toEqual(landing("friend"));
+    fireEvent.click(screen.getByRole("button", { name: "Special" }));
+    fireEvent.click(screen.getByRole("button", { name: "Break something" }));
+    const alert = screen.getByRole("alertdialog");
+    expect(alert).toHaveTextContent(copy.alerts.crash.title);
+    expect(alert).toHaveTextContent(copy.alerts.crash.text);
+    fireEvent.click(within(alert).getByRole("button", { name: "Restart" }));
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(bootOverlay(container)).not.toBeNull();
+    expect(openIds()).toEqual([]);
+    throughBoot();
+    expect(setupDialog()).toBeNull();
+    expect(bootOverlay(container)).toBeNull();
+    expect(openIds()).toEqual(landing("friend"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "friend",
+    });
   });
 });
 

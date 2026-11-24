@@ -14,8 +14,9 @@ import {
 } from "react";
 import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
 import { copy } from "@/content/copy";
-import { projects, projectUi } from "@/content/projects";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
+import { REPLAY_EVENT } from "@/lib/setup";
 import { removeKey } from "@/lib/storage";
 import type { WinId } from "@/lib/types";
 import {
@@ -113,7 +114,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [state, dispatch] = useReducer(windowsReducer, initialWindows);
-  const [accent, setAccent] = useState(copy.setup.swatches[0].hex);
+  const [accent, setAccent] = useState(copy.setup.accent);
   const [soundOn, setSoundOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const closedId = useRef<WinId | null>(null);
@@ -256,7 +257,16 @@ function DesktopInner({ windows, children }: DesktopProps) {
               {a.crash.text}
             </>
           ),
-          buttons: [{ label: a.crash.button, primary: true }],
+          buttons: [
+            {
+              label: a.crash.button,
+              primary: true,
+              run: () => {
+                dispatch({ type: "closeAll" });
+                window.dispatchEvent(new Event(REPLAY_EVENT));
+              },
+            },
+          ],
         }),
       leave: (href: string) =>
         alert({
@@ -330,13 +340,11 @@ function DesktopInner({ windows, children }: DesktopProps) {
       id,
       title,
     })),
-    ...projects.flatMap((p) => [
-      {
-        id: `project:${p.id}` as WinId,
-        title: projectUi.aboutTitle.replace("{title}", p.title),
-      },
-      { id: `browser:${p.id}` as WinId, title: p.siteLabel },
-    ]),
+    ...projects.map((p) => ({
+      id: `project:${p.id}` as WinId,
+      title: projectUi.aboutTitle.replace("{title}", p.title),
+    })),
+    ...siteProjects.map((p) => ({ id: `browser:${p.id}` as WinId, title: p.siteLabel })),
   ];
 
   return (

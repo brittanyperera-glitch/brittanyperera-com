@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { copy } from "../../src/content/copy";
-import { projects, projectUi } from "../../src/content/projects";
+import { projectUi, siteProjects } from "../../src/content/projects";
 import { openWin, settle, skipSetup, win } from "./helpers";
 
-const trip = projects.find((p) => p.id === "trip");
+const trip = siteProjects.find((p) => p.id === "trip");
 
 test("trip site down: the browser window still shows its controls and the new-tab button works", async ({
   page,

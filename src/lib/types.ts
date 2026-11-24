@@ -14,7 +14,7 @@ export type WinId =
   | "youtube"
   | "note"
   | `project:${ProjectId}`
-  | `browser:${ProjectId}`;
+  | "browser:trip";
 
 export type IconName =
   | "happymac"

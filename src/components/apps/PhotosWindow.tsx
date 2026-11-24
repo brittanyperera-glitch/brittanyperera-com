@@ -10,13 +10,9 @@ import { PhotoViewer } from "./photos/PhotoViewer";
 import type { PhotoAlbum } from "./photos/types";
 import "@/styles/photos.css";
 
-const GENERAL = "general";
-
-// Only albums with photos, General first; the sort is stable so the rest keep their content order.
+// Only albums with photos, in content order.
 function shownAlbums(albums: PhotoAlbum[]): PhotoAlbum[] {
-  return albums
-    .filter((a) => a.items.length > 0)
-    .sort((a, b) => Number(b.id === GENERAL) - Number(a.id === GENERAL));
+  return albums.filter((a) => a.items.length > 0);
 }
 
 const isRange = (t: EventTarget | null) => t instanceof HTMLInputElement && t.type === "range";

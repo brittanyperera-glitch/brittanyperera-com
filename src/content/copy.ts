@@ -26,7 +26,7 @@ export const copy = {
     steps: [
       {
         title: "Introduction",
-        sub: "this assistant sets up my Mac for you. takes about 20 seconds, or skip it (no hard feelings).",
+        sub: "it seems youve got into my computer. all the stuff is clickable, it is my computer of course. nosiness is welcome.",
       },
       { title: "About You", sub: "who's visiting? ill open the right stuff first." },
       { title: "Conclusion", sub: "all set. click Go Ahead and ill set up the Mac with:" },
@@ -44,15 +44,7 @@ export const copy = {
       { id: "client", label: "I have a project", hint: "how to reach me" },
       { id: "friend", label: "Friend / just nosy", hint: "the fun stuff" },
     ] as { id: Visitor; label: string; hint: string }[],
-    swatches: [
-      { name: "Blueberry", hex: "#3d6fb6" },
-      { name: "Bondi Blue", hex: "#2f8aa3" },
-      { name: "Tangerine", hex: "#c9772f" },
-      { name: "Strawberry", hex: "#b8475f" },
-      { name: "Grape", hex: "#6e55a8" },
-      { name: "Lime", hex: "#5f8f35" },
-      { name: "Graphite", hex: "#5e6670" },
-    ],
+    accent: "#3d6fb6",
     summaryVisitor: "Visitor:",
     count: "{n} of {total}",
     installLines: [
@@ -87,7 +79,6 @@ export const copy = {
       cancel: "Cancel",
       ok: "Open",
     },
-    phone: "might be better on laptop btw",
     aboutMac: {
       title: "Brittany's Mac",
       specs: [
@@ -98,6 +89,11 @@ export const copy = {
       ],
     },
     crash: {
+      title: "well, that broke.",
+      text: "you found the button. restarting is the classic fix.",
+      button: "Restart",
+    },
+    notFound: {
       title: "Sorry, a system error occurred.",
       text: "(this page doesnt exist, or i broke it)",
       button: "Restart",
@@ -169,7 +165,6 @@ export const copy = {
   windows: {
     projectsInfo: "{n} items",
     openHint: "Double-click an icon (or select it and press Return) to open it.",
-    cvPageLink: "the full CV, as a page",
     copyEmail: "Copy email",
     github: "GitHub",
     linkedin: "LinkedIn",

@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { music } from "../../src/content/music";
-import { projects, projectUi } from "../../src/content/projects";
+import { projects, projectUi, siteProjects } from "../../src/content/projects";
 import type { Visitor, WinId } from "../../src/lib/types";
 
 export const SETUP_KEY = "bp:setup-done";
@@ -31,15 +31,9 @@ export const win = (page: Page, id: WinId): Locator => page.locator(`section[dat
 
 export const openWindows = (page: Page): Locator => page.locator("section[data-win]:not([hidden])");
 
-/** Wait for hydration to finish removing the boot and setup overlays, then clear the phone alert. */
-export async function settle(page: Page, info: TestInfo) {
+/** Wait for hydration to finish removing the boot and setup overlays. */
+export async function settle(page: Page, _info: TestInfo) {
   await expect(page.locator(".boot, .setup")).toHaveCount(0);
-  if (isPhone(info)) {
-    const alert = page.getByRole("alertdialog");
-    await expect(alert).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(alert).toHaveCount(0);
-  }
 }
 
 /** Opens a window the way a keyboard user would: focus its icon and press Enter. */
@@ -93,5 +87,6 @@ export const ALL_WINDOWS: WinId[] = [
   "garage",
   "photos",
   "youtube",
-  ...projects.flatMap((p) => [`project:${p.id}`, `browser:${p.id}`] as WinId[]),
+  ...projects.map((p) => `project:${p.id}` as WinId),
+  ...siteProjects.map((p) => `browser:${p.id}` as WinId),
 ];

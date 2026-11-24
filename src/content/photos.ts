@@ -10,9 +10,8 @@ export type PhotoAlbum = {
 
 export const photos = {
   title: "Photos",
-  // General first, then country by country. An album with no items is not shown.
+  // Country by country. An album with no items is not shown.
   albums: [
-    { id: "general", title: "General", items: [] },
     {
       id: "indonesia",
       title: "Indonesia",
