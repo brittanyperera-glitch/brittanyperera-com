@@ -452,6 +452,12 @@
     border-bottom-color: var(--ph-sep);
   }
 
+  /* windows.css sets these two lines at 11.5px for the laptop window; too small on a phone. */
+  .desktop .win .cv-doc > h3 + p,
+  .desktop .win .cv-doc .cv-head + p {
+    font-size: 14px;
+  }
+
   .desktop .win .readme {
     background: var(--ph-cell);
     border-bottom: 1px solid var(--ph-hair);

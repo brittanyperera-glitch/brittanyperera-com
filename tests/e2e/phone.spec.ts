@@ -181,6 +181,11 @@ test.describe("before any JavaScript runs", () => {
       .first()
       .evaluate((p) => parseFloat(getComputedStyle(p).fontSize));
     expect(size).toBeGreaterThanOrEqual(14);
+    // Every CV paragraph, not just the bullets: the role lines under headings were 11.5px once.
+    const smallest = await cvWin
+      .locator(".cv-doc p")
+      .evaluateAll((ps) => Math.min(...ps.map((p) => parseFloat(getComputedStyle(p).fontSize))));
+    expect(smallest).toBeGreaterThanOrEqual(13);
   });
 });
 
