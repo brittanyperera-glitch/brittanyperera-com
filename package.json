@@ -12,8 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "cv:pdf": "tsx scripts/build-cv-pdf.ts",
-    "og": "tsx scripts/build-og.ts",
+    "build-info": "tsx scripts/build-info.ts",
+    "prebuild": "tsx scripts/build-info.ts",
     "launch-check": "tsx scripts/launch-check.ts"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@biomejs/biome": "^2.5.11",
     "@playwright/test": "^1.62.1",
     "@testing-library/jest-dom": "^7.0.1",

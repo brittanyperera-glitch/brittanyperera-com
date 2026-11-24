@@ -217,4 +217,53 @@
   .yt-channel {
     min-height: 40px;
   }
+
+  /* Dark: the 2006 white page and pale-blue boxes become dark cells. */
+  .desktop .yt {
+    color: var(--ph-text);
+    background: var(--ph-bg);
+  }
+
+  .desktop .yt-head {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .yt-wordmark {
+    color: var(--ph-text);
+    text-shadow: none;
+  }
+
+  .desktop .yt-stage {
+    box-shadow:
+      0 0 0 4px var(--ph-cell),
+      0 0 0 5px var(--ph-hair);
+  }
+
+  .desktop .yt-side {
+    background: var(--ph-cell);
+    border-color: var(--ph-hair);
+  }
+
+  .desktop .yt-more {
+    color: var(--ph-text);
+    border-bottom-color: var(--ph-sep);
+  }
+
+  .desktop .yt-by b,
+  .desktop .yt-item-title {
+    color: var(--ph-link);
+  }
+
+  .desktop .yt-item:hover,
+  .desktop .yt-item.current {
+    background: var(--ph-raised);
+    box-shadow: none;
+  }
+
+  .desktop .yt-item img {
+    border-color: var(--ph-edge);
+    box-shadow: none;
+  }
 }

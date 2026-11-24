@@ -12,7 +12,6 @@ export function CvWindow() {
       <div className="doc-toolbar">
         <span className="doc-name">{copy.windowTitles.cv}</span>
         <span className="sep" aria-hidden="true" />
-        <a href="/cv">{copy.windows.cvPageLink}</a>
         <button type="button" className="pbtn default" onClick={actions.download}>
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
             <path

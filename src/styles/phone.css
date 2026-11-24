@@ -1,3 +1,42 @@
+/* Phones are always dark, whatever the visitor's prefers-color-scheme: an iPhone-style dark mode.
+   The tokens are defined once here; phone-home.css and the phone blocks of the app stylesheets use
+   them. On html (not .desktop) because the alert and the lock sit beside the desktop, not in it.
+   Text pairs are 4.5:1 or better and the focus ring 3:1 or better on every surface, checked in
+   tests/components/phoneCss.test.ts. --accent and --accent-ink are the focus ring and selection
+   colours the app stylesheets already read, so they follow the dark palette without edits. */
+@media (max-width: 700px) {
+  html:has(.desktop) {
+    color-scheme: dark;
+    --ph-bg: #000000;
+    --ph-cell: #1c1c1e;
+    --ph-raised: #2c2c2e;
+    --ph-sep: #2c2c2e;
+    --ph-hair: #38383a;
+    --ph-edge: #48484a;
+    --ph-key-hi: #3a3a3c;
+    --ph-text: #ffffff;
+    --ph-text2: #a1a1a6;
+    --ph-link: #409cff;
+    --ph-btn-top: #1670dc;
+    --ph-btn-bot: #0a58c0;
+    --ph-btn-edge: #0a4a9f;
+    --ph-ring: #ffffff;
+    --ph-glass: rgba(28, 28, 30, 0.94);
+    --ph-wall-top: #1d2536;
+    --ph-wall-mid: #121722;
+    --ph-wall-bot: #0a0d14;
+    --accent: var(--ph-ring);
+    --accent-ink: #000000;
+    --doc-accent: var(--ph-link);
+  }
+
+  /* html body: beats desktop.css's textured desk background whichever stylesheet loads last. */
+  html body:has(.desktop) {
+    color: var(--ph-text);
+    background: var(--ph-bg);
+  }
+}
+
 /* Phones: the desktop becomes a grid of big icons and each window opens full screen, one at a time.
    Layout is keyed on the same (max-width: 700px) query Desktop uses for its mode, so it applies on
    the server-rendered HTML and without JavaScript. Before hydration a window still carries its
@@ -11,32 +50,6 @@
   .desktop .menu:nth-child(4),
   .desktop .menubar .clock {
     display: none;
-  }
-
-  .desktop .icons {
-    top: 34px;
-    left: 12px;
-    right: 12px;
-    bottom: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: flex-start;
-    gap: 14px 0;
-  }
-
-  .desktop .icon {
-    width: 33.33%;
-    padding: 6px 0;
-  }
-
-  .desktop .icon svg {
-    width: 52px;
-    height: 52px;
-  }
-
-  .desktop .icon .label {
-    font-size: 12px;
   }
 
   /* No :not([hidden]) here: the no-JS stylesheet shows the CV while it still carries the attribute. */
@@ -59,26 +72,76 @@
     display: flex;
   }
 
+  /* The title bar is the app's nav bar. Equal side padding keeps the title centred whatever the
+     back button says. */
   .desktop .win .titlebar {
-    height: 34px;
+    height: 44px;
+    margin: 0;
+    padding: 0 96px;
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
   }
 
-  /* The close box carries its own label ("Close", or "Back" for a project), so it grows to fit it. */
+  .desktop .win .titlebar::before {
+    display: none;
+  }
+
+  /* The not-front rule is repeated because a server-rendered window has no .front yet. */
+  .desktop .win .titlebar .t,
+  .desktop .win:not(.front) .titlebar .t {
+    background: none;
+    padding: 0;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ph-text);
+  }
+
+  /* The back button carries its own label ("Home", or the parent app), so it grows to fit it. The
+     chevron is drawn here so the label stays exactly the copy string. */
   .desktop .win .titlebar .close {
     display: flex;
     align-items: center;
     gap: 6px;
     width: auto;
-    min-width: 26px;
-    height: 26px;
-    top: 3px;
-    padding: 0 8px;
+    max-width: 84px;
+    height: 32px;
+    top: 6px;
+    left: 8px;
+    padding: 0 10px 0 8px;
     font: inherit;
-    color: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
+  /* The 32px button reaches 44px with this 6px halo (platinum.css gives a 5px one). */
+  .desktop .win .titlebar .close::after {
+    inset: -6px;
+  }
+
+  .desktop .win .pbtn {
+    min-height: 44px;
+  }
+
+  .desktop .win .titlebar .close::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #fff;
+    border-left: 2px solid #fff;
+    transform: translateX(2px) rotate(45deg);
   }
 
   .desktop .win .titlebar .close .close-label {
-    display: inline;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
@@ -89,6 +152,13 @@
   .desktop .win .body {
     max-height: none;
     flex: 1;
+  }
+
+  /* Keeps a body inside the viewport width: long unbroken text (an email address, a URL) wraps
+     instead of widening the scroll area past the screen. */
+  .desktop .win .body {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .desktop .folder-grid {
@@ -102,4 +172,367 @@
 
 .desktop[data-mode="phone"] .win .titlebar {
   cursor: default;
+}
+
+/* Dark grouped-list look (variant B) for the CV, Projects, Contact, Trash and Photos apps only.
+   Music, Garage and YouTube keep their own phone styles. */
+@media (max-width: 700px) {
+  .desktop
+    .win:is(
+      [data-win="cv"],
+      [data-win="projects"],
+      [data-win="contact"],
+      [data-win="trash"],
+      [data-win="photos"]
+    ) {
+    padding: 0;
+    background: var(--ph-bg);
+    border: 0;
+  }
+
+  .desktop
+    .win:is(
+      [data-win="cv"],
+      [data-win="projects"],
+      [data-win="contact"],
+      [data-win="trash"],
+      [data-win="photos"]
+    )
+    .body {
+    background: var(--ph-bg);
+    border: 0;
+    box-shadow: none;
+    font-size: 16px;
+  }
+
+  /* Photos keeps its own zero padding: the album viewer inside it runs edge to edge. */
+  .desktop
+    .win:is([data-win="cv"], [data-win="projects"], [data-win="contact"], [data-win="trash"])
+    .body {
+    padding: 14px;
+  }
+
+  /* Rows and cards are dark grouped cells with a hairline border and rounded corners. */
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid,
+  .desktop .win[data-win="trash"] .trash-list,
+  .desktop .win[data-win="contact"] .row,
+  .desktop .win[data-win="cv"] .cv-doc {
+    color: var(--ph-text);
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    border-radius: 10px;
+    box-shadow: none;
+    overflow: hidden;
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
+    margin: 14px;
+    padding: 0;
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon {
+    width: 100%;
+    flex-direction: row;
+    gap: 14px;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--ph-sep);
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon:last-child {
+    border-bottom: 0;
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon .label {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    font-size: 17px;
+    line-height: 1.3;
+    color: var(--ph-text);
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon::after {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--ph-text2);
+    border-right: 2px solid var(--ph-text2);
+    transform: rotate(45deg);
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon.selected {
+    background: var(--ph-raised);
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon.selected .label {
+    background: none;
+    color: var(--ph-text);
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="trash"]) .info {
+    border: 0;
+    font-size: 14px;
+    color: var(--ph-text2);
+  }
+
+  .desktop .win[data-win="trash"] .info {
+    margin: 0 0 10px;
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ph-sep);
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li:nth-child(even) {
+    background: none;
+  }
+
+  .desktop .win[data-win="contact"] .row {
+    padding: 14px;
+  }
+
+  .desktop .win[data-win="contact"] .email-field {
+    margin: 12px 0;
+    padding: 12px 14px;
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    border-radius: 10px;
+    box-shadow: none;
+    font-size: 17px;
+  }
+
+  /* The CV is one dark card; the page-on-a-desk look of the laptop window goes. */
+  .desktop .win[data-win="cv"] .paper-desk {
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .paper {
+    padding: 16px;
+    box-shadow: none;
+    font-size: 15px;
+  }
+
+  /* Download PDF is the first control in the app: a full-width blue button above the document. */
+  .desktop .win[data-win="cv"] .doc-toolbar {
+    position: static;
+    margin: 0 0 14px;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .doc-name,
+  .desktop .win[data-win="cv"] .doc-toolbar .sep {
+    display: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .pbtn {
+    flex: 1;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
+    font-size: 17px;
+    color: #fff;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .pbtn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Dark paint for every window and the alert. The Platinum rules in platinum.css, windows.css and
+   desktop.css set light colours with specificity up to (0,3,0); the [data-win] and .desktop
+   prefixes here put each rule above them, so stylesheet load order does not matter. */
+@media (max-width: 700px) {
+  /* The nav bar spans the full width, so a window has no 5px Platinum frame. */
+  .desktop .win[data-win] {
+    padding: 0;
+    color: var(--ph-text);
+    background: var(--ph-bg);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win] .body {
+    color: var(--ph-text);
+    background: var(--ph-bg);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .alert-layer a,
+  .desktop .win .body a,
+  .desktop .win .doc-toolbar a,
+  .desktop .win .body .linklike {
+    color: var(--ph-link);
+  }
+
+  .desktop .win .body .info,
+  .desktop .win .open-hint,
+  .desktop .win .album-count,
+  .desktop .win .yt-by {
+    color: var(--ph-text2);
+  }
+
+  .desktop .win .body .info {
+    border-bottom-color: var(--ph-sep);
+  }
+
+  .desktop .win .tag {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+    border-color: var(--ph-edge);
+  }
+
+  /* Buttons: a glossy raised key; the default one is the blue primary. */
+  .alert-layer .pbtn,
+  .desktop .win .pbtn {
+    color: var(--ph-text);
+    background: linear-gradient(
+      var(--ph-key-hi),
+      var(--ph-raised) 50%,
+      var(--ph-cell) 51%,
+      var(--ph-raised)
+    );
+    border: 1px solid var(--ph-edge);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .alert-layer .pbtn.default,
+  .desktop .win .pbtn.default {
+    color: #fff;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border-color: var(--ph-btn-edge);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .alert-layer .pbtn:active,
+  .desktop .win .pbtn:active {
+    filter: brightness(0.8);
+  }
+
+  .alert-layer .pbtn[disabled],
+  .desktop .win .pbtn[disabled] {
+    color: var(--ph-text2);
+  }
+
+  /* Laptop-sized CV labels and dates (11px in windows.css) up to the phone's 13px footnote size. */
+  .desktop .win .cv-doc h4,
+  .desktop .win .cv-doc .cv-when {
+    font-size: 13px;
+  }
+
+  /* "Double-click an icon" is laptop advice; a phone has no double-click. */
+  .desktop .win .open-hint {
+    display: none;
+  }
+
+  .desktop .win .readme p {
+    font-size: 15px;
+  }
+
+  /* Two Truths answers are the whole game: full-width rows at body size, not small chips. */
+  .desktop .win[data-win="truths"] fieldset .pbtn {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 10px 14px;
+    font-size: 16px;
+    text-align: left;
+    white-space: normal;
+  }
+
+  /* Each control has its own :active state; the grey tap flash would linger over the next screen. */
+  html:has(.desktop) {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* windows.css sets these two lines at 11.5px for the laptop window; too small on a phone. */
+  .desktop .win .cv-doc > h3 + p,
+  .desktop .win .cv-doc .cv-head + p {
+    font-size: 14px;
+  }
+
+  /* The CV's own text colours (windows.css) are dark greys meant for paper. */
+  .desktop .win[data-win="cv"] .cv-doc p,
+  .desktop .win[data-win="cv"] .cv-doc ul {
+    color: var(--ph-text);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc .cv-when {
+    color: var(--ph-text2);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc h4 {
+    border-bottom-color: var(--ph-sep);
+  }
+
+  /* windows.css redeclares --doc-accent on .win, so the root token alone never reaches the CV. */
+  .desktop .win {
+    --doc-accent: var(--ph-link);
+  }
+
+  .desktop .win .readme {
+    background: var(--ph-cell);
+    border-bottom: 1px solid var(--ph-hair);
+  }
+
+  .desktop .win .case-image,
+  .desktop .win .promo {
+    border-color: var(--ph-edge);
+  }
+
+  .desktop .win fieldset {
+    margin: 0 0 10px;
+    border: 1px solid var(--ph-hair);
+    border-radius: 10px;
+  }
+
+  /* Folder icons inside a window (Music's list): label chips are plain text on the dark page. */
+  .desktop .win .icon .label {
+    color: var(--ph-text);
+    background: none;
+  }
+
+  .desktop .win .icon.selected .label {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+  }
+
+  /* The Stickies note is yellow on a laptop; on a phone it is one more dark cell. */
+  .desktop .win[data-win="note"] .titlebar {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+  }
+
+  .desktop .win[data-win="note"] .titlebar .t {
+    color: var(--ph-text);
+  }
+
+  .desktop .win[data-win="note"] .body {
+    color: var(--ph-text);
+    background: var(--ph-cell);
+  }
 }

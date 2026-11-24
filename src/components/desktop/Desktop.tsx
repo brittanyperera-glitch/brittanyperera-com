@@ -7,17 +7,21 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
 } from "react";
 import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
+import { PhoneHome, PhoneStatus } from "@/components/phone/PhoneHome";
+import buildInfo from "@/content/build-info.json";
 import { copy } from "@/content/copy";
-import { projects, projectUi } from "@/content/projects";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
+import { DONE_KEY, PHONE_QUERY, REPLAY_EVENT } from "@/lib/setup";
 import { removeKey } from "@/lib/storage";
-import type { WinId } from "@/lib/types";
+import type { Visitor, WinId } from "@/lib/types";
 import {
   initialWindows,
   parentOf,
@@ -29,11 +33,13 @@ import {
 } from "@/lib/windows";
 import { DesktopIcons } from "./DesktopIcons";
 import { MenuBar } from "./MenuBar";
-import { measureTitle } from "./titleMetrics";
+import { measureNatural, measureTitle, type Natural } from "./titleMetrics";
 import { Window } from "./Window";
 
+// Rounded down so the "N+" count stays true until the JSON is next regenerated.
+const roundDown = (n: number) => Math.floor(n / 10) * 10;
+
 const CV_PDF = "/Brittany-Perera-CV.pdf";
-const PHONE_QUERY = "(max-width: 700px)";
 
 export type DesktopActions = {
   aboutmac(): void;
@@ -64,6 +70,10 @@ export type DesktopApi = {
   toggleSound(): void;
   /** True while a full-screen overlay (boot, Setup Assistant) is up: the desktop goes inert behind it. */
   setBusy(busy: boolean): void;
+  busy: boolean;
+  /** Whose stuff the phone dock holds; null until the visitor is known. Laptops ignore it. */
+  visitor: Visitor | null;
+  setVisitor(v: Visitor | null): void;
 };
 
 const DesktopCtx = createContext<DesktopApi | null>(null);
@@ -113,9 +123,10 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const alert = useAlert();
   const alertOpen = useAlertOpen();
   const [state, dispatch] = useReducer(windowsReducer, initialWindows);
-  const [accent, setAccent] = useState(copy.setup.swatches[0].hex);
+  const [accent, setAccent] = useState(copy.setup.accent);
   const [soundOn, setSoundOn] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [visitor, setVisitor] = useState<Visitor | null>(null);
   const closedId = useRef<WinId | null>(null);
   const [videoRequest, setVideoRequest] = useState<DesktopApi["videoRequest"]>(null);
 
@@ -123,14 +134,16 @@ function DesktopInner({ windows, children }: DesktopProps) {
   // one has no layout, and Window re-clamps it when it next opens.
   const clampWindows = useCallback(() => {
     const sizes: Partial<Record<WinId, TitleMetrics>> = {};
+    const natural: Partial<Record<WinId, Natural>> = {};
+    const phone = document.querySelector('.desktop[data-mode="phone"]') !== null;
     for (const el of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
       sizes[el.dataset.win as WinId] = measureTitle(el);
+      if (!phone) natural[el.dataset.win as WinId] = measureNatural(el);
     }
-    dispatch({
-      type: "clampAll",
-      viewport: { w: window.innerWidth, h: window.innerHeight },
-      sizes,
-    });
+    const viewport = { w: window.innerWidth, h: window.innerHeight };
+    dispatch({ type: "clampAll", viewport, sizes });
+    // A window opened large must not stay off-screen after the viewport shrinks.
+    dispatch({ type: "refit", viewport, sizes: natural });
   }, []);
 
   useEffect(() => {
@@ -143,7 +156,8 @@ function DesktopInner({ windows, children }: DesktopProps) {
     if (state.mode === "desktop") clampWindows();
   }, [state.mode, clampWindows]);
 
-  useEffect(() => {
+  // Before paint, so a phone's first client frame is already in phone mode.
+  useLayoutEffect(() => {
     const mq = window.matchMedia(PHONE_QUERY);
     const sync = () => dispatch({ type: "setMode", mode: mq.matches ? "phone" : "desktop" });
     sync();
@@ -175,10 +189,12 @@ function DesktopInner({ windows, children }: DesktopProps) {
     if (!id || state.open.includes(id)) return;
     closedId.current = null;
     const top = topWindow(state);
+    // The desktop icons are hidden on a phone; its apps are on the home screen.
+    const icons = state.mode === "phone" ? ".phone-home" : ".icons";
     const target = top
       ? document.querySelector<HTMLElement>(`section[data-win="${top}"] .close`)
-      : (document.querySelector<HTMLElement>(`.icons [data-open="${id}"]`) ??
-        document.querySelector<HTMLElement>(`.icons [data-open="${parentOf(id)}"]`));
+      : (document.querySelector<HTMLElement>(`${icons} [data-open="${id}"]`) ??
+        document.querySelector<HTMLElement>(`${icons} [data-open="${parentOf(id)}"]`));
     target?.focus();
   }, [state]);
   const focus = useCallback((id: WinId) => dispatch({ type: "focus", id }), []);
@@ -190,8 +206,10 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const actions = useMemo<DesktopActions>(() => {
     const a = copy.alerts;
     return {
-      aboutmac: () =>
-        alert({
+      aboutmac: () => {
+        // Read at call time: Next inlines it at build, and tests stub it per case.
+        const sha = process.env.NEXT_PUBLIC_BUILD_SHA;
+        return alert({
           icon: "mac",
           body: (
             <>
@@ -204,9 +222,29 @@ function DesktopInner({ windows, children }: DesktopProps) {
                   </span>
                 ))}
               </div>
+              <div className="specs">
+                <b>{a.aboutMac.site.heading}</b>
+                <br />
+                {buildInfo.stack.map((s) => s.replace(/(\d+)[\d.]*$/, "$1")).join(", ")}
+                <br />
+                {a.aboutMac.site.tests
+                  .replace("{unit}", `${roundDown(buildInfo.unitTests)}+`)
+                  .replace("{e2e}", `${roundDown(buildInfo.e2eTests)}+`)}
+                {sha && (
+                  <>
+                    <br />
+                    {a.aboutMac.site.build.replace("{sha}", sha)}
+                  </>
+                )}
+                <br />
+                <a href={a.aboutMac.site.repo} target="_blank" rel="noopener">
+                  {a.aboutMac.site.code}
+                </a>
+              </div>
             </>
           ),
-        }),
+        });
+      },
       restart: () =>
         alert({
           icon: "caution",
@@ -217,7 +255,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
               label: a.restart.ok,
               primary: true,
               run: () => {
-                removeKey("bp:setup-done");
+                removeKey(DONE_KEY);
                 window.location.reload();
               },
             },
@@ -254,7 +292,16 @@ function DesktopInner({ windows, children }: DesktopProps) {
               {a.crash.text}
             </>
           ),
-          buttons: [{ label: a.crash.button, primary: true }],
+          buttons: [
+            {
+              label: a.crash.button,
+              primary: true,
+              run: () => {
+                dispatch({ type: "closeAll" });
+                window.dispatchEvent(new Event(REPLAY_EVENT));
+              },
+            },
+          ],
         }),
       leave: (href: string) =>
         alert({
@@ -307,8 +354,13 @@ function DesktopInner({ windows, children }: DesktopProps) {
       soundOn,
       toggleSound,
       setBusy,
+      busy,
+      visitor,
+      setVisitor,
     }),
     [
+      busy,
+      visitor,
       state,
       open,
       close,
@@ -328,20 +380,23 @@ function DesktopInner({ windows, children }: DesktopProps) {
       id,
       title,
     })),
-    ...projects.flatMap((p) => [
-      {
-        id: `project:${p.id}` as WinId,
-        title: projectUi.aboutTitle.replace("{title}", p.title),
-      },
-      { id: `browser:${p.id}` as WinId, title: p.siteLabel },
-    ]),
+    ...projects.map((p) => ({
+      id: `project:${p.id}` as WinId,
+      title: projectUi.aboutTitle.replace("{title}", p.title),
+    })),
+    ...siteProjects.map((p) => ({ id: `browser:${p.id}` as WinId, title: p.siteLabel })),
   ];
 
   return (
     <DesktopCtx.Provider value={api}>
       <div className="desktop" data-mode={state.mode} inert={alertOpen || busy}>
         <MenuBar />
-        <DesktopIcons />
+        {/* A phone's apps are on its home screen; keep this duplicate grid out of the a11y tree. */}
+        <div hidden={state.mode === "phone"}>
+          <DesktopIcons />
+        </div>
+        <PhoneStatus />
+        <PhoneHome />
         {ids.map(({ id, title }) => (
           <Window key={id} id={id} title={title}>
             {windows[id]}

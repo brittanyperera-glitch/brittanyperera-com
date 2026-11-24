@@ -1,16 +1,89 @@
-/* Photos window body: Finder-style album folders, then a Scrapbook page with a Platinum scroll bar. */
+/* Photos window body: album tiles, a photo grid, then a Scrapbook page with a Platinum scroll bar. */
 .win[data-win="photos"] .body {
   padding: 0;
   line-height: normal;
 }
 
-/* Album folders sit on a fine dotted icon-view background with room around them. */
-.folder-grid.photo-albums {
+/* Albums: square covers with a title and count under each, like the Albums tab of a phone. */
+.photo-albums {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px 12px;
+  align-content: start;
   min-height: 160px;
-  padding: 16px 14px;
-  background:
-    radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px) 0 0 / 8px 8px,
-    linear-gradient(#fff, #f4f4f8);
+  padding: 14px;
+  background: #fff;
+}
+
+.album-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  color: #111;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.album-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  background: #ddd;
+}
+
+.album-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.album-count {
+  font-size: 11px;
+  color: #666;
+}
+
+.album-tile:focus-visible,
+.photo-thumb:focus-visible {
+  outline: 2px solid var(--accent, #3d6fb6);
+  outline-offset: -2px;
+}
+
+/* Photos: square crops, 2px apart. */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 2px;
+  align-content: start;
+  background: #fff;
+}
+
+.photo-thumb {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  background: #ddd;
+  border: 0;
+  cursor: pointer;
+}
+
+.photo-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.win .body .photo-album-name {
+  margin: 0 0 0 4px;
+  font-size: 13px;
 }
 
 .photo-view {
@@ -205,11 +278,15 @@
   min-width: 84px;
 }
 
-/* Phone: two album columns, and the page fills the window. */
+/* Phone: two album columns, three photo columns, and the page fills the window. */
 @media (max-width: 700px) {
-  .desktop .folder-grid.photo-albums {
+  .desktop .photo-albums {
     grid-template-columns: repeat(2, 1fr);
     min-height: 100%;
+  }
+
+  .desktop .photo-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .photo-view {
@@ -243,5 +320,96 @@
 
   .scrap-scroll {
     height: 28px;
+  }
+
+  /* Dark: album and photo pages are black like Photos on a phone; the Platinum toolbar, mat and
+     scroll bar become dark glass and cells. */
+  .desktop .photo-albums,
+  .desktop .photo-grid {
+    background: var(--ph-bg);
+  }
+
+  .desktop .album-tile {
+    color: var(--ph-text);
+  }
+
+  .desktop .album-cover,
+  .desktop .photo-thumb {
+    background: var(--ph-raised);
+  }
+
+  .desktop .scrap-toolbar,
+  .desktop .scrap-foot {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-foot {
+    border-top: 1px solid var(--ph-hair);
+    border-bottom: 0;
+  }
+
+  .desktop .scrap-sep {
+    background: var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-page {
+    background: var(--ph-bg);
+    box-shadow: none;
+  }
+
+  .desktop .photo-stage {
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .photo-stage img {
+    border-color: var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .win .body .photo-caption {
+    color: var(--ph-text);
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  /* The end arrows are dark glyphs on light tiles and cannot be recoloured, and the slider needs
+     the room on a phone; the drag bar stays. */
+  .desktop .scrap-scrollbar {
+    padding: 0 8px;
+    background: var(--ph-cell);
+    border-top: 1px solid var(--ph-hair);
+  }
+
+  .desktop .scrap-scrollbar::before,
+  .desktop .scrap-scrollbar::after {
+    display: none;
+  }
+
+  .desktop .scrap-scroll::-webkit-slider-runnable-track {
+    background: var(--ph-raised);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-moz-range-track {
+    background: var(--ph-raised);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-moz-range-thumb {
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    box-shadow: none;
   }
 }

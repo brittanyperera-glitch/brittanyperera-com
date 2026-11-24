@@ -85,9 +85,34 @@ a.pbtn {
   font-size: 11px;
   line-height: 1.6;
 }
+.alert-main .specs + .specs {
+  margin-top: 10px;
+}
+.alert-main .specs a {
+  color: inherit;
+}
 .alert-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 14px;
+}
+
+/* Phone: the same dark alert sheet as the rest of the phone view (tokens live in phone.css). */
+@media (max-width: 700px) {
+  .alert-layer {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .alert-layer .alert .specs a {
+    color: var(--ph-link);
+  }
+
+  .alert-layer .alert {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+    border: 1px solid var(--ph-hair);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  }
 }

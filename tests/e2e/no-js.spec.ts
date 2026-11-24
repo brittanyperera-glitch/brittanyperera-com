@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import { contact } from "../../src/content/contact";
-import { copy } from "../../src/content/copy";
 import { cv } from "../../src/content/cv";
 import { projects } from "../../src/content/projects";
 
@@ -9,7 +8,9 @@ test.use({ javaScriptEnabled: false });
 test("no JavaScript: the CV window is visible, not a frozen boot screen", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator('section[data-win="cv"]')).toBeVisible();
-  await expect(page.locator('section[data-win="cv"]').getByText(cv.roles[0].title)).toBeVisible();
+  await expect(
+    page.locator('section[data-win="cv"]').getByText(cv.roles[0].title, { exact: true }),
+  ).toBeVisible();
   await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
   await expect(page.locator(".boot")).toBeHidden();
   await expect(page.locator(".setup")).toBeHidden();
@@ -62,8 +63,8 @@ for (const size of NO_JS_SIZES) {
     const inWin = (id: string) => page.locator(`section[data-win="${id}"]`);
 
     await expect(inWin("about")).toHaveCount(0);
-    await expect(inWin("cv").getByText(cv.roles[0].title)).toBeVisible();
-    await expect(inWin("cv").getByText(cv.roles[1].title)).toBeVisible();
+    await expect(inWin("cv").getByText(cv.roles[0].title, { exact: true })).toBeVisible();
+    await expect(inWin("cv").getByText(cv.roles[1].title, { exact: true })).toBeVisible();
     for (const p of projects) {
       const w = inWin(`project:${p.id}`);
       await expect(w.getByRole("heading", { name: p.title })).toBeVisible();
@@ -71,6 +72,7 @@ for (const size of NO_JS_SIZES) {
       await expect(inWin(`browser:${p.id}`)).toBeHidden();
     }
     await expect(inWin("contact").getByText(contact.email)).toBeVisible();
+    await expect(inWin("contact").getByText(contact.workEmail)).toBeVisible();
 
     // A static column: nothing positioned over anything else.
     const boxes: { id: string; y: number; bottom: number; position: string }[] = [];
@@ -97,7 +99,7 @@ for (const size of NO_JS_SIZES) {
     }
   });
 
-  test(`no JavaScript at ${size.width}x${size.height}: the full-CV link is visible and goes to /cv`, async ({
+  test(`no JavaScript at ${size.width}x${size.height}: the CV window shows the whole CV, down to the last section`, async ({
     page,
   }, info) => {
     test.skip(
@@ -106,10 +108,8 @@ for (const size of NO_JS_SIZES) {
     );
     await page.setViewportSize(size);
     await page.goto("/");
-    const link = page.getByRole("link", { name: copy.windows.cvPageLink });
-    await expect(link).toBeVisible();
-    await link.click();
-    await expect(page).toHaveURL(/\/cv$/);
-    await expect(page.getByRole("heading", { name: cv.name })).toBeVisible();
+    const cvWin = page.locator('section[data-win="cv"]');
+    await expect(cvWin.getByRole("heading", { name: cv.sections.languages })).toBeVisible();
+    await expect(cvWin.locator('a[href="/cv"]')).toHaveCount(0);
   });
 }

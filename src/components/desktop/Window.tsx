@@ -1,38 +1,41 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef } from "react";
+import { type CSSProperties, type ReactNode, useLayoutEffect, useRef } from "react";
 import { copy } from "@/content/copy";
+import { projects, projectUi, siteProjects } from "@/content/projects";
+import { windowBox } from "@/content/windowbox";
 import type { WinId } from "@/lib/types";
-import { parentOf, topWindow } from "@/lib/windows";
+import { type Box, MENU_BAR, parentOf, placeWindow, topWindow } from "@/lib/windows";
 import { useDesktop } from "./Desktop";
-import { measureTitle } from "./titleMetrics";
+import { measureNatural, measureTitle } from "./titleMetrics";
 
-type Placement = { left: number | string; top: number | string; width: number };
-
-// From the approved mockup. Percentages are resolved to pixels the first time a window opens.
-const PLACEMENT: Record<string, Placement> = {
-  // The landing set (copy.firstWindows), laid out at 1440x900 as percentages so every title bar
-  // stays reachable at smaller sizes (layout.spec checks). Back to front: see copy.ts firstWindows.
-  cv: { left: "48.6%", top: 40, width: 640 },
-  note: { left: "76%", top: "71%", width: 230 },
-  projects: { left: "28.5%", top: "75%", width: 370 },
-  contact: { left: "23%", top: "78%", width: 360 },
-  trash: { left: "46%", top: "22%", width: 390 },
-  cvbuilder: { left: 16, top: 40, width: 560 },
-  music: { left: 260, top: 100, width: 360 },
-  "music:guitar": { left: 300, top: 130, width: 340 },
-  "music:piano": { left: 330, top: 150, width: 340 },
-  "music:ukulele": { left: 360, top: 170, width: 340 },
-  garage: { left: 16, top: "68%", width: 380 },
-  photos: { left: "4%", top: 40, width: 370 },
-  youtube: { left: "30%", top: "72%", width: 620 },
-  "project:delulu": { left: 150, top: 70, width: 400 },
-  "project:trip": { left: 110, top: 70, width: 400 },
-  // Below the About window that opens them, so the button that was pressed stays visible.
-  "browser:delulu": { left: 150, top: 200, width: 680 },
-  "browser:trip": { left: 110, top: 200, width: 680 },
+// Widths from the approved mockup. Where a window sits comes from placeWindow, not from here.
+const WIDTH: Record<string, number> = {
+  cv: 640,
+  note: 230,
+  projects: 370,
+  contact: 360,
+  trash: 390,
+  music: 360,
+  garage: 380,
+  photos: 370,
+  youtube: 620,
+  "project:delulu": 400,
+  "project:trip": 400,
+  "browser:trip": 680,
 };
-const FALLBACK: Placement = { left: 120, top: 80, width: 420 };
+const FALLBACK_WIDTH = 420;
+
+// Desktop.tsx builds the same titles for the windows it renders; a window only knows its own.
+function titleOf(id: WinId): string {
+  if (id.startsWith("project:")) {
+    const p = projects.find((x) => `project:${x.id}` === id);
+    return p ? projectUi.aboutTitle.replace("{title}", p.title) : id;
+  }
+  if (id.startsWith("browser:"))
+    return siteProjects.find((x) => `browser:${x.id}` === id)?.siteLabel ?? id;
+  return copy.windowTitles[id as keyof typeof copy.windowTitles] ?? id;
+}
 
 export function Window({
   id,
@@ -50,34 +53,63 @@ export function Window({
   const isOpen = state.open.includes(id);
   const isFront = isOpen && topWindow(state) === id;
   const phone = state.mode === "phone";
-  const place = PLACEMENT[id] ?? FALLBACK;
+  const width = WIDTH[id] ?? FALLBACK_WIDTH;
   const pos = state.pos[id];
-  // On a phone the close box is the only way out, so it says where it goes.
-  const closeLabel = parentOf(id) ? copy.chrome.back : copy.chrome.closeLabel;
+  const cap = state.cap?.[id];
+  const zoomed = state.zoomed?.[id] !== undefined;
+  const shaded = state.shaded?.[id] === true;
+  // The effect below reads the open order and stored positions without re-running on every change.
+  const latest = useRef(state);
+  latest.current = state;
+  // On a phone this is the nav bar's back button, so it names where it goes: Home, or the parent app.
+  const parent = parentOf(id);
+  const closeLabel = parent ? titleOf(parent) : copy.chrome.home;
 
-  // On every desktop open, not only the first: turn the default (possibly percentage) position into
-  // a clamped pixel one, as the mockup's openWin does. This also rescues a window whose stored
-  // position no longer fits the viewport.
-  useEffect(() => {
+  // On every desktop open, before paint: measure the window at its natural height, then put it
+  // wholly on screen. A first open is placed among the windows opened before it (a visitor's first
+  // windows all open in one commit, so the ones not yet placed are placed here too, in open order).
+  useLayoutEffect(() => {
     const el = ref.current;
-    if (!isOpen || phone || !el) return;
-    const r = el.getBoundingClientRect();
-    dispatch({
-      type: "move",
-      id,
-      x: Math.min(Math.max(0, r.left), Math.max(0, window.innerWidth - r.width)),
-      y: r.top,
-      viewport: { w: window.innerWidth, h: window.innerHeight },
-      ...measureTitle(el),
-    });
-  }, [isOpen, phone, id, dispatch]);
+    // Zoomed or rolled-up, a window has no natural size to measure; it is placed once it is neither.
+    if (!isOpen || phone || zoomed || shaded || !el) return;
+    const s = latest.current;
+    const viewport = { w: window.innerWidth, h: window.innerHeight };
+    const me = measureNatural(el);
+    let at = s.pos[id];
+    if (!at) {
+      const icons = [...document.querySelectorAll<HTMLElement>(".icons .icon")].map((i) =>
+        i.getBoundingClientRect(),
+      );
+      const left = Math.min(...icons.map((r) => r.left));
+      const iconsBox: Box | null = icons.length
+        ? {
+            x: left,
+            y: Math.min(...icons.map((r) => r.top)),
+            w: Math.max(...icons.map((r) => r.right)) - left,
+            h: Math.max(...icons.map((r) => r.bottom)) - Math.min(...icons.map((r) => r.top)),
+          }
+        : null;
+      const boxes: Box[] = [];
+      for (const other of s.open.slice(0, s.open.indexOf(id))) {
+        const section = document.querySelector<HTMLElement>(`section[data-win="${other}"]`);
+        if (!section) continue;
+        const r = section.getBoundingClientRect();
+        const known = s.pos[other];
+        const size = known ? { w: r.width, h: r.height } : measureNatural(section);
+        const spot = known ?? placeWindow(other, viewport, size, boxes, iconsBox);
+        boxes.push({ x: spot.x, y: spot.y, w: size.w, h: size.h, id: other });
+      }
+      at = placeWindow(id, viewport, me, boxes, iconsBox);
+    }
+    dispatch({ type: "place", id, x: at.x, y: at.y, ...me, viewport });
+  }, [isOpen, phone, zoomed, shaded, id, dispatch]);
 
   const raise = () => {
     if (!isFront) focus(id);
   };
 
   const onTitlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || phone || (e.target as HTMLElement).closest("button")) return;
+    if (e.button !== 0 || phone || zoomed || (e.target as HTMLElement).closest("button")) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -99,6 +131,22 @@ export function Window({
     });
   };
 
+  const zoom = () => {
+    const el = ref.current;
+    if (!el) return;
+    // A rolled-up window has no body to measure; the box it goes back to is the unrolled one.
+    const body = el.querySelector<HTMLElement>(".body");
+    if (body) body.hidden = false;
+    const me = measureNatural(el);
+    if (body) body.hidden = shaded;
+    dispatch({
+      type: "zoom",
+      id,
+      ...me,
+      viewport: { w: window.innerWidth, h: window.innerHeight },
+    });
+  };
+
   const endDrag = () => {
     drag.current = null;
   };
@@ -106,19 +154,28 @@ export function Window({
   return (
     <section
       ref={ref}
-      className={isFront ? "win bevel front" : "win bevel"}
+      className={[
+        "win bevel",
+        isFront && "front",
+        !phone && zoomed && "zoomed",
+        !phone && shaded && "shaded",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={title}
       data-win={id}
       hidden={!isOpen}
       style={
         phone
           ? { zIndex: state.z[id] }
-          : {
-              left: pos?.x ?? place.left,
-              top: pos?.y ?? place.top,
-              width: place.width,
+          : ({
+              left: pos?.x ?? 0,
+              top: pos?.y ?? 0,
+              width: zoomed ? "100vw" : width,
+              ...(zoomed && !shaded ? { height: `calc(100vh - ${MENU_BAR}px)` } : {}),
               zIndex: state.z[id],
-            }
+              ...(cap === undefined ? {} : { "--body-max": `${cap}px` }),
+            } as CSSProperties)
       }
       onPointerDown={raise}
       onFocusCapture={raise}
@@ -141,10 +198,26 @@ export function Window({
           </span>
         </button>
         <span className="t">{title}</span>
-        <span className="zoom" aria-hidden="true" />
-        <span className="shade" aria-hidden="true" />
+        {phone ? null : (
+          <>
+            <button
+              type="button"
+              className="zoom"
+              aria-label={zoomed ? windowBox.zoomBack : windowBox.zoom}
+              onClick={zoom}
+            />
+            <button
+              type="button"
+              className="shade"
+              aria-label={shaded ? windowBox.expand : windowBox.collapse}
+              onClick={() => dispatch({ type: "shade", id })}
+            />
+          </>
+        )}
       </div>
-      <div className="body well">{children}</div>
+      <div className="body well" hidden={shaded && !phone}>
+        {children}
+      </div>
     </section>
   );
 }

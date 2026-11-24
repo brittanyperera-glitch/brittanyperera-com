@@ -5,6 +5,7 @@ import {
   type SetupAction,
   type SetupState,
   setupReducer,
+  visitorFromQuery,
 } from "@/lib/setup";
 
 const run = (s: SetupState, ...actions: SetupAction[]) => actions.reduce(setupReducer, s);
@@ -15,11 +16,11 @@ const atStep = (n: 0 | 1 | 2): SetupState => ({
 });
 
 describe("setupReducer", () => {
-  it("starts at boot as a friend", () => {
+  it("starts at boot with no visitor picked", () => {
     expect(initialSetup()).toEqual({
       phase: "boot",
       step: 0,
-      visitor: "friend",
+      visitor: null,
     });
   });
 
@@ -33,7 +34,13 @@ describe("setupReducer", () => {
   });
 
   it("next advances through the three steps and stops at the last", () => {
-    const s = run(atStep(0), { type: "next" }, { type: "next" }, { type: "next" });
+    const s = run(
+      atStep(0),
+      { type: "next" },
+      { type: "pickVisitor", visitor: "friend" },
+      { type: "next" },
+      { type: "next" },
+    );
     expect(s.step).toBe(2);
     expect(setupReducer(s, { type: "next" })).toBe(s);
   });
@@ -61,9 +68,16 @@ describe("setupReducer", () => {
   });
 
   it("goAhead on the last step starts installing, and installDone finishes", () => {
-    const installing = setupReducer(atStep(2), { type: "goAhead" });
+    const installing = setupReducer({ ...atStep(2), visitor: "friend" }, { type: "goAhead" });
     expect(installing.phase).toBe("installing");
     expect(setupReducer(installing, { type: "installDone" }).phase).toBe("done");
+  });
+
+  it("next on step 2 and goAhead do nothing until a visitor is picked", () => {
+    const s1 = atStep(1);
+    expect(setupReducer(s1, { type: "next" })).toBe(s1);
+    const s2 = atStep(2);
+    expect(setupReducer(s2, { type: "goAhead" })).toBe(s2);
   });
 
   it("installDone only counts while installing", () => {
@@ -102,6 +116,41 @@ describe("setupReducer", () => {
     const s = run(atStep(1), { type: "pickVisitor", visitor: "client" });
     expect(s.visitor).toBe("client");
     expect(s.step).toBe(1);
+  });
+});
+
+describe("replay", () => {
+  it("goes back to boot keeping the visitor, and the splash then ends in done", () => {
+    const done = setupReducer(initialSetup(), { type: "resume", visitor: "client" });
+    const s = run(done, { type: "replay" });
+    expect(s).toEqual({ phase: "boot", step: 0, visitor: "client" });
+    expect(run(s, { type: "tick" }, { type: "tick" }).phase).toBe("done");
+  });
+
+  it("skip while replaying keeps the stored visitor", () => {
+    const s = run(
+      setupReducer(initialSetup(), { type: "resume", visitor: "client" }),
+      { type: "replay" },
+      { type: "skip" },
+    );
+    expect(s).toEqual({ phase: "done", step: 0, visitor: "client" });
+  });
+
+  it("with no visitor there is nothing to replay", () => {
+    const s = initialSetup();
+    expect(setupReducer(s, { type: "replay" })).toBe(s);
+  });
+});
+
+describe("visitorFromQuery", () => {
+  it.each(["recruiter", "collab", "client", "friend"])("reads ?for=%s", (v) => {
+    expect(visitorFromQuery(`?for=${v}`)).toBe(v);
+    expect(visitorFromQuery(`?utm=x&for=${v}`)).toBe(v);
+  });
+
+  it("is null for an unknown, empty, differently cased or missing value", () => {
+    for (const q of ["", "?", "?for=", "?for=boss", "?for=Recruiter", "?for=constructor", "?x=1"])
+      expect(visitorFromQuery(q)).toBeNull();
   });
 });
 

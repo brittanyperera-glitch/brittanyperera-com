@@ -7,17 +7,14 @@ export type WinId =
   | "projects"
   | "contact"
   | "trash"
-  | "cvbuilder"
   | "music"
-  | "music:guitar"
-  | "music:piano"
-  | "music:ukulele"
   | "garage"
   | "photos"
   | "youtube"
+  | "truths"
   | "note"
   | `project:${ProjectId}`
-  | `browser:${ProjectId}`;
+  | "browser:trip";
 
 export type IconName =
   | "happymac"
@@ -38,12 +35,9 @@ export type IconName =
   | "caution"
   | "note"
   | "bomb"
-  | "game"
   | "musicfolder"
-  | "guitar"
-  | "piano"
-  | "ukulele"
   | "garage"
   | "globe"
   | "camera"
-  | "play";
+  | "play"
+  | "bubble";

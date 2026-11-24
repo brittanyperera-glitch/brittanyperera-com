@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -14,7 +16,7 @@ const item = (name: string) => ({
   caption: `caption ${name}`,
 });
 
-// General is deliberately NOT first here: the window must put it first itself.
+// Content order is kept as given; empty albums are filtered out by the window.
 const fixtures: PhotoAlbum[] = [
   { id: "vietnam", title: "Vietnam", videoIds: [youtube.videos[1].id], items: [item("v1")] },
   { id: "empty", title: "Empty album", items: [] },
@@ -44,17 +46,26 @@ async function openPhotos(user: User) {
   await user.dblClick(icon(photos.title));
 }
 
-async function openAlbum(user: User, title: string) {
+const tile = (title: string) =>
+  within(body()).getByRole("button", { name: new RegExp(`^${title}`) });
+const thumb = (alt: string) => within(body()).getByRole("button", { name: alt });
+
+async function openGrid(user: User, title: string) {
   await openPhotos(user);
-  await user.dblClick(within(body()).getByRole("button", { name: title }));
+  await user.click(tile(title));
+}
+
+// Albums, then the album's grid, then its first photo.
+async function openAlbum(user: User, title: string) {
+  await openGrid(user, title);
+  await user.click(within(body()).getAllByRole("button", { name: /^Fixture / })[0]);
 }
 
 const slider = () => within(body()).getByRole("slider");
 
 describe("Photos content", () => {
-  it("lists the General album first", () => {
-    expect(photos.albums[0].id).toBe("general");
-    expect(photos.albums[0].title).toBe("General");
+  it("has no empty album", () => {
+    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
   });
 
   it("names an album with photos to open on", () => {
@@ -64,32 +75,83 @@ describe("Photos content", () => {
 });
 
 describe("Photos opening album", () => {
-  it("opens straight on the openAlbum album, not the album list", async () => {
+  it("opens straight on the openAlbum album as a photo grid, not a list or a viewer", async () => {
     const user = setup([
       ...fixtures,
-      { id: photos.openAlbum, title: "Opener", items: [item("o1")] },
+      { id: photos.openAlbum, title: "Opener", items: [item("o1"), item("o2")] },
     ]);
     await openPhotos(user);
-    expect(within(body()).getByText(counter(1, 1))).toBeInTheDocument();
-    expect(within(body()).getByRole("img", { name: "Fixture o1" })).toBeInTheDocument();
+    expect(thumb("Fixture o1")).toBeInTheDocument();
+    expect(thumb("Fixture o2")).toBeInTheDocument();
+    expect(within(body()).queryByRole("slider")).toBeNull();
+  });
+
+  it("album view shows one thumbnail button per item with its alt, sized, lazy after the first row", async () => {
+    const many = Array.from({ length: 5 }, (_, i) => item(`g${i}`));
+    const user = setup([{ id: "general", title: "General", items: many }]);
+    await openGrid(user, "General");
+    const thumbs = within(body()).getAllByRole("button", { name: /^Fixture g/ });
+    expect(thumbs).toHaveLength(5);
+    for (const [i, b] of thumbs.entries()) {
+      const img = within(b).getByRole("img", { name: `Fixture g${i}` });
+      expect(img).toHaveAttribute("src", `/photos/g${i}.jpg`);
+      expect(img).toHaveAttribute("width");
+      expect(img).toHaveAttribute("height");
+      expect(img).toHaveAttribute("loading", i < 3 ? "eager" : "lazy");
+    }
+  });
+
+  it("clicking thumbnail N opens the viewer at N", async () => {
+    const user = setup();
+    await openGrid(user, "General");
+    await user.click(thumb("Fixture beta"));
+    expect(within(body()).getByText(counter(2, 3))).toBeInTheDocument();
+    expect(within(body()).getByText("caption beta")).toBeInTheDocument();
+  });
+
+  it("Enter on a focused thumbnail opens it", async () => {
+    const user = setup();
+    await openGrid(user, "General");
+    thumb("Fixture gamma").focus();
+    await user.keyboard("{Enter}");
+    expect(within(body()).getByText(counter(3, 3))).toBeInTheDocument();
+  });
+
+  it("viewer back returns to the grid and focuses thumbnail N", async () => {
+    const user = setup();
+    await openGrid(user, "General");
+    await user.click(thumb("Fixture beta"));
+    await user.click(within(body()).getByRole("button", { name: ui.backToGrid }));
+    expect(document.activeElement).toBe(thumb("Fixture beta"));
+    await user.click(thumb("Fixture gamma"));
+    await user.keyboard("{Escape}");
+    expect(document.activeElement).toBe(thumb("Fixture gamma"));
   });
 
   it("shows the album list when openAlbum is not among the albums", async () => {
     const user = setup();
     await openPhotos(user);
-    expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
+    expect(tile("General")).toBeInTheDocument();
   });
 });
 
 describe("Photos album list", () => {
-  it("shows one folder per album that has items, General first, in a Finder-style grid", async () => {
+  it("shows one tile per album that has items, in content order, with a cover and a count", async () => {
     const user = setup();
     await openPhotos(user);
-    const folders = within(body()).getAllByRole("button");
-    expect(folders.map((b) => b.textContent)).toEqual(["General", "Vietnam", "Morocco"]);
-    expect(body().querySelector(".folder-grid")).not.toBeNull();
-    expect(within(body()).queryByRole("button", { name: "Empty album" })).toBeNull();
-    expect(body().querySelector("img")).toBeNull();
+    const tiles = within(body()).getAllByRole("button");
+    expect(tiles.map((b) => b.textContent)).toEqual([
+      `Vietnam${ui.countOne}`,
+      `General${ui.countMany.replace("{n}", "3")}`,
+      `Morocco${ui.countMany.replace("{n}", "2")}`,
+    ]);
+    const covers = [...body().querySelectorAll("img")];
+    expect(covers.map((i) => i.getAttribute("src"))).toEqual([
+      "/photos/v1.jpg",
+      "/photos/alpha.jpg",
+      "/photos/m1.jpg",
+    ]);
+    expect(within(body()).queryByRole("button", { name: /Empty album/ })).toBeNull();
   });
 
   it("holds only its title with no album that has items", async () => {
@@ -108,7 +170,7 @@ describe("Photos album list", () => {
     );
     expect(within(body()).getByText("caption alpha")).toBeInTheDocument();
     expect(within(body()).getByText(counter(1, 3))).toBeInTheDocument();
-    expect(within(body()).queryByRole("button", { name: "Vietnam" })).toBeNull();
+    expect(within(body()).queryByRole("button", { name: /^Vietnam/ })).toBeNull();
   });
 });
 
@@ -173,22 +235,36 @@ describe("Photos viewer", () => {
     expect(within(body()).getByText(counter(1, 3))).toBeInTheDocument();
   });
 
-  it("Back and Escape return to the album list, and General is first again", async () => {
+  it("Back and Escape step out a level at a time, to the grid and then the album list", async () => {
     const user = setup();
     await openAlbum(user, "General");
+    await user.click(within(body()).getByRole("button", { name: ui.backToGrid }));
+    expect(thumb("Fixture beta")).toBeInTheDocument();
     await user.click(within(body()).getByRole("button", { name: ui.back }));
-    expect(within(body()).getByRole("button", { name: "Morocco" })).toBeInTheDocument();
-    await user.dblClick(within(body()).getByRole("button", { name: "Morocco" }));
+    expect(tile("General")).toHaveFocus();
+    await user.click(tile("Morocco"));
+    await user.click(thumb("Fixture m1"));
     expect(within(body()).getByText(counter(1, 2))).toBeInTheDocument();
     await user.keyboard("{Escape}");
     expect(within(body()).queryByText("caption m1")).toBeNull();
-    expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
+    expect(thumb("Fixture m2")).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(tile("General")).toBeInTheDocument();
   });
 
-  it("opening an album puts focus on the viewer's first button, not the page body", async () => {
+  it("arrow keys in the grid do not turn pages", async () => {
+    const user = setup();
+    await openGrid(user, "General");
+    await user.keyboard("{ArrowRight}");
+    expect(within(body()).queryByRole("slider")).toBeNull();
+  });
+
+  it("opening a photo puts focus on the viewer's first button, not the page body", async () => {
     const user = setup();
     await openAlbum(user, "General");
-    expect(document.activeElement).toBe(within(body()).getByRole("button", { name: ui.back }));
+    expect(document.activeElement).toBe(
+      within(body()).getByRole("button", { name: ui.backToGrid }),
+    );
   });
 
   it("one Escape closes an open menu and leaves the album where it is", async () => {
@@ -201,7 +277,7 @@ describe("Photos viewer", () => {
     expect(file).toHaveAttribute("aria-expanded", "false");
     expect(within(body()).getByText(counter(1, 3))).toBeInTheDocument();
     await user.keyboard("{Escape}");
-    expect(within(body()).getByRole("button", { name: "General" })).toBeInTheDocument();
+    expect(thumb("Fixture alpha")).toBeInTheDocument();
   });
 
   it("an album without videos has no watch button", async () => {
@@ -235,9 +311,19 @@ describe("Photos viewer", () => {
     const youtubeWin = screen.getByLabelText(youtube.ui.title, { selector: "section" });
     expect(youtubeWin.querySelector("iframe")?.getAttribute("src")).toContain(youtube.videos[0].id);
     await user.dblClick(icon(photos.title));
+    await user.click(within(body()).getByRole("button", { name: ui.backToGrid }));
     await user.click(within(body()).getByRole("button", { name: ui.back }));
-    await user.dblClick(within(body()).getByRole("button", { name: "B" }));
+    await user.click(tile("B"));
+    await user.click(thumb("Fixture b1"));
     await user.click(within(body()).getByRole("button", { name: ui.watchVideo }));
     expect(youtubeWin.querySelector("iframe")?.getAttribute("src")).toContain(youtube.videos[3].id);
+  });
+});
+
+describe("Photos on a phone", () => {
+  it("phone.css has no Photos selector left in its grouped-list rules", () => {
+    const css = readFileSync(join(process.cwd(), "src/styles/phone.css"), "utf8");
+    expect(css).not.toContain("photo-albums");
+    expect(css).not.toMatch(/data-win="photos"\]\s*\.folder-grid/);
   });
 });

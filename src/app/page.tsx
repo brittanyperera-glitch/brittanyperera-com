@@ -9,7 +9,7 @@ import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
 import { ProjectWindow } from "@/components/windows/ProjectWindow";
 import { TrashWindow } from "@/components/windows/TrashWindow";
 import { meta } from "@/content/meta";
-import { projects } from "@/content/projects";
+import { projects, siteProjects } from "@/content/projects";
 import type { WinId } from "@/lib/types";
 import "@/styles/platinum.css";
 import "@/styles/desktop.css";
@@ -23,9 +23,12 @@ const windows: Partial<Record<WinId, React.ReactNode>> = {
   note: <NoteWindow />,
   ...appWindows,
   ...Object.fromEntries(
-    projects.flatMap((p) => [
-      [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />],
-      [`browser:${p.id}`, <BrowserWindow key={`browser-${p.id}`} project={p} />],
+    projects.map((p) => [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />]),
+  ),
+  ...Object.fromEntries(
+    siteProjects.map((p) => [
+      `browser:${p.id}`,
+      <BrowserWindow key={`browser-${p.id}`} project={p} />,
     ]),
   ),
 };

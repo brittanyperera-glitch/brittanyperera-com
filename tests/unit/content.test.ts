@@ -1,15 +1,17 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
-import { cvBuilder } from "@/content/cvbuilder";
 import { meta } from "@/content/meta";
 import { music } from "@/content/music";
 import { photos } from "@/content/photos";
 import { projects, projectUi } from "@/content/projects";
 import { trash, trashHeader } from "@/content/trash";
+import { truths } from "@/content/truths";
+import { windowBox } from "@/content/windowbox";
 import { youtube } from "@/content/youtube";
 
 type Walked = { path: string; value: string };
@@ -29,7 +31,7 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
-  ...walk({ cvBuilder, music, photos, youtube, projectUi }, "apps", []),
+  ...walk({ music, photos, youtube, truths, projectUi, windowBox }, "apps", []),
 ];
 
 const wordExempt = (p: string) => /^projects\[\d+\]\.about$/.test(p) || p.startsWith("cv");
@@ -71,11 +73,16 @@ describe("content strings", () => {
       friend: ["youtube", "garage", "photos", "note", "cv"],
     });
   });
-  it("lands every visitor on photos and the CV, and never on CV Builder", () => {
+  it("lands every visitor on photos and the CV", () => {
     for (const wins of Object.values(copy.firstWindows)) {
       expect(wins).toEqual(expect.arrayContaining(["photos", "cv"]));
-      expect(wins).not.toContain("cvbuilder");
     }
+  });
+  it("opens no CV Builder from any icon, menu item or window title", () => {
+    const menus = Object.values(copy.menus).flat();
+    expect(copy.desktopIcons.some((i) => i.open === ("cvbuilder" as string))).toBe(false);
+    expect(menus.some((m) => "open" in m && m.open === ("cvbuilder" as string))).toBe(false);
+    expect("cvbuilder" in copy.windowTitles).toBe(false);
   });
   it("has no About me window, icon or menu item (the Apple menu's About Brittany's Mac stays)", () => {
     const menus = [...copy.menus.brittany, ...copy.menus.view, ...copy.menus.apple];
@@ -92,7 +99,7 @@ describe("content strings", () => {
   });
   it("describes the site in the agreed meta description", () => {
     expect(meta.description).toBe(
-      "Brittany Perera. Geospatial engineer at PangeAI. CV and side projects.",
+      "Brittany Perera. AI software engineer working on geospatial AI. CV, projects and the rest of me.",
     );
   });
   it("builds the copy-failed alert from the contact email", () => {
@@ -102,6 +109,15 @@ describe("content strings", () => {
     expect(cv.metaTitle).toBeTruthy();
     expect(Object.values(cv.sections).every((v) => v.length > 0)).toBe(true);
   });
+  it("has no dead content: no cv.tags, no swatches, one accent, the CV email is the contact email", () => {
+    expect("tags" in cv).toBe(false);
+    expect("swatches" in copy.setup).toBe(false);
+    expect(copy.setup.accent).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(cv.email).toBe(contact.email);
+  });
+  it("counts the Trash items in its header", () => {
+    expect(trashHeader.startsWith(`${trash.length} items.`)).toBe(true);
+  });
   it("has an OK label in copy.chrome", () => {
     expect(copy.chrome.ok).toBe("OK");
   });
@@ -110,12 +126,14 @@ describe("content strings", () => {
     expect(paths).toContain("apps.photos.albums[0].title");
     expect(paths).toContain("apps.photos.ui.watchVideo");
     expect(paths).toContain("apps.projectUi.openSite");
-    expect(paths).toContain("projects[0].siteUrl");
+    expect(paths).toContain("projects[1].siteUrl");
   });
-  it("lists photo albums with unique ids, General first, and videos that exist", () => {
+  it("lists photo albums with unique ids, none empty, and videos that exist", () => {
     const ids = photos.albums.map((a) => a.id);
-    expect(ids[0]).toBe("general");
-    expect(photos.albums[0].title).toBe("General");
+    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
+    // AlbumGrid keys thumbnails by src, so a photo appears once per album.
+    for (const a of photos.albums)
+      expect(new Set(a.items.map((i) => i.src)).size).toBe(a.items.length);
     expect(new Set(ids).size).toBe(ids.length);
     const known = new Set(youtube.videos.map((v) => v.id));
     for (const a of photos.albums)
@@ -139,7 +157,7 @@ function tsxFiles(dir: string): string[] {
 }
 
 describe("components carry no user-visible literals", () => {
-  const root = new URL("../../src", import.meta.url).pathname;
+  const root = fileURLToPath(new URL("../../src", import.meta.url));
   const files = [...tsxFiles(join(root, "components")), ...tsxFiles(join(root, "app"))];
 
   it("finds the component files", () => {

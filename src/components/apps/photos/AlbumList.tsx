@@ -1,37 +1,51 @@
-import { useEffect, useRef, useState } from "react";
-import { IconButton } from "@/components/desktop/IconButton";
+import { useEffect, useRef } from "react";
+import { photos } from "@/content/photos";
 import type { PhotoAlbum } from "./types";
 
 type Props = {
   albums: PhotoAlbum[];
   onOpen(id: string): void;
-  /** The album just closed, so its folder takes focus again. */
+  /** The album just closed, so its tile takes focus again. */
   focusId: string | null;
 };
 
-// A Finder window of folders: click selects, double-click or Enter opens, one tap on a phone.
+const ui = photos.ui;
+
+const countLabel = (n: number) => (n === 1 ? ui.countOne : ui.countMany.replace("{n}", String(n)));
+
+// The Albums tab: a square cover per album with its title and photo count underneath.
 export function AlbumList({ albums, onOpen, focusId }: Props) {
-  const [selected, setSelected] = useState<string | null>(focusId);
   const grid = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!focusId) return;
-    const folders = grid.current?.querySelectorAll<HTMLElement>("[data-open]") ?? [];
-    for (const el of folders) if (el.dataset.open === focusId) el.focus();
+    const tiles = grid.current?.querySelectorAll<HTMLElement>("[data-album]") ?? [];
+    for (const el of tiles) if (el.dataset.album === focusId) el.focus();
   }, [focusId]);
 
   return (
-    <div className="folder-grid photo-albums" ref={grid}>
+    <div className="photo-albums" ref={grid}>
       {albums.map((a) => (
-        <IconButton
+        <button
           key={a.id}
-          icon="folder"
-          label={a.title}
-          openId={a.id}
-          selected={selected === a.id}
-          onSelect={() => setSelected(a.id)}
-          onOpen={() => onOpen(a.id)}
-        />
+          type="button"
+          className="album-tile"
+          data-album={a.id}
+          onClick={() => onOpen(a.id)}
+        >
+          {/* biome-ignore lint/performance/noImgElement: plain img by design, files are static */}
+          <img
+            className="album-cover"
+            src={a.items[0].src}
+            alt=""
+            width={240}
+            height={240}
+            loading="lazy"
+            decoding="async"
+          />
+          <span className="album-title">{a.title}</span>
+          <span className="album-count">{countLabel(a.items.length)}</span>
+        </button>
       ))}
     </div>
   );

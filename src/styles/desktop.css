@@ -228,3 +228,8 @@ body:has(.desktop) {
     transition: none !important;
   }
 }
+
+/* .win .body re-enables text selection; a double-click on an icon must not select its label. */
+.win .body .icon {
+  user-select: none;
+}

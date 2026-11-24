@@ -1,68 +1,8 @@
-/* Music windows. The body's own padding and white well are dropped so the panels run edge to edge. */
-.win[data-win^="music:"] .body,
+/* Garage window. The body's own padding and white well are dropped so the panels run edge to edge. */
 .win[data-win="garage"] .body {
   padding: 0;
-  max-height: none;
-  overflow: hidden;
+  overflow: auto;
   line-height: normal;
-}
-
-/* Get Info panel: the icon in a recessed tile, the name under a Platinum header band. */
-.win[data-win^="music:"] .body {
-  background: linear-gradient(#f2f2f2, #dcdcdc);
-}
-
-.instrument {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 4px 16px;
-  padding: 22px 20px 24px;
-}
-
-.instrument-tile {
-  grid-row: 1 / span 2;
-  display: grid;
-  place-items: center;
-  width: 88px;
-  height: 88px;
-  background: radial-gradient(circle at 40% 30%, #fff, #ececf4 70%, #d2d2de);
-  border: 1px solid #555;
-  box-shadow:
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 #9a9a9a,
-    1px 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.instrument-tile svg {
-  filter: drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.4));
-}
-
-.instrument h3,
-.instrument p {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.instrument h3 {
-  align-self: end;
-  font-size: 15px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #9a9a9a;
-  box-shadow: 0 1px 0 #fff;
-}
-
-.instrument p {
-  align-self: start;
-  padding-top: 4px;
-  color: #444;
-}
-
-/* A line-less instrument is just icon and name, so the name centres on the tile. */
-.instrument h3:last-child {
-  grid-row: 1 / span 2;
-  align-self: center;
 }
 
 /* ---------- Garage Brittany ---------- */
@@ -431,5 +371,81 @@
 
   .garage-slider {
     height: 28px;
+  }
+
+  /* Dark: the brushed-metal face becomes a dark cell with silver keys (their icons are dark
+     fills, so the keys stay mid-grey, never white). The LCD was already dark. */
+  .desktop .garage-face {
+    background: var(--ph-cell);
+  }
+
+  .desktop .garage-engr {
+    color: var(--ph-text2);
+    text-shadow: none;
+  }
+
+  .desktop .garage-lcd {
+    border-color: var(--ph-hair);
+    box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.85),
+      0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .desktop .garage-btn {
+    border-color: #000000;
+    background: radial-gradient(circle at 50% 30%, #c7c7cc, #aeaeb2 40%, #8e8e93 85%, #636366);
+    box-shadow:
+      0 2px 3px rgba(0, 0, 0, 0.6),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+      inset 0 2px 1px rgba(255, 255, 255, 0.35);
+  }
+
+  .desktop .garage-btn::before {
+    background: linear-gradient(#000000, var(--ph-raised));
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .desktop .garage-btn:active,
+  .desktop .garage-btn.pressed {
+    background: radial-gradient(circle at 50% 70%, #aeaeb2, #8e8e93 45%, #636366 90%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .desktop .garage-slider::-webkit-slider-runnable-track {
+    background:
+      linear-gradient(var(--ph-link), var(--ph-btn-top)) 0 0 / var(--p, 0%) 100% no-repeat,
+      var(--ph-raised);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .desktop .garage-slider::-moz-range-track {
+    background: var(--ph-raised);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .desktop .garage-slider::-moz-range-progress {
+    background: linear-gradient(var(--ph-link), var(--ph-btn-top));
+  }
+
+  .desktop .garage-slider::-webkit-slider-thumb {
+    border-color: #000000;
+    background: linear-gradient(90deg, #c7c7cc, #aeaeb2 50%, #8e8e93);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+
+  .desktop .garage-slider::-moz-range-thumb {
+    border-color: #000000;
+    background: linear-gradient(90deg, #c7c7cc, #aeaeb2 50%, #8e8e93);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Phones: the laptop's 9-10.5px LCD labels go up to iOS's 12px floor (phone.spec checks it). */
+@media (max-width: 700px) {
+  .desktop .garage-state,
+  .desktop .garage-engr,
+  .desktop .garage-note,
+  .desktop .garage-time small {
+    font-size: 12px;
   }
 }

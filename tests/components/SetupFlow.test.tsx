@@ -111,9 +111,25 @@ describe("SetupFlow", () => {
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "recruiter",
     });
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(
-      copy.setup.swatches[0].hex,
-    );
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe(copy.setup.accent);
+  });
+
+  it("Continue on the visitor step is disabled until a radio is picked", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    for (const r of screen.getAllByRole("radio"))
+      expect(r).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeDisabled();
+    click(/Friend/, "radio");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeEnabled();
+  });
+
+  it("focus moves to the first radio when the visitor step appears", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    expect(document.activeElement).toBe(screen.getAllByRole("radio")[0]);
   });
 
   it("never shows a colour picker on any step", () => {
@@ -132,6 +148,7 @@ describe("SetupFlow", () => {
     expect(document.querySelector(".speech")).toBeNull();
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("be honest, who are you?");
+    click(/Friend/, "radio");
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("thats it, promise");
   });
@@ -154,25 +171,26 @@ describe("SetupFlow", () => {
     expect(openIds()).toEqual(landing("friend"));
   });
 
-  it("install lines hold 1s each, or 2s under reduced motion", () => {
-    const first = copy.setup.installLines[0];
+  it("install lines run 350ms apart and finish within 3s; reduced motion shows all at once, done within 1.2s", () => {
     const second = copy.setup.installLines[1];
     const { unmount } = renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
+    advance(400);
     expect(screen.getByText(second)).toBeInTheDocument();
+    advance(2600);
+    expect(setupDialog()).toBeNull();
     unmount();
+    window.localStorage.clear();
 
     mockMedia([REDUCED]);
     renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
-    expect(screen.getByText(first)).toBeInTheDocument();
-    expect(screen.queryByText(second)).toBeNull();
-    advance(1000);
-    expect(screen.getByText(second)).toBeInTheDocument();
+    advance(50);
+    for (const line of copy.setup.installLines) expect(screen.getByText(line)).toBeInTheDocument();
+    advance(1150);
+    expect(setupDialog()).toBeNull();
   });
 
   it("reduced motion shows all four greetings at once, each with its lang", () => {
@@ -227,24 +245,66 @@ describe("SetupFlow", () => {
     expect(setupDialog()).toBeNull();
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
+});
 
-  it("on a phone, opens only the visitor's most relevant window and shows the laptop alert", () => {
-    mockMedia([PHONE]);
+describe("visitor links (?for=)", () => {
+  afterEach(() => window.history.replaceState(null, "", "/"));
+
+  it.each(["recruiter", "collab", "client", "friend"] as Visitor[])(
+    "?for=%s skips setup, lands for that visitor and stores it",
+    (v) => {
+      window.history.replaceState(null, "", `/?for=${v}`);
+      const { container } = renderFlow();
+      expect(bootOverlay(container)).toBeNull();
+      expect(setupDialog()).toBeNull();
+      expect(openIds()).toEqual(landing(v));
+      expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+        visitor: v,
+      });
+    },
+  );
+
+  it("beats a visitor stored earlier", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    window.history.replaceState(null, "", "/?for=client");
     renderFlow();
-    runToConclusion(/I'm hiring/);
-    click(copy.setup.goAhead);
-    advance(20000);
-    expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
-    expect(screen.getByRole("alertdialog")).toHaveTextContent(copy.alerts.phone);
+    expect(openIds()).toEqual(landing("client"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "client",
+    });
   });
 
-  it("on a phone, a returning visitor gets one window too", () => {
-    mockMedia([PHONE]);
-    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
-    renderFlow();
-    expect(win("Say hi")).not.toHaveAttribute("hidden");
-    expect(win("CV.pdf")).toHaveAttribute("hidden");
+  it("an unknown value falls back to the normal flow", () => {
+    window.history.replaceState(null, "", "/?for=boss");
+    const { container } = renderFlow();
+    expect(bootOverlay(container)).not.toBeNull();
+    throughBoot();
+    expect(setupDialog()).not.toBeNull();
+    expect(window.localStorage.getItem("bp:setup-done")).toBeNull();
+  });
+});
+
+describe("Break something > Restart", () => {
+  it("replays the boot splash, keeps the stored visitor and lands on the same first windows", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    const { container } = renderFlow();
+    expect(openIds()).toEqual(landing("friend"));
+    fireEvent.click(screen.getByRole("button", { name: "Special" }));
+    fireEvent.click(screen.getByRole("button", { name: "Break something" }));
+    const alert = screen.getByRole("alertdialog");
+    expect(alert).toHaveTextContent(copy.alerts.crash.title);
+    expect(alert).toHaveTextContent(copy.alerts.crash.text);
+    fireEvent.click(within(alert).getByRole("button", { name: "Restart" }));
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(bootOverlay(container)).not.toBeNull();
+    expect(openIds()).toEqual([]);
+    throughBoot();
+    expect(setupDialog()).toBeNull();
+    expect(bootOverlay(container)).toBeNull();
+    expect(openIds()).toEqual(landing("friend"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "friend",
+    });
   });
 });
 
@@ -317,5 +377,136 @@ describe("SetupFlow focus and motion", () => {
     renderFlow();
     advance(500);
     expect(setupDialog()).toBeNull();
+  });
+});
+
+// Her decision (24 Nov): a phone gets a lock screen and a home screen, never the Setup Assistant or
+// the boot, and nothing opens by itself.
+describe("SetupFlow on a phone", () => {
+  const lock = () => screen.queryByRole("dialog", { name: copy.phone.lock.label });
+  const home = (c: HTMLElement) => c.querySelector(".phone-home") as HTMLElement;
+  const dockIds = (c: HTMLElement) =>
+    [...c.querySelectorAll<HTMLElement>(".phone-dock [data-open]")].map((e) => e.dataset.open);
+  const stored = () => JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null");
+  const unlock = () => fireEvent.click(screen.getByRole("button", { name: copy.phone.lock.slide }));
+
+  beforeEach(() => mockMedia([PHONE]));
+  afterEach(() => window.history.replaceState(null, "", "/"));
+
+  it("a new visitor sees the lock, with her line and the four hellos, and no boot or assistant", () => {
+    const { container } = renderFlow();
+    const dialog = lock() as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog).toHaveClass("setup");
+    expect(dialog).toHaveTextContent(
+      "it seems youve got into my phone. all the stuff is clickable, it is my phone of course. nosiness is welcome.",
+    );
+    const spans = dialog.querySelectorAll(".hello-row [lang]");
+    expect(spans).toHaveLength(copy.setup.hello.length);
+    copy.setup.hello.forEach((h, i) => {
+      expect(spans[i]).toHaveAttribute("lang", h.lang);
+      expect(spans[i]).toHaveTextContent(h.text);
+    });
+    expect(bootOverlay(container)).toBeNull();
+    expect(setupDialog()).toBeNull();
+    expect(container.querySelector(".desktop")).toHaveAttribute("inert");
+    advance(20000);
+    expect(lock()).not.toBeNull();
+  });
+
+  it("the lock fills its clock and date on the client", () => {
+    renderFlow();
+    expect((lock() as HTMLElement).querySelector(".lock-time")).toHaveTextContent(/\d/);
+    expect((lock() as HTMLElement).querySelector(".lock-date")).not.toBeEmptyDOMElement();
+  });
+
+  it("Escape does not get past the lock", () => {
+    renderFlow();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(lock()).not.toBeNull();
+    expect(stored()).toBeNull();
+  });
+
+  it("clicking the knob unlocks onto the home screen: focus on the first icon, nothing open, nothing stored", () => {
+    const { container } = renderFlow();
+    unlock();
+    expect(lock()).toBeNull();
+    expect(container.querySelector(".desktop")).not.toHaveAttribute("inert");
+    expect(document.activeElement).toBe(home(container).querySelector("[data-open]"));
+    expect(openIds()).toEqual([]);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(dockIds(container)).toEqual(copy.phone.docks.none);
+    expect(stored()).toBeNull();
+  });
+
+  it("a drag the system cancels does not stop the next plain tap from unlocking", () => {
+    renderFlow();
+    const knob = screen.getByRole("button", { name: copy.phone.lock.slide });
+    // jsdom does no layout, so give the track a width for the drag to travel in.
+    Object.defineProperty(knob.parentElement, "clientWidth", { value: 300 });
+    // jsdom has no PointerEvent, so a MouseEvent carries the coordinates React reads.
+    const pointer = (type: string, clientX: number) =>
+      fireEvent(knob, new MouseEvent(type, { bubbles: true, clientX }));
+    pointer("pointerdown", 0);
+    pointer("pointermove", 40);
+    pointer("pointercancel", 40);
+    expect(lock()).not.toBeNull();
+    unlock();
+    expect(lock()).toBeNull();
+  });
+
+  it("a returning visitor lands on home with their dock: no lock, no app open", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
+    const { container } = renderFlow();
+    expect(lock()).toBeNull();
+    expect(bootOverlay(container)).toBeNull();
+    expect(openIds()).toEqual([]);
+    expect(dockIds(container)).toEqual(copy.phone.docks.client);
+    expect(container.querySelector(".desktop")).not.toHaveAttribute("inert");
+  });
+
+  it.each(["recruiter", "collab", "client", "friend"] as Visitor[])(
+    "?for=%s lands on home with that dock, no lock, and stores it",
+    (v) => {
+      window.history.replaceState(null, "", `/?for=${v}`);
+      const { container } = renderFlow();
+      expect(lock()).toBeNull();
+      expect(openIds()).toEqual([]);
+      expect(dockIds(container)).toEqual(copy.phone.docks[v]);
+      expect(stored()).toEqual({ visitor: v });
+    },
+  );
+
+  it("?for= beats a stored visitor", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    window.history.replaceState(null, "", "/?for=client");
+    const { container } = renderFlow();
+    expect(dockIds(container)).toEqual(copy.phone.docks.client);
+    expect(stored()).toEqual({ visitor: "client" });
+  });
+
+  it("an unknown ?for= value still gets the lock", () => {
+    window.history.replaceState(null, "", "/?for=boss");
+    renderFlow();
+    expect(lock()).not.toBeNull();
+  });
+
+  it("the lock works with storage throwing on every read and write", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    renderFlow();
+    expect(() => unlock()).not.toThrow();
+    expect(lock()).toBeNull();
+  });
+
+  it("a laptop still gets no lock", () => {
+    mockMedia([]);
+    const { container } = renderFlow();
+    expect(lock()).toBeNull();
+    expect(bootOverlay(container)).not.toBeNull();
   });
 });

@@ -3,6 +3,7 @@ import { cv } from "@/content/cv";
 type Entry = {
   title: string;
   org: string;
+  place?: string;
   when: string;
   summary?: string;
   bullets?: string[];
@@ -15,7 +16,7 @@ function Entries({ items }: { items: readonly Entry[] }) {
         <span>{e.title}</span>
         <span className="cv-when">{e.when}</span>
       </div>
-      <p>{e.org}</p>
+      {e.org || e.place ? <p>{[e.org, e.place].filter(Boolean).join(", ")}</p> : null}
       {e.summary ? <p>{e.summary}</p> : null}
       {e.bullets && e.bullets.length > 0 ? (
         <ul>
@@ -29,15 +30,31 @@ function Entries({ items }: { items: readonly Entry[] }) {
 }
 
 // One source for the /cv page and the CV window, so the two can never drift apart.
-export function CvDocument({ headingLevel = 1 }: { headingLevel?: 1 | 3 }) {
+export function CvDocument({
+  headingLevel = 1,
+  standalone = false,
+}: {
+  headingLevel?: 1 | 3;
+  standalone?: boolean;
+}) {
   const Name = headingLevel === 1 ? "h1" : "h3";
   const Section = headingLevel === 1 ? "h2" : "h4";
   return (
     <>
       <Name>{cv.name}</Name>
-      <p>
+      <p className="cv-headline">{cv.headline}</p>
+      <p className="cv-links">
         <a href={`mailto:${cv.email}`}>{cv.email}</a>
+        <a href={cv.linkedin}>{cv.linkedinLabel}</a>
+        <a href={cv.github}>{cv.githubLabel}</a>
+        {standalone ? (
+          <a href="/Brittany-Perera-CV.pdf" download>
+            {cv.downloadLabel}
+          </a>
+        ) : null}
+        {standalone ? <a href="/">{cv.backLabel}</a> : null}
       </p>
+      <p>{cv.profile}</p>
 
       <Section>{cv.sections.experience}</Section>
       <Entries items={cv.roles} />
@@ -52,10 +69,14 @@ export function CvDocument({ headingLevel = 1 }: { headingLevel?: 1 | 3 }) {
       <Entries items={cv.leadership} />
 
       <Section>{cv.sections.skills}</Section>
-      <p>{cv.skills.join(", ")}</p>
+      {cv.skills.map(([label, text]) => (
+        <p key={label}>
+          <strong>{label}:</strong> {text}
+        </p>
+      ))}
 
       <Section>{cv.sections.languages}</Section>
-      <p>{cv.languages.join(", ")}</p>
+      <p>{cv.languages}</p>
     </>
   );
 }

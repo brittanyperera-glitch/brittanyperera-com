@@ -1,12 +1,12 @@
 import { expect, type Page, test } from "@playwright/test";
-import { projects } from "../../src/content/projects";
+import { siteProjects } from "../../src/content/projects";
 import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup } from "./helpers";
 
 type Size = { width: number; height: number };
 
 // The browser windows would load the live sites; layout does not need them, and the run stays offline.
 async function blockSites(page: Page) {
-  for (const p of projects) {
+  for (const p of siteProjects) {
     await page.route(`${new URL(p.siteUrl).origin}/**`, (r) => r.abort());
   }
 }
@@ -41,7 +41,9 @@ async function problems(page: Page, vp: Size): Promise<string[]> {
       if (bad) out.push(`${id} ${part}: ${bad}`);
     }
   }
-  const icons = page.locator(".icons .icon");
+  // A phone's icons are on its home screen; the desktop grid is hidden there.
+  const onPhone = await page.locator(".phone-home").isVisible();
+  const icons = page.locator(onPhone ? ".phone-home .phone-app" : ".icons .icon");
   for (let i = 0; i < (await icons.count()); i++) {
     const bad = inside(await icons.nth(i).boundingBox(), vp);
     if (bad) out.push(`icon ${i}: ${bad}`);
@@ -117,4 +119,77 @@ test("every window opened at 390x844: controls stay on screen", async ({ page },
     await openWin(page, id);
     expect(await problems(page, PHONE_SIZE), `after opening ${id}`).toEqual([]);
   }
+});
+
+// The landing for every visitor must fit the screen: windows whole inside it, desktop icons not
+// covered. The sizes include the laptop screens where the old percentage layout ran off the bottom.
+const LANDING_SIZES: Size[] = [
+  { width: 1280, height: 720 },
+  { width: 1366, height: 768 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+  // Small laptop, and a portrait tablet (768 is above the 700px phone breakpoint, so desktop mode).
+  { width: 1024, height: 600 },
+  { width: 768, height: 1024 },
+];
+const VISITORS = ["recruiter", "collab", "client", "friend"] as const;
+
+async function landingProblems(page: Page, vp: Size): Promise<string[]> {
+  return page.evaluate(
+    ({ w, h }) => {
+      const out: string[] = [];
+      const bar = document.querySelector(".menubar")?.getBoundingClientRect().bottom ?? 0;
+      for (const s of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
+        const r = s.getBoundingClientRect();
+        if (r.left < 0 || r.right > w || r.top < bar || r.bottom > h) {
+          const box = `${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`;
+          out.push(`window ${s.dataset.win} at ${box} is not inside ${w}x${h} below the menu bar`);
+        }
+      }
+      for (const icon of document.querySelectorAll<HTMLElement>(".icons .icon")) {
+        const r = icon.getBoundingClientRect();
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (!hit || !icon.contains(hit)) {
+          const by = hit?.closest<HTMLElement>("section[data-win]")?.dataset.win ?? hit?.tagName;
+          out.push(`icon "${icon.textContent?.trim()}" is covered by ${by}`);
+        }
+      }
+      return out;
+    },
+    { w: vp.width, h: vp.height },
+  );
+}
+
+for (const visitor of VISITORS) {
+  for (const size of LANDING_SIZES) {
+    test(`landing for ${visitor} at ${size.width}x${size.height}: windows fit and icons are uncovered`, async ({
+      page,
+    }, info) => {
+      test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+      await blockSites(page);
+      await page.setViewportSize(size);
+      await skipSetup(page, visitor);
+      await page.goto("/");
+      await settle(page, info);
+      await expect(openWindows(page)).not.toHaveCount(0);
+      expect(await landingProblems(page, size)).toEqual([]);
+    });
+  }
+}
+
+test("shrinking the viewport from 1920x1080 to 1280x720 keeps every open window whole on screen", async ({
+  page,
+}, info) => {
+  test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+  await blockSites(page);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await skipSetup(page, "friend");
+  await page.goto("/");
+  await settle(page, info);
+  for (const id of ["trash", "music"] as const) await openWin(page, id);
+  const small = { width: 1280, height: 720 };
+  await page.setViewportSize(small);
+  await expect
+    .poll(async () => (await landingProblems(page, small)).filter((p) => p.startsWith("window")))
+    .toEqual([]);
 });

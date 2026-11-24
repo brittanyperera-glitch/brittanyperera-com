@@ -1,13 +1,13 @@
 import type { IconName, Visitor, WinId } from "@/lib/types";
 import { contact } from "./contact";
-import { cvBuilder } from "./cvbuilder";
 import { music } from "./music";
 import { photos } from "./photos";
+import { truths } from "./truths";
 import { youtube } from "./youtube";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
 
-// Brittany 2026-10-20: open only what suits the visitor; photos and CV always, CV Builder never.
+// Brittany 2026-10-20: open only what suits the visitor; photos and CV always.
 // Back to front; the Stickies note sits above all but the visitor's main window, always last.
 const ALWAYS: WinId[] = ["photos", "note"];
 
@@ -26,7 +26,7 @@ export const copy = {
     steps: [
       {
         title: "Introduction",
-        sub: "this assistant sets up my Mac for you. takes about 20 seconds, or skip it (no hard feelings).",
+        sub: "it seems youve got into my computer. all the stuff is clickable, it is my computer of course. nosiness is welcome.",
       },
       { title: "About You", sub: "who's visiting? ill open the right stuff first." },
       { title: "Conclusion", sub: "all set. click Go Ahead and ill set up the Mac with:" },
@@ -44,15 +44,7 @@ export const copy = {
       { id: "client", label: "I have a project", hint: "how to reach me" },
       { id: "friend", label: "Friend / just nosy", hint: "the fun stuff" },
     ] as { id: Visitor; label: string; hint: string }[],
-    swatches: [
-      { name: "Blueberry", hex: "#3d6fb6" },
-      { name: "Bondi Blue", hex: "#2f8aa3" },
-      { name: "Tangerine", hex: "#c9772f" },
-      { name: "Strawberry", hex: "#b8475f" },
-      { name: "Grape", hex: "#6e55a8" },
-      { name: "Lime", hex: "#5f8f35" },
-      { name: "Graphite", hex: "#5e6670" },
-    ],
+    accent: "#3d6fb6",
     summaryVisitor: "Visitor:",
     count: "{n} of {total}",
     installLines: [
@@ -79,15 +71,16 @@ export const copy = {
       ok: "Restart",
     },
     download: "downloading CV.pdf (me, minus the personality)",
-    copyEmail: "copied! go on then",
+    copyEmail: "copied my personal email! go on then",
     copyEmailFailed: `couldnt copy it, heres the address: ${contact.email}`,
+    copyWorkEmail: "copied my work email! go on then",
+    copyWorkEmailFailed: `couldnt copy it, heres the address: ${contact.workEmail}`,
     soundOn: "sound on. sorry in advance",
     leave: {
       text: "this opens in a new tab. come back after pls",
       cancel: "Cancel",
       ok: "Open",
     },
-    phone: "might be better on laptop btw",
     aboutMac: {
       title: "Brittany's Mac",
       specs: [
@@ -96,8 +89,20 @@ export const copy = {
         "Languages: English, Sinhala, French (ish), German (ish)",
         "Installed: Python, TypeScript, too many side projects",
       ],
+      site: {
+        heading: "This site",
+        tests: "{unit} unit tests, {e2e} browser tests",
+        build: "build {sha}",
+        code: "view the code",
+        repo: "https://github.com/brittanyperera-glitch/brittanyperera-com",
+      },
     },
     crash: {
+      title: "well, that broke.",
+      text: "you found the button. restarting is the classic fix.",
+      button: "Restart",
+    },
+    notFound: {
       title: "Sorry, a system error occurred.",
       text: "(this page doesnt exist, or i broke it)",
       button: "Restart",
@@ -119,7 +124,6 @@ export const copy = {
       { label: music.folderTitle, open: "music" },
       { label: photos.title, open: "photos" },
       { label: youtube.ui.title, open: "youtube" },
-      { label: cvBuilder.title, open: "cvbuilder" },
       { label: "Contact", open: "contact" },
       { label: "Trash", open: "trash" },
     ] as MenuItem[],
@@ -131,27 +135,24 @@ export const copy = {
   },
   desktopIcons: [
     { open: "cv", label: "CV", icon: "doc" },
-    { open: "cvbuilder", label: cvBuilder.title, icon: "game" },
     { open: "projects", label: "Projects", icon: "folder" },
     { open: "music", label: music.folderTitle, icon: "musicfolder" },
     { open: "photos", label: photos.title, icon: "camera" },
     { open: "youtube", label: youtube.ui.title, icon: "play" },
     { open: "contact", label: "Contact", icon: "mail" },
     { open: "trash", label: "Trash", icon: "trash" },
+    { open: "truths", label: truths.title, icon: "bubble" },
   ] as { open: WinId; label: string; icon: IconName }[],
   windowTitles: {
     cv: "CV.pdf",
     projects: "Projects",
     contact: "Say hi",
     trash: "Trash",
-    cvbuilder: cvBuilder.title,
     music: music.folderTitle,
-    "music:guitar": music.instruments[0].name,
-    "music:piano": music.instruments[1].name,
-    "music:ukulele": music.instruments[2].name,
     garage: music.appName,
     photos: photos.title,
     youtube: youtube.ui.title,
+    truths: truths.title,
     note: "Start here",
   } as Record<Exclude<WinId, `project:${string}` | `browser:${string}`>, string>,
   chrome: {
@@ -163,17 +164,46 @@ export const copy = {
       special: "Special",
     },
     close: "Close",
-    back: "‹ Back",
-    closeLabel: "Close",
+    home: "Home",
     ok: "OK",
     soundOn: "Sound: on",
     soundOff: "Sound: off",
   },
+  // Phone view (under 700px): a lock screen for a new visitor, then a home screen.
+  phone: {
+    statusName: "brittany",
+    lock: {
+      label: "Lock screen",
+      from: "brittany",
+      message:
+        "it seems youve got into my phone. all the stuff is clickable, it is my phone of course. nosiness is welcome.",
+      slide: "slide to come in",
+    },
+    who: {
+      question: "who's visiting? ill put your stuff in the dock.",
+      skip: "or skip it, everything's here anyway",
+      picked: "{hint}, theyre in the dock",
+    },
+    dockLabel: "Dock",
+    footer: "the full mac version is on a laptop",
+    apps: ["cv", "projects", "music", "photos", "youtube", "truths", "contact", "trash"] as WinId[],
+    // The four apps in the dock, left to right; the other apps sit in the grid above. "none" is
+    // the dock before anyone has said who they are.
+    docks: {
+      none: ["cv", "projects", "music", "contact"],
+      recruiter: ["cv", "projects", "contact", "photos"],
+      collab: ["projects", "cv", "contact", "photos"],
+      client: ["contact", "projects", "cv", "photos"],
+      friend: ["youtube", "music", "photos", "cv"],
+    } as Record<Visitor | "none", WinId[]>,
+  },
   windows: {
     projectsInfo: "{n} items",
     openHint: "Double-click an icon (or select it and press Return) to open it.",
-    cvPageLink: "the full CV, as a page",
-    copyEmail: "Copy email",
+    copyEmail: "Copy personal email",
+    copyWorkEmail: "Copy work email",
+    workLabel: "work",
+    personalLabel: "personal",
     github: "GitHub",
     linkedin: "LinkedIn",
   },
@@ -187,7 +217,7 @@ export const copy = {
   } as Record<Visitor, WinId[]>,
   // The Stickies note open on the desktop after setup. Every visitor sees it, so it names only the CV.
   note: [
-    "hi! the CV's open, or play CV Builder and it builds it for you.",
+    "hi! the CV's open, have a look.",
     "my piano piece is in Garage, press play.",
     "everything else is on the desktop. double-click to poke around",
   ],

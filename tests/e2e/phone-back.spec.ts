@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { openWin, settle, skipSetup, win } from "./helpers";
 
-test("phone: the title bar says Close on a top-level window and Back on a project window", async ({
+test("phone: the back button says Home on a top-level app and the parent title on a nested one", async ({
   page,
 }, info) => {
   test.skip(info.project.name !== "phone", "the label is phone-only");
@@ -12,16 +12,18 @@ test("phone: the title bar says Close on a top-level window and Back on a projec
 
   const label = (id: "cv" | "projects" | "project:trip") => win(page, id).locator(".close-label");
 
+  // Nothing is open on landing; the CV is one tap away from the home screen.
+  await openWin(page, "cv");
   await expect(label("cv")).toBeVisible();
-  await expect(label("cv")).toHaveText(copy.chrome.closeLabel);
+  await expect(label("cv")).toHaveText(copy.chrome.home);
 
   await openWin(page, "projects");
-  await expect(label("projects")).toHaveText(copy.chrome.closeLabel);
+  await expect(label("projects")).toHaveText(copy.chrome.home);
 
   await openWin(page, "project:trip");
   const back = label("project:trip");
   await expect(back).toBeVisible();
-  await expect(back).toHaveText(copy.chrome.back);
+  await expect(back).toHaveText(copy.windowTitles.projects);
 
   // The label sits inside the viewport and clear of the window title.
   const vp = page.viewportSize();
@@ -33,7 +35,7 @@ test("phone: the title bar says Close on a top-level window and Back on a projec
   expect(b.x + b.width).toBeLessThanOrEqual(t.x);
   expect(b.y).toBeGreaterThanOrEqual(22);
 
-  // It is the close control: pressing the label goes back to the folder.
+  // It is the close control: pressing the label goes back to the Projects list.
   await back.click();
   await expect(win(page, "project:trip")).toBeHidden();
   await expect(win(page, "projects")).toBeVisible();

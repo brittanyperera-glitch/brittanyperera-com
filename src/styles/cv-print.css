@@ -86,3 +86,20 @@ body {
     margin-bottom: 5pt;
   }
 }
+
+.cv-headline {
+  margin: 0 0 4pt;
+}
+
+.cv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4pt 12pt;
+}
+
+@media print {
+  .cv-links a[download],
+  .cv-links a[href="/"] {
+    display: none;
+  }
+}

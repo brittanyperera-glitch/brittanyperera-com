@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { WinAction, WinState } from "@/lib/windows";
-import { initialWindows, parentOf, topWindow, windowsReducer } from "@/lib/windows";
+import {
+  type Box,
+  initialWindows,
+  parentOf,
+  placeWindow,
+  topWindow,
+  windowsReducer,
+} from "@/lib/windows";
 
 const run = (actions: WinAction[], start: WinState = initialWindows) =>
   actions.reduce(windowsReducer, start);
@@ -154,7 +161,6 @@ describe("helpers", () => {
 
   it("parentOf maps a browser window back to its About window", () => {
     expect(parentOf("browser:trip")).toBe("project:trip");
-    expect(parentOf("browser:delulu")).toBe("project:delulu");
   });
 
   it("phone mode: closing a browser window goes back to its About window, then to projects", () => {
@@ -168,15 +174,226 @@ describe("helpers", () => {
     expect(s.open).toEqual(["projects"]);
   });
 
-  it("parentOf maps instrument windows and the Garage player to the Music folder", () => {
-    expect(parentOf("music:guitar")).toBe("music");
-    expect(parentOf("music:piano")).toBe("music");
-    expect(parentOf("music:ukulele")).toBe("music");
+  it("parentOf maps the Garage player to the Music folder", () => {
     expect(parentOf("garage")).toBe("music");
     expect(parentOf("music")).toBeNull();
   });
 
   it("initialWindows is empty desktop with nextZ 10", () => {
     expect(initialWindows).toEqual({ open: [], z: {}, pos: {}, nextZ: 10, mode: "desktop" });
+  });
+});
+
+describe("place", () => {
+  const vp = { w: 1280, h: 720 };
+
+  it("clamps the whole window into the viewport and caps the body so it ends above the bottom", () => {
+    const at = (x: number, y: number, h: number) =>
+      windowsReducer(initialWindows, {
+        type: "place",
+        id: "contact",
+        x,
+        y,
+        w: 360,
+        h,
+        chrome: 40,
+        viewport: vp,
+      });
+    const low = at(1200, 700, 200);
+    expect(low.pos.contact).toEqual({ x: vp.w - 360, y: vp.h - 8 - 200 });
+    expect(at(-50, -50, 200).pos.contact).toEqual({ x: 0, y: 30 });
+    expect(at(10, 100, 200).cap?.contact).toBe(vp.h - 8 - 100 - 40);
+  });
+
+  it("a window taller than the screen sits under the menu bar and its body is capped to fit", () => {
+    const s = windowsReducer(initialWindows, {
+      type: "place",
+      id: "cv",
+      x: 0,
+      y: 400,
+      w: 640,
+      h: 2000,
+      chrome: 40,
+      viewport: vp,
+    });
+    expect(s.pos.cv?.y).toBe(30);
+    expect(s.cap?.cv).toBe(vp.h - 8 - 30 - 40);
+  });
+
+  it("does not change move: the title-bar clamp still lets a window hang off the bottom", () => {
+    const s = windowsReducer(initialWindows, {
+      type: "move",
+      id: "cv",
+      x: 0,
+      y: 5000,
+      viewport: vp,
+      ...title,
+    });
+    expect(s.pos.cv?.y).toBe(vp.h - 40);
+  });
+});
+
+describe("placeWindow", () => {
+  const sizes = [
+    { w: 1280, h: 720 },
+    { w: 1366, h: 768 },
+    { w: 1440, h: 900 },
+    { w: 1920, h: 1080 },
+  ];
+  // The icons are one column at the right edge, or two when the screen is short.
+  const oneColumn = (v: { w: number; h: number }): Box => ({ x: v.w - 100, y: 30, w: 92, h: 600 });
+  const twoColumns = (v: { w: number; h: number }): Box => ({
+    x: v.w - 196,
+    y: 30,
+    w: 188,
+    h: 600,
+  });
+  const sized = { w: 640, h: 500 };
+
+  it("keeps a window whole on screen, below the menu bar and left of the icons, at every size", () => {
+    for (const s of sizes) {
+      for (const icons of [oneColumn(s), twoColumns(s)]) {
+        for (const id of ["cv", "youtube", "contact", "garage", "note", "photos"] as const) {
+          const size = id === "note" ? { w: 230, h: 160 } : sized;
+          const at = placeWindow(id, { w: s.w, h: s.h }, size, [], icons);
+          expect(at.x, `${id} ${s.w}x${s.h}`).toBeGreaterThanOrEqual(0);
+          expect(at.x + size.w, `${id} ${s.w}x${s.h}`).toBeLessThanOrEqual(icons.x);
+          expect(at.y, `${id} ${s.w}x${s.h}`).toBeGreaterThanOrEqual(24);
+          expect(at.y + size.h, `${id} ${s.w}x${s.h}`).toBeLessThanOrEqual(s.h - 8);
+        }
+      }
+    }
+  });
+
+  it("moves left when the icons wrap to a second column", () => {
+    const v = { w: 1280, h: 720 };
+    const one = placeWindow("cv", v, sized, [], oneColumn(v));
+    const two = placeWindow("cv", v, sized, [], twoColumns(v));
+    expect(two.x).toBe(one.x - 96);
+  });
+
+  it("puts the note in the lowest corner left of the icons", () => {
+    const v = { w: 1280, h: 720 };
+    const note = { w: 230, h: 160 };
+    const at = placeWindow("note", v, note, [], twoColumns(v));
+    expect(at.y + note.h).toBe(v.h - 8);
+    expect(at.x + note.w).toBe(twoColumns(v).x - 8);
+  });
+
+  it("never buries an older title bar", () => {
+    const v = { w: 1280, h: 720 };
+    const older: Box = { x: 8, y: 30, w: 370, h: 400 };
+    const at = placeWindow("photos", v, { w: 370, h: 400 }, [older], oneColumn(v));
+    const newer: Box = { ...at, w: 370, h: 400 };
+    const overlapsBar = newer.y < older.y + 22 && newer.y + newer.h > older.y;
+    const covered = overlapsBar
+      ? Math.min(older.x + older.w, newer.x + newer.w) - Math.max(older.x, newer.x)
+      : 0;
+    expect(older.w - Math.max(0, covered)).toBeGreaterThanOrEqual(80);
+  });
+
+  it("works with no icons box and a window too wide for the free area", () => {
+    const at = placeWindow("youtube", { w: 700, h: 500 }, { w: 620, h: 300 }, [], null);
+    expect(at.x).toBeGreaterThanOrEqual(8);
+    expect(at.x + 620).toBeLessThanOrEqual(700);
+  });
+});
+
+describe("refit", () => {
+  const big = { w: 1920, h: 1080 };
+  const small = { w: 1280, h: 720 };
+  const size = { w: 640, h: 900, chrome: 40 };
+  const opened = windowsReducer(windowsReducer(initialWindows, { type: "open", id: "cv" }), {
+    type: "place",
+    id: "cv",
+    x: 1200,
+    y: 100,
+    ...size,
+    viewport: big,
+  });
+
+  it("after the viewport shrinks, an open window comes back whole and its body cap shrinks", () => {
+    expect(opened.cap?.cv).toBe(big.h - 8 - 100 - 40);
+    const s = windowsReducer(opened, { type: "refit", viewport: small, sizes: { cv: size } });
+    expect(s.pos.cv).toEqual({ x: small.w - 640, y: 30 });
+    expect(s.cap?.cv).toBe(small.h - 8 - 30 - 40);
+  });
+
+  it("leaves closed windows and windows with no measured size alone", () => {
+    const closed = windowsReducer(opened, { type: "close", id: "cv" });
+    expect(windowsReducer(closed, { type: "refit", viewport: small, sizes: { cv: size } })).toEqual(
+      closed,
+    );
+    expect(windowsReducer(opened, { type: "refit", viewport: small, sizes: {} })).toEqual(opened);
+  });
+});
+
+describe("placeWindow and the note", () => {
+  it("steers a later window off the note when there is room beside it", () => {
+    const v = { w: 1280, h: 720 };
+    const icons: Box = { x: v.w - 100, y: 30, w: 92, h: 546 };
+    const note: Box = { x: 932, y: 515, w: 240, h: 197, id: "note" };
+    const at = placeWindow("cv", v, { w: 640, h: 3000 }, [note], icons);
+    expect(at.x + 640).toBeLessThanOrEqual(note.x);
+  });
+});
+
+describe("zoom and shade", () => {
+  const vp = { w: 1280, h: 720 };
+  const natural = { w: 400, h: 300, chrome: 60 };
+  const placed = run([
+    { type: "open", id: "contact" },
+    { type: "place", id: "contact", x: 200, y: 100, ...natural, viewport: vp },
+  ]);
+  const zoom = (s: WinState, viewport = vp) =>
+    windowsReducer(s, { type: "zoom", id: "contact", viewport, ...natural });
+
+  it("zoom moves the window to the top left under the menu bar, and a second zoom restores its box", () => {
+    const zoomed = zoom(placed);
+    expect(zoomed.pos.contact).toEqual({ x: 0, y: 24 });
+    expect(zoomed.zoomed?.contact).toBeDefined();
+    const back = zoom(zoomed);
+    expect(back.pos.contact).toEqual({ x: 200, y: 100 });
+    expect(back.zoomed?.contact).toBeUndefined();
+    expect(back.cap?.contact).toBe(placed.cap?.contact);
+  });
+
+  it("restoring after the screen shrank puts the box back on screen", () => {
+    const small = { w: 800, h: 400 };
+    const back = zoom(zoom(placed), small);
+    const pos = back.pos.contact as { x: number; y: number };
+    expect(pos.x + natural.w).toBeLessThanOrEqual(small.w);
+    expect(pos.y + natural.h).toBeLessThanOrEqual(small.h);
+  });
+
+  it("shade toggles, and zooming a shaded window opens it", () => {
+    const shaded = windowsReducer(placed, { type: "shade", id: "contact" });
+    expect(shaded.shaded?.contact).toBe(true);
+    expect(windowsReducer(shaded, { type: "shade", id: "contact" }).shaded?.contact).toBeFalsy();
+    expect(zoom(shaded).shaded?.contact).toBeFalsy();
+  });
+
+  it("closing a zoomed or shaded window restores its box and clears both", () => {
+    const s = windowsReducer(zoom(placed), { type: "shade", id: "contact" });
+    const closed = windowsReducer(s, { type: "close", id: "contact" });
+    expect(closed.pos.contact).toEqual({ x: 200, y: 100 });
+    expect(closed.zoomed?.contact).toBeUndefined();
+    expect(closed.shaded?.contact).toBeFalsy();
+  });
+
+  it("a zoomed window stays zoomed through refit", () => {
+    const refit = windowsReducer(zoom(placed), {
+      type: "refit",
+      viewport: { w: 900, h: 500 },
+      sizes: { contact: natural },
+    });
+    expect(refit.pos.contact).toEqual({ x: 0, y: 24 });
+    expect(refit.zoomed?.contact).toBeDefined();
+  });
+
+  it("switching to phone restores zoomed windows", () => {
+    const phone = windowsReducer(zoom(placed), { type: "setMode", mode: "phone" });
+    expect(phone.zoomed?.contact).toBeUndefined();
+    expect(phone.pos.contact).toEqual({ x: 200, y: 100 });
   });
 });

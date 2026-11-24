@@ -10,9 +10,8 @@ export type PhotoAlbum = {
 
 export const photos = {
   title: "Photos",
-  // General first, then country by country. An album with no items is not shown.
+  // Country by country. An album with no items is not shown.
   albums: [
-    { id: "general", title: "General", items: [] },
     {
       id: "indonesia",
       title: "Indonesia",
@@ -140,10 +139,13 @@ export const photos = {
       ],
     },
   ] as PhotoAlbum[],
-  // The Photos window opens straight on this album instead of the album list.
+  // The Photos window opens straight on this album's photo grid instead of the album list.
   openAlbum: "indonesia",
   ui: {
     back: "All albums",
+    backToGrid: "Photos",
+    countOne: "1 photo",
+    countMany: "{n} photos",
     prev: "Previous",
     next: "Next",
     counter: "Item {n} of {total}",

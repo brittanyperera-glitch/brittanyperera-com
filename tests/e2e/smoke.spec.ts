@@ -1,9 +1,18 @@
 import { expect, test } from "@playwright/test";
 import { meta } from "../../src/content/meta";
+import { isPhone } from "./helpers";
 
-test("home page responds and renders the desktop shell", async ({ page }) => {
+test("home page responds and renders the shell for the screen size", async ({ page }, info) => {
   const res = await page.goto("/");
   expect(res?.status()).toBe(200);
+  if (isPhone(info)) {
+    // A phone gets the status bar and home screen, with the CV one tap away; no menu bar.
+    await expect(page.locator(".phone-status")).toBeVisible();
+    await expect(page.locator(".phone-home")).toBeVisible();
+    await expect(page.locator('.phone-home [data-open="cv"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Special" })).toBeHidden();
+    return;
+  }
   await expect(page.getByRole("button", { name: "Special" })).toBeVisible();
   await expect(page.getByRole("button", { name: "CV", exact: true })).toBeVisible();
 });
@@ -28,9 +37,10 @@ test("the desktop page has one main landmark and one h1 carrying the site title"
 test.describe("before any JavaScript runs", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("the desktop background is already painted (no white flash)", async ({ page }) => {
+  test("the desktop background is already painted (no white flash)", async ({ page }, info) => {
     await page.goto("/");
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bg).toBe("rgb(107, 124, 153)");
+    // Phones are always dark (her decision 24 Nov), the laptop keeps the blue-grey desk.
+    expect(bg).toBe(info.project.name === "phone" ? "rgb(0, 0, 0)" : "rgb(107, 124, 153)");
   });
 });

@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
-import { useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
+import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
+import { PhoneLock } from "@/components/phone/PhoneLock";
 import { copy } from "@/content/copy";
-import { initialSetup, phoneWindow, setupReducer } from "@/lib/setup";
+import {
+  DONE_KEY,
+  initialSetup,
+  PHONE_QUERY,
+  phoneWindow,
+  REPLAY_EVENT,
+  setupReducer,
+  visitorFromQuery,
+} from "@/lib/setup";
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { Visitor } from "@/lib/types";
 import { topWindow } from "@/lib/windows";
@@ -13,7 +22,6 @@ import "@/styles/setup.css";
 import { BOOT_ICONS, Boot } from "./Boot";
 import { SetupAssistant } from "./SetupAssistant";
 
-const DONE_KEY = "bp:setup-done";
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
 const BOOT_MS = 900;
@@ -24,18 +32,20 @@ const SPLASH_TAIL_MS = 400;
 const REDUCED_BOOT_MS = 0;
 const REDUCED_SPLASH_MS = 200;
 const HELLO_MS = 1800;
+const INSTALL_LINE_MS = 350;
 const INSTALL_TAIL_MS = 700;
+const REDUCED_INSTALL_MS = 1000;
 
 const isVisitor = (v: unknown): v is Visitor => copy.setup.visitors.some((x) => x.id === v);
 
 /**
  * First-visit boot screen and Setup Assistant. Mount it as a child of <Desktop>. It renders the
  * boot overlay on the server, then reads the stored visitor after hydration and either resumes or
- * runs the assistant; on finishing it opens that visitor's windows.
+ * runs the assistant; on finishing it opens that visitor's windows. A phone gets the lock screen
+ * instead of the boot and assistant, and nothing opens by itself: it lands on the home screen.
  */
 export function SetupFlow() {
-  const { open, setBusy, state: desk } = useDesktop();
-  const alert = useAlert();
+  const { open, setBusy, busy, setVisitor, state: desk } = useDesktop();
   const alertOpen = useAlertOpen();
   const [s, dispatch] = useReducer(setupReducer, undefined, initialSetup);
   const [marched, setMarched] = useState(0);
@@ -45,19 +55,38 @@ export function SetupFlow() {
   const finished = useRef(false);
   const resumed = useRef(false);
   // Set when this visit's setup ends. Focus moves once the windows are open and the desktop has
-  // stopped being inert. On a phone the laptop alert waits for that, so dismissing it hands focus
-  // back to the close box rather than <body>.
-  const focusPending = useRef<{ phone: boolean } | null>(null);
+  // stopped being inert.
+  const focusPending = useRef(false);
+  // The phone twin of focusPending: after the lock, focus goes to the first home icon.
+  const focusHome = useRef(false);
 
   // Storage and matchMedia are read after hydration, before paint, so a returning visitor does not
   // see the boot screen flash and the server render stays identical to the first client render.
   useLayoutEffect(() => {
     setReduced(window.matchMedia(REDUCED_QUERY).matches);
+    // A visitor link (?for=) wins over anything stored: it was made for whoever opens it.
     const saved = readJSON<{ visitor?: unknown } | null>(DONE_KEY, null);
-    if (saved && isVisitor(saved.visitor)) {
+    const visitor =
+      visitorFromQuery(window.location.search) ??
+      (isVisitor(saved?.visitor) ? saved?.visitor : null);
+    if (visitor) {
       resumed.current = true;
-      dispatch({ type: "resume", visitor: saved.visitor });
+      setVisitor(visitor);
+      dispatch({ type: "resume", visitor });
+    } else if (window.matchMedia(PHONE_QUERY).matches) {
+      // Read here, not from desk.mode: Desktop's layout effect sets that one after this runs.
+      dispatch({ type: "lock" });
     }
+  }, [setVisitor]);
+
+  useEffect(() => {
+    const replay = () => {
+      finished.current = false;
+      resumed.current = true;
+      dispatch({ type: "replay" });
+    };
+    window.addEventListener(REPLAY_EVENT, replay);
+    return () => window.removeEventListener(REPLAY_EVENT, replay);
   }, []);
 
   // Everything but the overlays is inert, and unreachable by Tab, until setup is over.
@@ -104,23 +133,30 @@ export function SetupFlow() {
 
   useEffect(() => {
     if (s.phase !== "installing") return;
-    const hold = reduced ? 2000 : 1000;
     const lines = copy.setup.installLines;
-    const ids = lines.map((_, i) => window.setTimeout(() => setInstallLine(i), i * hold));
-    ids.push(
-      window.setTimeout(
-        () => dispatch({ type: "installDone" }),
-        (lines.length - 1) * hold + INSTALL_TAIL_MS,
-      ),
-    );
+    const ids: number[] = [];
+    if (reduced) {
+      setInstallLine(lines.length - 1);
+      ids.push(window.setTimeout(() => dispatch({ type: "installDone" }), REDUCED_INSTALL_MS));
+    } else {
+      for (let i = 0; i < lines.length; i++) {
+        ids.push(window.setTimeout(() => setInstallLine(i), i * INSTALL_LINE_MS));
+      }
+      ids.push(
+        window.setTimeout(
+          () => dispatch({ type: "installDone" }),
+          (lines.length - 1) * INSTALL_LINE_MS + INSTALL_TAIL_MS,
+        ),
+      );
+    }
     return () => {
       for (const id of ids) window.clearTimeout(id);
     };
   }, [s.phase, reduced]);
 
-  // Esc skips, but an open alert owns Esc first.
+  // Esc skips, but an open alert owns Esc first. The lock has nothing to skip to.
   useEffect(() => {
-    if (s.phase === "done" || alertOpen) return;
+    if (s.phase === "done" || s.phase === "lock" || alertOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") dispatch({ type: "skip" });
     };
@@ -133,32 +169,47 @@ export function SetupFlow() {
   useEffect(() => {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
-    writeJSON(DONE_KEY, { visitor: s.visitor });
-    const phone = desk.mode === "phone";
-    if (!resumed.current) focusPending.current = { phone };
-    if (phone) {
-      open(phoneWindow(s.visitor));
-      if (resumed.current) alert({ icon: "note", body: copy.alerts.phone });
-    } else {
-      for (const id of copy.firstWindows[s.visitor]) open(id);
+    if (desk.mode === "phone") {
+      // No visitor means the lock was just opened: nothing to store until they pick on the card.
+      if (s.visitor) writeJSON(DONE_KEY, { visitor: s.visitor });
+      if (!resumed.current) focusHome.current = true;
+      return;
     }
-  }, [s.phase, s.visitor, desk.mode, open, alert]);
+    if (!s.visitor) throw new Error("visitor not picked");
+    const visitor = s.visitor;
+    writeJSON(DONE_KEY, { visitor });
+    if (!resumed.current) focusPending.current = true;
+    for (const id of copy.firstWindows[visitor]) open(id);
+  }, [s.phase, s.visitor, desk.mode, open]);
+
+  // The page behind the lock is inert until `busy` clears, and focus cannot land on inert content.
+  useEffect(() => {
+    if (!focusHome.current || s.phase !== "done" || busy) return;
+    focusHome.current = false;
+    document.querySelector<HTMLElement>(".phone-home [data-open]")?.focus();
+  }, [s.phase, busy]);
+
+  // A lock left up while the window grows past the phone width: take the laptop's way out.
+  useEffect(() => {
+    if (s.phase === "lock" && desk.mode === "desktop") dispatch({ type: "skip" });
+  }, [s.phase, desk.mode]);
 
   // Once the windows are open and the desktop is no longer inert, put keyboard focus on the
   // visitor's main window's close box (not the Stickies note on top) instead of leaving it on <body>.
   const front = topWindow(desk);
   useEffect(() => {
-    const pending = focusPending.current;
-    if (!pending || s.phase !== "done" || !front) return;
-    focusPending.current = null;
+    if (!focusPending.current || s.phase !== "done" || !front) return;
+    if (!s.visitor) throw new Error("visitor not picked");
+    focusPending.current = false;
     const main = phoneWindow(s.visitor);
     document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
-    if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
-  }, [s.phase, s.visitor, front, alert]);
+  }, [s.phase, s.visitor, front]);
 
   if (s.phase === "done") return null;
 
   const skip = () => dispatch({ type: "skip" });
+
+  if (s.phase === "lock") return <PhoneLock onUnlock={() => dispatch({ type: "unlock" })} />;
 
   if (s.phase === "boot" || s.phase === "splash") {
     return <Boot phase={s.phase} marched={marched} onSkip={skip} />;

@@ -21,15 +21,12 @@ const NAMES: IconName[] = [
   "caution",
   "note",
   "bomb",
-  "game",
   "musicfolder",
-  "guitar",
-  "piano",
-  "ukulele",
   "garage",
   "globe",
   "camera",
   "play",
+  "bubble",
 ];
 
 describe("pixel icons", () => {

@@ -54,55 +54,6 @@ function Radial({
 
 const u = (p: string, id: string) => `url(#${p}${id})`;
 
-function mix(hex: string, to: string, t: number): string {
-  const a = Number.parseInt(hex.slice(1), 16);
-  const b = Number.parseInt(to.slice(1), 16);
-  const m = (s: number) => Math.round(((a >> s) & 255) + (((b >> s) & 255) - ((a >> s) & 255)) * t);
-  return `rgb(${m(16)},${m(8)},${m(0)})`;
-}
-
-const BLOCK: Record<string, string> = {
-  O: "#d8b545",
-  T: "#6e55a8",
-  Z: "#b8475f",
-  L: "#c9772f",
-};
-
-function Block({ x, y, s, k }: { x: number; y: number; s: number; k: keyof typeof BLOCK }) {
-  const c = BLOCK[k];
-  const b = 1;
-  return (
-    <g>
-      <rect x={x} y={y} width={s} height={s} fill={c} />
-      <polygon
-        points={`${x},${y} ${x + s},${y} ${x + s - b},${y + b} ${x + b},${y + b} ${x + b},${y + s - b} ${x},${y + s}`}
-        fill={mix(c, "#ffffff", 0.5)}
-      />
-      <polygon
-        points={`${x + s},${y} ${x + s},${y + s} ${x},${y + s} ${x + b},${y + s - b} ${x + s - b},${y + s - b} ${x + s - b},${y + b}`}
-        fill={mix(c, "#000000", 0.42)}
-      />
-      <rect x={x} y={y} width={s} height={s} stroke="#0b0f18" strokeWidth={0.6} />
-    </g>
-  );
-}
-
-const GAME_BLOCKS: [number, number, string][] = [
-  [1, 0, "T"],
-  [0, 1, "T"],
-  [1, 1, "T"],
-  [2, 1, "T"],
-  [3, 1, "L"],
-  [3, 2, "L"],
-  [3, 3, "L"],
-  [2, 3, "L"],
-  [0, 2, "O"],
-  [1, 2, "O"],
-  [0, 3, "O"],
-  [1, 3, "O"],
-  [2, 2, "Z"],
-];
-
 function Folder({ p }: { p: string }): ReactElement {
   return (
     <>
@@ -175,16 +126,6 @@ const doc: Art = (p) => (
     <rect x="9" y="22" width="14" height="1" fill="#b2b7c2" />
     <rect x="9" y="25" width="5" height="1" fill="#3d6fb6" />
     <rect x="9" y="27" width="11" height="1" fill="#b2b7c2" />
-  </>
-);
-
-const game: Art = () => (
-  <>
-    <rect x="2.5" y="4.5" width="27" height="25" rx="3" fill="#1d2536" stroke={INK} />
-    <rect x="3.5" y="5.5" width="25" height="23" rx="2" stroke="#3a4766" />
-    {GAME_BLOCKS.map(([c, r, k]) => (
-      <Block key={`${c}-${r}`} x={5 + c * 5.5} y={7 + r * 5.5} s={5.5} k={k} />
-    ))}
   </>
 );
 
@@ -450,135 +391,35 @@ const palm: Art = (p) => (
   </>
 );
 
-const guitar: Art = (p) => (
+// A speech bubble with a question mark, for Two Truths.
+const bubble: Art = (p) => (
   <>
     <defs>
       <Grad
-        id="Burst"
+        id="Bub"
         p={p}
         x2={1}
         stops={[
-          [0, "#f2b45a"],
-          [0.55, "#c9622a"],
-          [1, "#6e2410"],
+          [0, "#ffffff"],
+          [1, "#c9d3e3"],
         ]}
       />
     </defs>
-    <g transform="rotate(38 16 16)">
-      <rect x="14.2" y="1.5" width="3.6" height="5" rx="0.8" fill="#4a2f1c" stroke={INK} />
-      <rect x="15" y="6" width="2" height="12" fill="#c9a06a" stroke={INK} />
-      <path
-        d="M16 16.5C13 13.6 7 14.2 6.8 19.4C6.7 22.4 9 22.6 8.6 25.4C8.2 28.8 12 30.5 16 30.5C20 30.5 23.8 28.8 23.4 25.4C23 22.6 25.3 22.4 25.2 19.4C25 14.2 19 13.6 16 16.5Z"
-        fill={u(p, "Burst")}
-        stroke={INK}
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.6 17.4Q9 18.4 9.2 20.8"
-        stroke="#fff"
-        strokeOpacity={0.6}
-        strokeLinecap="round"
-      />
-      <rect x="11.5" y="20" width="9" height="2" fill="#2a2a2d" stroke={INK} strokeWidth={0.6} />
-      <rect x="11.5" y="23.6" width="9" height="2" fill="#2a2a2d" stroke={INK} strokeWidth={0.6} />
-      <rect x="12" y="27.2" width="8" height="1.6" fill="#d9d9d9" stroke={INK} strokeWidth={0.6} />
-      <path d="M15.6 6.5V27M16.4 6.5V27" stroke="#e6e6e6" strokeWidth={0.4} />
-    </g>
-  </>
-);
-
-const piano: Art = (p) => {
-  const key = 27 / 7;
-  return (
-    <>
-      <defs>
-        <Grad
-          id="Case"
-          p={p}
-          stops={[
-            [0, "#5a5a63"],
-            [0.4, "#2c2c33"],
-            [1, "#17171b"],
-          ]}
-        />
-        <Grad
-          id="Keys"
-          p={p}
-          stops={[
-            [0, "#ffffff"],
-            [1, "#dcdcdc"],
-          ]}
-        />
-      </defs>
-      <path d="M2.5 18.5V8.5L5.5 5.5H26.5L29.5 8.5V18.5Z" fill={u(p, "Case")} stroke={INK} />
-      <path d="M5.5 6.5H26.5" stroke="#8a8a94" />
-      <rect
-        x="11"
-        y="9.5"
-        width="10"
-        height="5"
-        rx="0.6"
-        fill="#f4efe0"
-        stroke={INK}
-        strokeWidth={0.8}
-      />
-      <path d="M12.5 11.5H19.5M12.5 13H17.5" stroke="#9a9484" />
-      <rect x="2.5" y="18.5" width="27" height="10" fill={u(p, "Keys")} stroke={INK} />
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <path key={i} d={`M${2.5 + key * i} 18.5V28.5`} stroke="#8a8a8a" />
-      ))}
-      {[1, 2, 4, 5, 6].map((i) => (
-        <rect
-          key={i}
-          x={2.5 + key * i - 1.2}
-          y="18.5"
-          width="2.4"
-          height="6"
-          fill="#1f1f24"
-          stroke={INK}
-          strokeWidth={0.6}
-        />
-      ))}
-    </>
-  );
-};
-
-const ukulele: Art = (p) => (
-  <>
-    <defs>
-      <Grad
-        id="Wood"
-        p={p}
-        x2={1}
-        stops={[
-          [0, "#f0cf8e"],
-          [0.6, "#d79e4e"],
-          [1, "#9c6422"],
-        ]}
-      />
-    </defs>
-    <g transform="rotate(-32 16 16)">
-      <rect x="14.2" y="1.5" width="3.6" height="4.6" rx="1" fill="#6b4524" stroke={INK} />
-      <rect x="15" y="5.5" width="2" height="10" fill="#7b4f28" stroke={INK} />
-      <path
-        d="M16 14C12.4 11.8 8.4 13.6 8.8 17.6C9 20 10.8 20.5 10.4 23C10 26.6 12.8 29.5 16 29.5C19.2 29.5 22 26.6 21.6 23C21.2 20.5 23 20 23.2 17.6C23.6 13.6 19.6 11.8 16 14Z"
-        fill={u(p, "Wood")}
-        stroke={INK}
-        strokeLinejoin="round"
-      />
-      <circle cx="16" cy="21" r="3.2" fill="#2a1a0c" stroke={INK} />
-      <rect
-        x="12.6"
-        y="25.4"
-        width="6.8"
-        height="1.4"
-        fill="#4a2f1c"
-        stroke={INK}
-        strokeWidth={0.6}
-      />
-      <path d="M15.4 6V25.4M16.6 6V25.4" stroke="#f1f1f1" strokeWidth={0.4} />
-      <path d="M11.2 15.8Q9.8 17 10.2 19" stroke="#fff" strokeOpacity={0.6} strokeLinecap="round" />
-    </g>
+    <path
+      d="M5.5 4.5H26.5Q29.5 4.5 29.5 7.5V19.5Q29.5 22.5 26.5 22.5H16L9 28.5V22.5H5.5Q2.5 22.5 2.5 19.5V7.5Q2.5 4.5 5.5 4.5Z"
+      fill={u(p, "Bub")}
+      stroke={INK}
+      strokeLinejoin="round"
+    />
+    <path d="M5 6.2H27" stroke="#fff" strokeOpacity={0.7} />
+    <path
+      d="M12.8 10.4Q13.2 8 16 8Q19.2 8 19.2 10.8Q19.2 12.4 17.4 13.4Q16 14.2 16 15.6"
+      fill="none"
+      stroke="#34508a"
+      strokeWidth={2}
+      strokeLinecap="round"
+    />
+    <circle cx="16" cy="18.6" r="1.2" fill="#34508a" />
   </>
 );
 
@@ -840,18 +681,15 @@ const mac: Art = (p) => (
 
 export const ART = {
   doc,
-  game,
   folder,
   musicfolder,
   camera,
   play,
+  bubble,
   mail,
   trash,
   heart,
   palm,
-  guitar,
-  piano,
-  ukulele,
   garage,
   globe,
   caution,
