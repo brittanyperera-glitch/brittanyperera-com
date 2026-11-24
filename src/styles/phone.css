@@ -175,7 +175,7 @@
 }
 
 /* Dark grouped-list look (variant B) for the CV, Projects, Contact, Trash and Photos apps only.
-   CV Builder, Music, Garage and YouTube keep their own phone styles. */
+   Music, Garage and YouTube keep their own phone styles. */
 @media (max-width: 700px) {
   .desktop
     .win:is(
@@ -438,25 +438,6 @@
     color: var(--ph-text2);
   }
 
-  /* The CV's own text colours (windows.css) are dark greys meant for paper. */
-  .desktop .win[data-win="cv"] .cv-doc p,
-  .desktop .win[data-win="cv"] .cv-doc ul {
-    color: var(--ph-text);
-  }
-
-  .desktop .win[data-win="cv"] .cv-doc .cv-when {
-    color: var(--ph-text2);
-  }
-
-  .desktop .win[data-win="cv"] .cv-doc h4 {
-    border-bottom-color: var(--ph-sep);
-  }
-
-  /* windows.css redeclares --doc-accent on .win, so the root token alone never reaches the CV. */
-  .desktop .win {
-    --doc-accent: var(--ph-link);
-  }
-
   /* Laptop-sized CV labels and dates (11px in windows.css) up to the phone's 13px footnote size. */
   .desktop .win .cv-doc h4,
   .desktop .win .cv-doc .cv-when {
@@ -492,6 +473,25 @@
   .desktop .win .cv-doc > h3 + p,
   .desktop .win .cv-doc .cv-head + p {
     font-size: 14px;
+  }
+
+  /* The CV's own text colours (windows.css) are dark greys meant for paper. */
+  .desktop .win[data-win="cv"] .cv-doc p,
+  .desktop .win[data-win="cv"] .cv-doc ul {
+    color: var(--ph-text);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc .cv-when {
+    color: var(--ph-text2);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc h4 {
+    border-bottom-color: var(--ph-sep);
+  }
+
+  /* windows.css redeclares --doc-accent on .win, so the root token alone never reaches the CV. */
+  .desktop .win {
+    --doc-accent: var(--ph-link);
   }
 
   .desktop .win .readme {

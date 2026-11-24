@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { siteProjects } from "../../src/content/projects";
-import { ALL_WINDOWS, isPhone, openWin, settle, skipSetup } from "./helpers";
+import { ALL_WINDOWS, openWin, settle, skipSetup } from "./helpers";
 
 for (const id of ALL_WINDOWS) {
   test(`${id}: no serious or critical accessibility violations`, async ({ page }, info) => {

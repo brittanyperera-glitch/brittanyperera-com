@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import { contact } from "../../src/content/contact";
-import { copy } from "../../src/content/copy";
 import { cv } from "../../src/content/cv";
 import { projects } from "../../src/content/projects";
 
@@ -73,6 +72,7 @@ for (const size of NO_JS_SIZES) {
       await expect(inWin(`browser:${p.id}`)).toBeHidden();
     }
     await expect(inWin("contact").getByText(contact.email)).toBeVisible();
+    await expect(inWin("contact").getByText(contact.workEmail)).toBeVisible();
 
     // A static column: nothing positioned over anything else.
     const boxes: { id: string; y: number; bottom: number; position: string }[] = [];
