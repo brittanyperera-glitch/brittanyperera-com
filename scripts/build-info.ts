@@ -5,7 +5,8 @@ import { join, resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 
 // A bare it( or test( call, or an .each form counted once; .skip, .todo and .fixme never match.
-const CALL = /\b(?:it|test)(?:\.each\b|\s*\()/g;
+// The lookbehind skips regex calls such as /x/.test( and names ending in "test".
+const CALL = /(?<![\w.])(?:it|test)(?:\.each\b|\s*\()/g;
 
 const LABELS: [string, string][] = [
   ["next", "Next.js"],

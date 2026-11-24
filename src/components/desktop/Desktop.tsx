@@ -36,7 +36,7 @@ import { MenuBar } from "./MenuBar";
 import { measureNatural, measureTitle, type Natural } from "./titleMetrics";
 import { Window } from "./Window";
 
-// Rounded down so "420+" stays true until the JSON is next regenerated.
+// Rounded down so the "N+" count stays true until the JSON is next regenerated.
 const roundDown = (n: number) => Math.floor(n / 10) * 10;
 
 const CV_PDF = "/Brittany-Perera-CV.pdf";
