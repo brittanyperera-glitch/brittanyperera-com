@@ -87,7 +87,6 @@ export const copy = {
       cancel: "Cancel",
       ok: "Open",
     },
-    phone: "might be better on laptop btw",
     aboutMac: {
       title: "Brittany's Mac",
       specs: [

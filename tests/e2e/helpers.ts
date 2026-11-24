@@ -31,15 +31,9 @@ export const win = (page: Page, id: WinId): Locator => page.locator(`section[dat
 
 export const openWindows = (page: Page): Locator => page.locator("section[data-win]:not([hidden])");
 
-/** Wait for hydration to finish removing the boot and setup overlays, then clear the phone alert. */
-export async function settle(page: Page, info: TestInfo) {
+/** Wait for hydration to finish removing the boot and setup overlays. */
+export async function settle(page: Page, _info: TestInfo) {
   await expect(page.locator(".boot, .setup")).toHaveCount(0);
-  if (isPhone(info)) {
-    const alert = page.getByRole("alertdialog");
-    await expect(alert).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(alert).toHaveCount(0);
-  }
 }
 
 /** Opens a window the way a keyboard user would: focus its icon and press Enter. */

@@ -248,7 +248,7 @@ describe("SetupFlow", () => {
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
 
-  it("on a phone, opens only the visitor's most relevant window and shows the laptop alert", () => {
+  it("on a phone, opens only the visitor's most relevant window and shows no alert", () => {
     mockMedia([PHONE]);
     renderFlow();
     runToConclusion(/I'm hiring/);
@@ -256,7 +256,7 @@ describe("SetupFlow", () => {
     advance(20000);
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
     expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
-    expect(screen.getByRole("alertdialog")).toHaveTextContent(copy.alerts.phone);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
   it("on a phone, a returning visitor gets one window too", () => {
@@ -265,6 +265,7 @@ describe("SetupFlow", () => {
     renderFlow();
     expect(win("Say hi")).not.toHaveAttribute("hidden");
     expect(win("CV.pdf")).toHaveAttribute("hidden");
+    expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 });
 

@@ -3,12 +3,12 @@ import { copy } from "../../src/content/copy";
 import type { Visitor } from "../../src/lib/types";
 import { collectPageErrors, isPhone, runAssistant, settle, skipSetup, win } from "./helpers";
 
-// A laptop lands on the full landing set (copy.firstWindows); a phone on the CV alone, with its alert.
+// A laptop lands on the full landing set (copy.firstWindows); a phone on the CV alone.
 async function expectLanding(page: Page, phone: boolean, visitor: Visitor = "recruiter") {
   await expect(win(page, "cv")).toBeVisible();
   if (phone) {
     await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(1);
-    await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
     return;
   }
   const open = page.locator("section[data-win]:not([hidden])");
@@ -31,7 +31,6 @@ test("fresh visit: the friend flow lands on the CV, not an About me window", asy
   await runAssistant(page, "friend");
   await expectLanding(page, isPhone(info), "friend");
   await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
-  if (isPhone(info)) await expect(page.getByRole("alertdialog")).toContainText(copy.alerts.phone);
 });
 
 test("Esc on first paint skips setup to the CV", async ({ page }, info) => {
