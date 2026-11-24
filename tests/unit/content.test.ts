@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -121,23 +121,18 @@ describe("content strings", () => {
   it("has an OK label in copy.chrome", () => {
     expect(copy.chrome.ok).toBe("OK");
   });
-  it("walks the photo albums, project UI strings and project sites", () => {
+  it("walks the photos, project UI strings and project sites", () => {
     const paths = all.map((s) => s.path);
-    expect(paths).toContain("apps.photos.albums[0].title");
-    expect(paths).toContain("apps.photos.ui.watchVideo");
+    expect(paths).toContain("apps.photos.items[0].caption");
+    expect(paths).toContain("apps.photos.ui.countMany");
     expect(paths).toContain("apps.projectUi.openSite");
     expect(paths).toContain("projects[1].siteUrl");
   });
-  it("lists photo albums with unique ids, none empty, and videos that exist", () => {
-    const ids = photos.albums.map((a) => a.id);
-    for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
-    // AlbumGrid keys thumbnails by src, so a photo appears once per album.
-    for (const a of photos.albums)
-      expect(new Set(a.items.map((i) => i.src)).size).toBe(a.items.length);
-    expect(new Set(ids).size).toBe(ids.length);
-    const known = new Set(youtube.videos.map((v) => v.id));
-    for (const a of photos.albums)
-      for (const id of a.videoIds ?? []) expect(known.has(id)).toBe(true);
+  it("lists photos with unique srcs that all exist under public/", () => {
+    // PhotoGrid keys thumbnails by src.
+    expect(new Set(photos.items.map((i) => i.src)).size).toBe(photos.items.length);
+    for (const i of photos.items)
+      expect(existsSync(join(process.cwd(), "public", i.src)), i.src).toBe(true);
   });
   it("has no Travel, Whereflix, Gift Finder or SchengenKit entry in the UI content", () => {
     const menus = [...copy.menus.view, ...copy.desktopIcons];

@@ -1,11 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useDesktop } from "@/components/desktop/Desktop";
 import { photos } from "@/content/photos";
-import { youtube } from "@/content/youtube";
-import type { PhotoAlbum } from "./types";
+import type { PhotoItem } from "./types";
 
 type Props = {
-  album: PhotoAlbum;
+  items: PhotoItem[];
   index: number;
   onIndex(i: number): void;
   onBack(): void;
@@ -14,15 +12,13 @@ type Props = {
 const ui = photos.ui;
 
 // A Scrapbook page: one photo, its caption, and a Platinum scroll bar to turn the pages.
-export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
-  const { requestVideo } = useDesktop();
-  const total = album.items.length;
-  const item = album.items[index];
+export function PhotoViewer({ items, index, onIndex, onBack }: Props) {
+  const total = items.length;
+  const item = items[index];
   const counter = ui.counter.replace("{n}", String(index + 1)).replace("{total}", String(total));
-  const videoIds = album.videoIds ?? [];
   const back = useRef<HTMLButtonElement>(null);
 
-  // Opening an album unmounts the folder that held focus, which would leave it on the body.
+  // Opening a photo unmounts the thumbnail that held focus, which would leave it on the body.
   useEffect(() => {
     const a = document.activeElement;
     if (!a || a === document.body) back.current?.focus();
@@ -41,21 +37,6 @@ export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
         <button type="button" className="pbtn" onClick={() => onIndex((index + 1) % total)}>
           {ui.next}
         </button>
-        {videoIds.map((id) => {
-          const title = youtube.videos.find((v) => v.id === id)?.title;
-          const label =
-            videoIds.length > 1 && title ? ui.watchNamed.replace("{title}", title) : ui.watchVideo;
-          return (
-            <button
-              key={id}
-              type="button"
-              className="pbtn scrap-watch"
-              onClick={() => requestVideo(id)}
-            >
-              {label}
-            </button>
-          );
-        })}
       </div>
       <div className="scrap-page">
         <div className="photo-stage">
