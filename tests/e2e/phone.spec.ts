@@ -134,12 +134,9 @@ test("phone 320x568: Photos shows a three-column thumbnail grid that does not sc
   expect(scroll).toBeLessThanOrEqual(client);
 });
 
-/** Photos opens on an album's thumbnails; if it opens on the album covers, tap into the first one. */
+/** Photos opens on the thumbnail grid. */
 async function openPhotosGrid(page: Page) {
   await openWin(page, "photos");
-  if (!(await page.locator(".photo-grid").isVisible())) {
-    await page.locator(".album-tile").first().tap();
-  }
   await expect(page.locator(".photo-thumb").first()).toBeVisible();
 }
 
@@ -154,6 +151,22 @@ test("phone: the CV scrolls inside the app to the languages heading", async ({ p
     .locator(".body")
     .evaluate((b) => b.scrollTop);
   expect(scrolled).toBeGreaterThan(0);
+});
+
+test("phone: Photos thumbnails are square and the first row has loaded", async ({ page }, info) => {
+  await landOnHome(page, SHOT_SIZE, info);
+  await openPhotosGrid(page);
+  const imgs = page.locator(".photo-thumb img");
+  // The width/height attributes must not beat aspect-ratio: a 240px height on a 130px tile draws it tall.
+  for (let i = 0; i < 6; i++) {
+    const box = await imgs.nth(i).boundingBox();
+    if (!box) throw new Error(`thumbnail ${i} has no box`);
+    expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(1);
+  }
+  for (let i = 0; i < 3; i++)
+    await expect
+      .poll(() => imgs.nth(i).evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth))
+      .toBeGreaterThan(0);
 });
 
 test("phone: Photos opens to a thumbnail grid and a tap opens the viewer", async ({

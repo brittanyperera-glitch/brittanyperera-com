@@ -1,56 +1,9 @@
-/* Photos window body: album tiles, a photo grid, then a Scrapbook page with a Platinum scroll bar. */
+/* Photos window body: a photo grid, then a Scrapbook page with a Platinum scroll bar. */
 .win[data-win="photos"] .body {
   padding: 0;
   line-height: normal;
 }
 
-/* Albums: square covers with a title and count under each, like the Albums tab of a phone. */
-.photo-albums {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 14px 12px;
-  align-content: start;
-  min-height: 160px;
-  padding: 14px;
-  background: #fff;
-}
-
-.album-tile {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  padding: 0;
-  font: inherit;
-  text-align: left;
-  color: #111;
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.album-cover {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  margin-bottom: 4px;
-  border-radius: 6px;
-  background: #ddd;
-}
-
-.album-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.album-count {
-  font-size: 11px;
-  color: #666;
-}
-
-.album-tile:focus-visible,
 .photo-thumb:focus-visible {
   outline: 2px solid var(--accent, #3d6fb6);
   outline-offset: -2px;
@@ -74,16 +27,22 @@
   cursor: pointer;
 }
 
+.photo-total {
+  margin: 0;
+  padding: 12px 8px 14px;
+  font-size: 12px;
+  text-align: center;
+  color: #666;
+  background: #fff;
+}
+
 .photo-thumb img {
   display: block;
   width: 100%;
+  /* The 240x240 attributes reserve space before load; auto lets aspect-ratio set the height. */
+  height: auto;
   aspect-ratio: 1;
   object-fit: cover;
-}
-
-.win .body .photo-album-name {
-  margin: 0 0 0 4px;
-  font-size: 13px;
 }
 
 .photo-view {
@@ -92,7 +51,7 @@
   gap: 0;
 }
 
-/* Toolbar: Back on the left, a divider, then Previous and Next, then any watch buttons. */
+/* Toolbar: Back on the left, a divider, then Previous and Next. */
 .scrap-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -110,14 +69,6 @@
   margin: 2px 2px;
   background: #9a9a9a;
   box-shadow: 1px 0 0 #fff;
-}
-
-.scrap-watch {
-  margin-left: auto;
-}
-
-.scrap-watch ~ .scrap-watch {
-  margin-left: 0;
 }
 
 /* The scrapbook page on a mottled desk: a bevelled mat holding one photo, its edge shadowed. */
@@ -278,13 +229,8 @@
   min-width: 84px;
 }
 
-/* Phone: two album columns, three photo columns, and the page fills the window. */
+/* Phone: three photo columns, and the page fills the window. */
 @media (max-width: 700px) {
-  .desktop .photo-albums {
-    grid-template-columns: repeat(2, 1fr);
-    min-height: 100%;
-  }
-
   .desktop .photo-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -322,20 +268,19 @@
     height: 28px;
   }
 
-  /* Dark: album and photo pages are black like Photos on a phone; the Platinum toolbar, mat and
+  /* Dark: the photo pages are black like Photos on a phone; the Platinum toolbar, mat and
      scroll bar become dark glass and cells. */
-  .desktop .photo-albums,
   .desktop .photo-grid {
     background: var(--ph-bg);
   }
 
-  .desktop .album-tile {
-    color: var(--ph-text);
-  }
-
-  .desktop .album-cover,
   .desktop .photo-thumb {
     background: var(--ph-raised);
+  }
+
+  .desktop .photo-total {
+    color: var(--ph-text2);
+    background: var(--ph-bg);
   }
 
   .desktop .scrap-toolbar,

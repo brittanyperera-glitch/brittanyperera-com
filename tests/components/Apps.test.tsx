@@ -50,7 +50,7 @@ describe("new desktop apps", () => {
     const body = (id: string) =>
       document.querySelector(`section[data-win="${id}"] .body`) as HTMLElement;
     const empty = [
-      ...(photos.albums.some((a) => a.items.length > 0) ? [] : [["photos", photos.title] as const]),
+      ...(photos.items.length > 0 ? [] : [["photos", photos.title] as const]),
       ...(music.track ? [] : [["garage", music.appName] as const]),
     ];
     for (const [id, title] of empty) {

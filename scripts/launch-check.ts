@@ -7,7 +7,7 @@ import { youtube } from "../src/content/youtube";
 
 const missing: string[] = [
   ...(music.track ? [] : ["music: no audio track for Garage Brittany"]),
-  ...(photos.albums.some((a) => a.items.length > 0) ? [] : ["photos: no album with photos"]),
+  ...(photos.items.length > 0 ? [] : ["photos: no photos"]),
   ...projects.filter((p) => !p.about.trim()).map((p) => `projects: no about text for ${p.title}`),
   ...(contact.youtube && youtube.videos.length ? [] : ["youtube: no channel URL or videos"]),
 ];
