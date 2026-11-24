@@ -32,7 +32,7 @@ export function PhotoViewer({ album, index, onIndex, onBack }: Props) {
     <div className="photo-view">
       <div className="scrap-toolbar">
         <button type="button" className="pbtn photo-back" ref={back} onClick={onBack}>
-          {ui.back}
+          {ui.backToGrid}
         </button>
         <span className="scrap-sep" aria-hidden="true" />
         <button type="button" className="pbtn" onClick={() => onIndex((index + total - 1) % total)}>
