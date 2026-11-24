@@ -27,4 +27,12 @@ describe("seo routes", () => {
   it("twitter image is the same card", () => {
     expect(TwitterImage).toBe(Image);
   });
+  it("cv has its own og url, title and description", async () => {
+    const { metadata } = await import("@/app/cv/page");
+    expect(metadata.openGraph).toMatchObject({
+      url: "/cv",
+      title: metadata.title,
+      description: metadata.description,
+    });
+  });
 });

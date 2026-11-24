@@ -64,19 +64,7 @@ export default function Image() {
         color: INK,
       }}
     >
-      <div
-        style={{
-          height: 56,
-          background: BLUE,
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 28px",
-          fontSize: 28,
-        }}
-      >
-        {meta.siteHost}
-      </div>
+      <div style={{ height: 56, background: BLUE, display: "flex" }} />
       <div
         style={{
           flex: 1,

@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: cv.metaTitle,
   description: meta.cvDescription,
   alternates: { canonical: "/cv" },
+  openGraph: { url: "/cv", title: cv.metaTitle, description: meta.cvDescription },
 };
 
 export default function CvPage() {
