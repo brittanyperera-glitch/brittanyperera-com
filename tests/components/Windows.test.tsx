@@ -197,10 +197,10 @@ describe("Trash", () => {
       .getAllByRole("listitem")
       .map((li) => li.textContent);
 
-  it("lists tennis, singing, doctor, before and after Empty Trash", async () => {
+  it("lists every Trash item, before and after Empty Trash", async () => {
     const user = setup(["trash"]);
     const captions = trash.map((t) => t.caption);
-    expect(trash.map((t) => t.name)).toEqual(["tennis", "singing", "doctor"]);
+    expect(trash.map((t) => t.name)).toEqual(["tennis", "singer", "doctor", "lawyer", "writer"]);
     expect(items()).toEqual(captions);
     await user.click(
       within(win("trash")).getByRole("button", { name: copy.alerts.emptyTrash.empty }),

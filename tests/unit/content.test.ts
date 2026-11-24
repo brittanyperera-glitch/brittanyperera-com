@@ -115,6 +115,9 @@ describe("content strings", () => {
     expect(copy.setup.accent).toMatch(/^#[0-9a-f]{6}$/i);
     expect(cv.email).toBe(contact.email);
   });
+  it("counts the Trash items in its header", () => {
+    expect(trashHeader.startsWith(`${trash.length} items.`)).toBe(true);
+  });
   it("has an OK label in copy.chrome", () => {
     expect(copy.chrome.ok).toBe("OK");
   });
