@@ -2,8 +2,7 @@
 .win[data-win^="music:"] .body,
 .win[data-win="garage"] .body {
   padding: 0;
-  max-height: none;
-  overflow: hidden;
+  overflow: auto;
   line-height: normal;
 }
 

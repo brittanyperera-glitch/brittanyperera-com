@@ -11,8 +11,7 @@
 /* The game fills the window body edge to edge on a dark ground. */
 .win[data-win="cvbuilder"] .body {
   padding: 0;
-  max-height: none;
-  overflow: hidden;
+  overflow: auto;
   background: #2a2f3a;
   border-color: #111;
   box-shadow: none;
