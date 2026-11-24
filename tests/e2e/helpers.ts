@@ -82,7 +82,6 @@ export const ALL_WINDOWS: WinId[] = [
   "projects",
   "contact",
   "trash",
-  "cvbuilder",
   "music",
   "garage",
   "photos",

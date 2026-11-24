@@ -1,13 +1,12 @@
 import type { IconName, Visitor, WinId } from "@/lib/types";
 import { contact } from "./contact";
-import { cvBuilder } from "./cvbuilder";
 import { music } from "./music";
 import { photos } from "./photos";
 import { youtube } from "./youtube";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
 
-// Brittany 2026-10-20: open only what suits the visitor; photos and CV always, CV Builder never.
+// Brittany 2026-10-20: open only what suits the visitor; photos and CV always.
 // Back to front; the Stickies note sits above all but the visitor's main window, always last.
 const ALWAYS: WinId[] = ["photos", "note"];
 
@@ -115,7 +114,6 @@ export const copy = {
       { label: music.folderTitle, open: "music" },
       { label: photos.title, open: "photos" },
       { label: youtube.ui.title, open: "youtube" },
-      { label: cvBuilder.title, open: "cvbuilder" },
       { label: "Contact", open: "contact" },
       { label: "Trash", open: "trash" },
     ] as MenuItem[],
@@ -127,7 +125,6 @@ export const copy = {
   },
   desktopIcons: [
     { open: "cv", label: "CV", icon: "doc" },
-    { open: "cvbuilder", label: cvBuilder.title, icon: "game" },
     { open: "projects", label: "Projects", icon: "folder" },
     { open: "music", label: music.folderTitle, icon: "musicfolder" },
     { open: "photos", label: photos.title, icon: "camera" },
@@ -140,7 +137,6 @@ export const copy = {
     projects: "Projects",
     contact: "Say hi",
     trash: "Trash",
-    cvbuilder: cvBuilder.title,
     music: music.folderTitle,
     garage: music.appName,
     photos: photos.title,
@@ -207,7 +203,7 @@ export const copy = {
   } as Record<Visitor, WinId[]>,
   // The Stickies note open on the desktop after setup. Every visitor sees it, so it names only the CV.
   note: [
-    "hi! the CV's open, or play CV Builder and it builds it for you.",
+    "hi! the CV's open, have a look.",
     "my piano piece is in Garage, press play.",
     "everything else is on the desktop. double-click to poke around",
   ],

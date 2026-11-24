@@ -16,7 +16,6 @@ const WIDTH: Record<string, number> = {
   projects: 370,
   contact: 360,
   trash: 390,
-  cvbuilder: 560,
   music: 360,
   garage: 380,
   photos: 370,

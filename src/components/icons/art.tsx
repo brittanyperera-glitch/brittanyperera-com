@@ -54,55 +54,6 @@ function Radial({
 
 const u = (p: string, id: string) => `url(#${p}${id})`;
 
-function mix(hex: string, to: string, t: number): string {
-  const a = Number.parseInt(hex.slice(1), 16);
-  const b = Number.parseInt(to.slice(1), 16);
-  const m = (s: number) => Math.round(((a >> s) & 255) + (((b >> s) & 255) - ((a >> s) & 255)) * t);
-  return `rgb(${m(16)},${m(8)},${m(0)})`;
-}
-
-const BLOCK: Record<string, string> = {
-  O: "#d8b545",
-  T: "#6e55a8",
-  Z: "#b8475f",
-  L: "#c9772f",
-};
-
-function Block({ x, y, s, k }: { x: number; y: number; s: number; k: keyof typeof BLOCK }) {
-  const c = BLOCK[k];
-  const b = 1;
-  return (
-    <g>
-      <rect x={x} y={y} width={s} height={s} fill={c} />
-      <polygon
-        points={`${x},${y} ${x + s},${y} ${x + s - b},${y + b} ${x + b},${y + b} ${x + b},${y + s - b} ${x},${y + s}`}
-        fill={mix(c, "#ffffff", 0.5)}
-      />
-      <polygon
-        points={`${x + s},${y} ${x + s},${y + s} ${x},${y + s} ${x + b},${y + s - b} ${x + s - b},${y + s - b} ${x + s - b},${y + b}`}
-        fill={mix(c, "#000000", 0.42)}
-      />
-      <rect x={x} y={y} width={s} height={s} stroke="#0b0f18" strokeWidth={0.6} />
-    </g>
-  );
-}
-
-const GAME_BLOCKS: [number, number, string][] = [
-  [1, 0, "T"],
-  [0, 1, "T"],
-  [1, 1, "T"],
-  [2, 1, "T"],
-  [3, 1, "L"],
-  [3, 2, "L"],
-  [3, 3, "L"],
-  [2, 3, "L"],
-  [0, 2, "O"],
-  [1, 2, "O"],
-  [0, 3, "O"],
-  [1, 3, "O"],
-  [2, 2, "Z"],
-];
-
 function Folder({ p }: { p: string }): ReactElement {
   return (
     <>
@@ -175,16 +126,6 @@ const doc: Art = (p) => (
     <rect x="9" y="22" width="14" height="1" fill="#b2b7c2" />
     <rect x="9" y="25" width="5" height="1" fill="#3d6fb6" />
     <rect x="9" y="27" width="11" height="1" fill="#b2b7c2" />
-  </>
-);
-
-const game: Art = () => (
-  <>
-    <rect x="2.5" y="4.5" width="27" height="25" rx="3" fill="#1d2536" stroke={INK} />
-    <rect x="3.5" y="5.5" width="25" height="23" rx="2" stroke="#3a4766" />
-    {GAME_BLOCKS.map(([c, r, k]) => (
-      <Block key={`${c}-${r}`} x={5 + c * 5.5} y={7 + r * 5.5} s={5.5} k={k} />
-    ))}
   </>
 );
 
@@ -708,7 +649,6 @@ const mac: Art = (p) => (
 
 export const ART = {
   doc,
-  game,
   folder,
   musicfolder,
   camera,

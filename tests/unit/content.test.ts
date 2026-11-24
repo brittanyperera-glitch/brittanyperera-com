@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 import { contact } from "@/content/contact";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
-import { cvBuilder } from "@/content/cvbuilder";
 import { meta } from "@/content/meta";
 import { music } from "@/content/music";
 import { photos } from "@/content/photos";
@@ -31,7 +30,7 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
-  ...walk({ cvBuilder, music, photos, youtube, projectUi, windowBox }, "apps", []),
+  ...walk({ music, photos, youtube, projectUi, windowBox }, "apps", []),
 ];
 
 const wordExempt = (p: string) => /^projects\[\d+\]\.about$/.test(p) || p.startsWith("cv");
@@ -73,11 +72,16 @@ describe("content strings", () => {
       friend: ["youtube", "garage", "photos", "note", "cv"],
     });
   });
-  it("lands every visitor on photos and the CV, and never on CV Builder", () => {
+  it("lands every visitor on photos and the CV", () => {
     for (const wins of Object.values(copy.firstWindows)) {
       expect(wins).toEqual(expect.arrayContaining(["photos", "cv"]));
-      expect(wins).not.toContain("cvbuilder");
     }
+  });
+  it("opens no CV Builder from any icon, menu item or window title", () => {
+    const menus = Object.values(copy.menus).flat();
+    expect(copy.desktopIcons.some((i) => i.open === ("cvbuilder" as string))).toBe(false);
+    expect(menus.some((m) => "open" in m && m.open === ("cvbuilder" as string))).toBe(false);
+    expect("cvbuilder" in copy.windowTitles).toBe(false);
   });
   it("has no About me window, icon or menu item (the Apple menu's About Brittany's Mac stays)", () => {
     const menus = [...copy.menus.brittany, ...copy.menus.view, ...copy.menus.apple];
