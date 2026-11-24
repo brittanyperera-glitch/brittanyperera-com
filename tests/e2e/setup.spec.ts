@@ -7,7 +7,7 @@ import { collectPageErrors, isPhone, runAssistant, settle, skipSetup, win } from
 // instead (see the phone describe at the end); the Setup Assistant is laptop-only.
 const LAPTOP_ONLY = "a phone gets the lock screen, not the Setup Assistant";
 
-test.beforeEach((_fixtures, info) => {
+test.beforeEach(async ({ page: _page }, info) => {
   test.skip(isPhone(info) && !info.title.startsWith("phone:"), LAPTOP_ONLY);
 });
 
