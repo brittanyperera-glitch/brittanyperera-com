@@ -10,7 +10,7 @@ type Entry = {
 
 function Entries({ items }: { items: readonly Entry[] }) {
   return items.map((e) => (
-    <div className="cv-item" key={`${e.title}-${e.org}`}>
+    <div className="cv-item" key={`${e.title}-${e.org}-${e.when}`}>
       <div className="cv-head">
         <span>{e.title}</span>
         <span className="cv-when">{e.when}</span>
@@ -41,6 +41,9 @@ export function CvDocument({ headingLevel = 1 }: { headingLevel?: 1 | 3 }) {
 
       <Section>{cv.sections.experience}</Section>
       <Entries items={cv.roles} />
+
+      <Section>{cv.sections.projects}</Section>
+      <Entries items={cv.projects} />
 
       <Section>{cv.sections.education}</Section>
       <Entries items={cv.education} />
