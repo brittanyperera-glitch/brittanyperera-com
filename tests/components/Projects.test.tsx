@@ -202,3 +202,79 @@ describe("Browser window", () => {
     expect(frames()).toHaveLength(0);
   });
 });
+
+describe("case-study template", () => {
+  const full = {
+    ...trip,
+    problem: "fixture problem",
+    built: "fixture built",
+    hardest: "fixture hardest",
+    result: "fixture result",
+    stack: ["Next.js", "Postgres"],
+    links: { live: "https://example.com/live", repo: "https://example.com/repo" },
+    image: { src: "/fixture.png", alt: "fixture alt", width: 640, height: 360 },
+  };
+  const headingsOf = (w: HTMLElement) =>
+    within(w)
+      .getAllByRole("heading")
+      .map((h) => h.textContent);
+  const linksOf = (w: HTMLElement) =>
+    within(w)
+      .queryAllByRole("link")
+      .map((a) => a.getAttribute("href"));
+
+  it("renders every heading in order, the links, the stack and the image", () => {
+    setup(["project:trip"], { "project:trip": <ProjectWindow project={full} /> });
+    const w = win("project:trip");
+    const s = projectUi.sections;
+    expect(headingsOf(w)).toEqual([
+      trip.title,
+      s.problem,
+      s.built,
+      s.hardest,
+      s.result,
+      s.stack,
+      s.links,
+    ]);
+    expect(linksOf(w)).toEqual(["https://example.com/live", "https://example.com/repo"]);
+    expect(within(w).getByText("Postgres")).toBeInTheDocument();
+    expect(within(w).getByAltText("fixture alt")).toHaveAttribute("src", "/fixture.png");
+  });
+
+  it("a case-study link goes through the leave alert, then opens in a new tab", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const user = setup(["project:trip"], { "project:trip": <ProjectWindow project={full} /> });
+    await user.click(
+      within(win("project:trip")).getByRole("link", { name: projectUi.linkLabels.repo }),
+    );
+    expect(open).not.toHaveBeenCalled();
+    const alert = await screen.findByRole("alertdialog");
+    await user.click(within(alert).getByRole("button", { name: copy.alerts.leave.ok }));
+    expect(open).toHaveBeenCalledWith("https://example.com/repo", "_blank", "noopener");
+    open.mockRestore();
+  });
+
+  it("gives the image its width and height", () => {
+    setup(["project:trip"], { "project:trip": <ProjectWindow project={full} /> });
+    const img = within(win("project:trip")).getByAltText("fixture alt");
+    expect(img).toHaveAttribute("width", "640");
+    expect(img).toHaveAttribute("height", "360");
+  });
+
+  it("renders only the sections that are present", () => {
+    setup(["project:trip"], {
+      "project:trip": <ProjectWindow project={{ ...trip, result: "just this" }} />,
+    });
+    expect(headingsOf(win("project:trip"))).toEqual([trip.title, projectUi.sections.result]);
+  });
+
+  it("the two real projects render only their title, buttons and promo", () => {
+    setup(["project:trip", "project:delulu"]);
+    expect(headingsOf(win("project:trip"))).toEqual(["Group Trip Hero"]);
+    expect(headingsOf(win("project:delulu"))).toEqual(["100 Days of Delulu"]);
+    expect(linksOf(win("project:trip"))).toEqual([]);
+    expect(linksOf(win("project:delulu"))).toEqual([]);
+    expect(win("project:trip").querySelector(".case-section, .case-image")).toBeNull();
+    expect(win("project:delulu").querySelector(".case-section, .case-image")).toBeNull();
+  });
+});
