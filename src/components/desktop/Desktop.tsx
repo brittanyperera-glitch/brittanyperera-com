@@ -15,6 +15,7 @@ import {
 } from "react";
 import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
 import { PhoneHome, PhoneStatus } from "@/components/phone/PhoneHome";
+import buildInfo from "@/content/build-info.json";
 import { copy } from "@/content/copy";
 import { projects, projectUi, siteProjects } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
@@ -34,6 +35,9 @@ import { DesktopIcons } from "./DesktopIcons";
 import { MenuBar } from "./MenuBar";
 import { measureNatural, measureTitle, type Natural } from "./titleMetrics";
 import { Window } from "./Window";
+
+// Rounded down so "420+" stays true until the JSON is next regenerated.
+const roundDown = (n: number) => Math.floor(n / 10) * 10;
 
 const CV_PDF = "/Brittany-Perera-CV.pdf";
 
@@ -202,8 +206,10 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const actions = useMemo<DesktopActions>(() => {
     const a = copy.alerts;
     return {
-      aboutmac: () =>
-        alert({
+      aboutmac: () => {
+        // Read at call time: Next inlines it at build, and tests stub it per case.
+        const sha = process.env.NEXT_PUBLIC_BUILD_SHA;
+        return alert({
           icon: "mac",
           body: (
             <>
@@ -216,9 +222,29 @@ function DesktopInner({ windows, children }: DesktopProps) {
                   </span>
                 ))}
               </div>
+              <div className="specs">
+                <b>{a.aboutMac.site.heading}</b>
+                <br />
+                {buildInfo.stack.map((s) => s.replace(/(\d+)[\d.]*$/, "$1")).join(", ")}
+                <br />
+                {a.aboutMac.site.tests
+                  .replace("{unit}", `${roundDown(buildInfo.unitTests)}+`)
+                  .replace("{e2e}", `${roundDown(buildInfo.e2eTests)}+`)}
+                {sha && (
+                  <>
+                    <br />
+                    {a.aboutMac.site.build.replace("{sha}", sha)}
+                  </>
+                )}
+                <br />
+                <a href={a.aboutMac.site.repo} target="_blank" rel="noopener">
+                  {a.aboutMac.site.code}
+                </a>
+              </div>
             </>
           ),
-        }),
+        });
+      },
       restart: () =>
         alert({
           icon: "caution",

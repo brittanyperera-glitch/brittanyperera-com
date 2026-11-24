@@ -85,6 +85,12 @@ a.pbtn {
   font-size: 11px;
   line-height: 1.6;
 }
+.alert-main .specs + .specs {
+  margin-top: 10px;
+}
+.alert-main .specs a {
+  color: inherit;
+}
 .alert-buttons {
   display: flex;
   justify-content: flex-end;
@@ -96,6 +102,10 @@ a.pbtn {
 @media (max-width: 700px) {
   .alert-layer {
     background: rgba(0, 0, 0, 0.55);
+  }
+
+  .alert-layer .alert .specs a {
+    color: var(--ph-link);
   }
 
   .alert-layer .alert {

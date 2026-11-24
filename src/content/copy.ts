@@ -89,6 +89,13 @@ export const copy = {
         "Languages: English, Sinhala, French (ish), German (ish)",
         "Installed: Python, TypeScript, too many side projects",
       ],
+      site: {
+        heading: "This site",
+        tests: "{unit} unit tests, {e2e} browser tests",
+        build: "build {sha}",
+        code: "view the code",
+        repo: "https://github.com/brittanyperera-glitch/brittanyperera-com",
+      },
     },
     crash: {
       title: "well, that broke.",

@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "build-info": "tsx scripts/build-info.ts",
+    "prebuild": "tsx scripts/build-info.ts",
     "launch-check": "tsx scripts/launch-check.ts"
   },
   "dependencies": {
