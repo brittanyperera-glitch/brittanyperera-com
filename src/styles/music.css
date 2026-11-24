@@ -439,3 +439,13 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
 }
+
+/* Phones: the laptop's 9-10.5px LCD labels go up to iOS's 12px floor (phone.spec checks it). */
+@media (max-width: 700px) {
+  .desktop .garage-state,
+  .desktop .garage-engr,
+  .desktop .garage-note,
+  .desktop .garage-time small {
+    font-size: 12px;
+  }
+}

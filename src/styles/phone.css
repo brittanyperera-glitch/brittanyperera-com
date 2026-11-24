@@ -213,7 +213,7 @@
   }
 
   /* Rows and cards are dark grouped cells with a hairline border and rounded corners. */
-  .desktop .win[data-win="projects"] .folder-grid,
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid,
   .desktop .win[data-win="trash"] .trash-list,
   .desktop .win[data-win="contact"] .row,
   .desktop .win[data-win="cv"] .cv-doc {
@@ -225,7 +225,7 @@
     overflow: hidden;
   }
 
-  .desktop .win[data-win="projects"] .folder-grid {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid {
     grid-template-columns: 1fr;
     gap: 0;
     min-height: 0;
@@ -233,7 +233,7 @@
     padding: 0;
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon {
     width: 100%;
     flex-direction: row;
     gap: 14px;
@@ -242,11 +242,11 @@
     border-bottom: 1px solid var(--ph-sep);
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon:last-child {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon:last-child {
     border-bottom: 0;
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon .label {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon .label {
     flex: 1;
     min-width: 0;
     padding: 0;
@@ -256,7 +256,7 @@
     color: var(--ph-text);
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon::after {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon::after {
     content: "";
     flex: none;
     width: 8px;
@@ -266,11 +266,11 @@
     transform: rotate(45deg);
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon.selected {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon.selected {
     background: var(--ph-raised);
   }
 
-  .desktop .win[data-win="projects"] .folder-grid .icon.selected .label {
+  .desktop .win:is([data-win="projects"], [data-win="music"]) .folder-grid .icon.selected .label {
     background: none;
     color: var(--ph-text);
   }
@@ -455,6 +455,37 @@
   /* windows.css redeclares --doc-accent on .win, so the root token alone never reaches the CV. */
   .desktop .win {
     --doc-accent: var(--ph-link);
+  }
+
+  /* Laptop-sized CV labels and dates (11px in windows.css) up to the phone's 13px footnote size. */
+  .desktop .win .cv-doc h4,
+  .desktop .win .cv-doc .cv-when {
+    font-size: 13px;
+  }
+
+  /* "Double-click an icon" is laptop advice; a phone has no double-click. */
+  .desktop .win .open-hint {
+    display: none;
+  }
+
+  .desktop .win .readme p {
+    font-size: 15px;
+  }
+
+  /* Two Truths answers are the whole game: full-width rows at body size, not small chips. */
+  .desktop .win[data-win="truths"] fieldset .pbtn {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 10px 14px;
+    font-size: 16px;
+    text-align: left;
+    white-space: normal;
+  }
+
+  /* Each control has its own :active state; the grey tap flash would linger over the next screen. */
+  html:has(.desktop) {
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* windows.css sets these two lines at 11.5px for the laptop window; too small on a phone. */

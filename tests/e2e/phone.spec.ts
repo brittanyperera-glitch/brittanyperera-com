@@ -76,6 +76,34 @@ for (const size of SIZES) {
   });
 }
 
+// iOS's smallest text style (Caption 2) is 11pt; anything under 12px reads as laptop text shrunk.
+test("phone 390x844: no visible text in any app is smaller than 12px", async ({ page }, info) => {
+  await landOnHome(page, SHOT_SIZE, info);
+  const found: string[] = [];
+  for (const id of PHONE_WINDOWS) {
+    await openWin(page, id);
+    found.push(
+      ...(await page.evaluate(() => {
+        const out: string[] = [];
+        for (const w of document.querySelectorAll("section[data-win]:not([hidden])")) {
+          for (const el of w.querySelectorAll<HTMLElement>("*")) {
+            const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent?.trim());
+            if (!own || !el.checkVisibility({ visibilityProperty: true })) continue;
+            const size = Number.parseFloat(getComputedStyle(el).fontSize);
+            if (size < 12) {
+              out.push(
+                `${(w as HTMLElement).dataset.win}: ${size}px "${el.textContent?.trim().slice(0, 30)}"`,
+              );
+            }
+          }
+        }
+        return out;
+      })),
+    );
+  }
+  expect([...new Set(found)]).toEqual([]);
+});
+
 test("phone 320x568: a long unbroken string in an app wraps instead of widening it", async ({
   page,
 }, info) => {
