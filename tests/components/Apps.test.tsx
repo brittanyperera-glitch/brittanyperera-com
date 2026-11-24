@@ -79,7 +79,7 @@ describe("Music folder", () => {
     const user = setup();
     await user.dblClick(icon(music.folderTitle));
     const folder = win(music.folderTitle);
-    expect(within(folder).getAllByRole("button")).toHaveLength(2);
+    expect(folder.querySelectorAll(".body button")).toHaveLength(1);
     const section = document.querySelector('section[data-win="garage"]') as HTMLElement;
     expect(section).toHaveAttribute("hidden");
     await user.dblClick(within(folder).getByRole("button", { name: music.appName }));

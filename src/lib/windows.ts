@@ -6,6 +6,10 @@ export type WinState = {
   pos: Partial<Record<WinId, { x: number; y: number }>>;
   /** Tallest the body may be, in px, so the whole window ends above the bottom edge. Set by `place`. */
   cap?: Partial<Record<WinId, number>>;
+  /** A zoomed window's box before it was zoomed: where it was, and its natural size. */
+  zoomed?: Partial<Record<WinId, { x: number; y: number; w: number; h: number; chrome: number }>>;
+  /** Windows rolled up to their title bar. */
+  shaded?: Partial<Record<WinId, true>>;
   nextZ: number;
   mode: "desktop" | "phone";
 };
@@ -39,6 +43,16 @@ export type WinAction =
       viewport: Viewport;
       sizes: Partial<Record<WinId, { w: number; h: number; chrome: number }>>;
     }
+  | {
+      type: "zoom";
+      id: WinId;
+      /** The window's natural size before zooming; used to put it back. */
+      w: number;
+      h: number;
+      chrome: number;
+      viewport: Viewport;
+    }
+  | { type: "shade"; id: WinId }
   | { type: "clampAll"; viewport: Viewport; sizes: Partial<Record<WinId, TitleMetrics>> }
   | { type: "closeAll" }
   | { type: "setMode"; mode: WinState["mode"] };
@@ -51,7 +65,7 @@ export const initialWindows: WinState = {
   mode: "desktop",
 };
 
-const MENU_BAR = 24;
+export const MENU_BAR = 24;
 const KEEP_X = 80;
 const KEEP_Y = 40;
 // Clear space kept around placed windows, and the least body a capped window still shows.
@@ -226,6 +240,30 @@ function fitWindow(
   return { pos: { x, y }, cap: Math.max(MIN_BODY, v.h - PAD - y - a.chrome) };
 }
 
+// Puts a zoomed window back in the box it had, fitted to the current viewport. Without a viewport
+// (the window is closing) the saved position is enough: it is fitted again when it next opens.
+function unzoom(s: WinState, id: WinId, viewport?: Viewport): WinState {
+  const prev = s.zoomed?.[id];
+  if (!prev) return s;
+  const { [id]: _zoomed, ...zoomed } = s.zoomed ?? {};
+  if (!viewport) return { ...s, zoomed, pos: { ...s.pos, [id]: { x: prev.x, y: prev.y } } };
+  const fit = fitWindow(prev, viewport);
+  return { ...s, zoomed, pos: { ...s.pos, [id]: fit.pos }, cap: { ...s.cap, [id]: fit.cap } };
+}
+
+function unshade(s: WinState, id: WinId): WinState {
+  if (!s.shaded?.[id]) return s;
+  const { [id]: _shaded, ...shaded } = s.shaded;
+  return { ...s, shaded };
+}
+
+// Every window back to its own box and unrolled: a phone, or no window open, has neither state.
+function unrollAll(s: WinState): WinState {
+  let next: WinState = { ...s, shaded: {} };
+  for (const id of Object.keys(s.zoomed ?? {}) as WinId[]) next = unzoom(next, id);
+  return next;
+}
+
 export function windowsReducer(s: WinState, a: WinAction): WinState {
   switch (a.type) {
     case "open":
@@ -235,7 +273,8 @@ export function windowsReducer(s: WinState, a: WinAction): WinState {
     case "close": {
       if (!s.open.includes(a.id)) return s;
       const { [a.id]: _removed, ...z } = s.z;
-      const closed = { ...s, open: s.open.filter((id) => id !== a.id), z };
+      const restored = unshade(unzoom(s, a.id), a.id);
+      const closed = { ...restored, open: restored.open.filter((id) => id !== a.id), z };
       const parent = parentOf(a.id);
       return s.mode === "phone" && parent ? openWin(closed, parent) : closed;
     }
@@ -249,6 +288,7 @@ export function windowsReducer(s: WinState, a: WinAction): WinState {
       // The viewport changed under open windows: the `place` clamp again, from their natural sizes.
       let next = s;
       for (const id of s.open) {
+        if (s.zoomed?.[id]) continue;
         const at = s.pos[id];
         const size = a.sizes[id];
         if (!at || !size) continue;
@@ -261,6 +301,18 @@ export function windowsReducer(s: WinState, a: WinAction): WinState {
       }
       return next;
     }
+    case "zoom": {
+      if (s.zoomed?.[a.id]) return unzoom(s, a.id, a.viewport);
+      const at = s.pos[a.id] ?? { x: 0, y: MENU_BAR };
+      const open = unshade(s, a.id);
+      return {
+        ...open,
+        zoomed: { ...open.zoomed, [a.id]: { ...at, w: a.w, h: a.h, chrome: a.chrome } },
+        pos: { ...open.pos, [a.id]: { x: 0, y: MENU_BAR } },
+      };
+    }
+    case "shade":
+      return s.shaded?.[a.id] ? unshade(s, a.id) : { ...s, shaded: { ...s.shaded, [a.id]: true } };
     case "clampAll": {
       const pos = { ...s.pos };
       let changed = false;
@@ -276,14 +328,14 @@ export function windowsReducer(s: WinState, a: WinAction): WinState {
       return changed ? { ...s, pos } : s;
     }
     case "closeAll":
-      return { ...s, open: [], z: {} };
+      return { ...unrollAll(s), open: [], z: {} };
     case "setMode": {
       if (a.mode === s.mode) return s;
       if (a.mode === "desktop") return { ...s, mode: "desktop" };
       const top = topWindow(s);
       const open = top ? [top] : [];
       const z = top && s.z[top] !== undefined ? { [top]: s.z[top] } : {};
-      return { ...s, mode: "phone", open, z };
+      return { ...unrollAll(s), mode: "phone", open, z };
     }
   }
 }

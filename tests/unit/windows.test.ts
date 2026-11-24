@@ -338,3 +338,63 @@ describe("placeWindow and the note", () => {
     expect(at.x + 640).toBeLessThanOrEqual(note.x);
   });
 });
+
+describe("zoom and shade", () => {
+  const vp = { w: 1280, h: 720 };
+  const natural = { w: 400, h: 300, chrome: 60 };
+  const placed = run([
+    { type: "open", id: "contact" },
+    { type: "place", id: "contact", x: 200, y: 100, ...natural, viewport: vp },
+  ]);
+  const zoom = (s: WinState, viewport = vp) =>
+    windowsReducer(s, { type: "zoom", id: "contact", viewport, ...natural });
+
+  it("zoom moves the window to the top left under the menu bar, and a second zoom restores its box", () => {
+    const zoomed = zoom(placed);
+    expect(zoomed.pos.contact).toEqual({ x: 0, y: 24 });
+    expect(zoomed.zoomed?.contact).toBeDefined();
+    const back = zoom(zoomed);
+    expect(back.pos.contact).toEqual({ x: 200, y: 100 });
+    expect(back.zoomed?.contact).toBeUndefined();
+    expect(back.cap?.contact).toBe(placed.cap?.contact);
+  });
+
+  it("restoring after the screen shrank puts the box back on screen", () => {
+    const small = { w: 800, h: 400 };
+    const back = zoom(zoom(placed), small);
+    const pos = back.pos.contact as { x: number; y: number };
+    expect(pos.x + natural.w).toBeLessThanOrEqual(small.w);
+    expect(pos.y + natural.h).toBeLessThanOrEqual(small.h);
+  });
+
+  it("shade toggles, and zooming a shaded window opens it", () => {
+    const shaded = windowsReducer(placed, { type: "shade", id: "contact" });
+    expect(shaded.shaded?.contact).toBe(true);
+    expect(windowsReducer(shaded, { type: "shade", id: "contact" }).shaded?.contact).toBeFalsy();
+    expect(zoom(shaded).shaded?.contact).toBeFalsy();
+  });
+
+  it("closing a zoomed or shaded window restores its box and clears both", () => {
+    const s = windowsReducer(zoom(placed), { type: "shade", id: "contact" });
+    const closed = windowsReducer(s, { type: "close", id: "contact" });
+    expect(closed.pos.contact).toEqual({ x: 200, y: 100 });
+    expect(closed.zoomed?.contact).toBeUndefined();
+    expect(closed.shaded?.contact).toBeFalsy();
+  });
+
+  it("a zoomed window stays zoomed through refit", () => {
+    const refit = windowsReducer(zoom(placed), {
+      type: "refit",
+      viewport: { w: 900, h: 500 },
+      sizes: { contact: natural },
+    });
+    expect(refit.pos.contact).toEqual({ x: 0, y: 24 });
+    expect(refit.zoomed?.contact).toBeDefined();
+  });
+
+  it("switching to phone restores zoomed windows", () => {
+    const phone = windowsReducer(zoom(placed), { type: "setMode", mode: "phone" });
+    expect(phone.zoomed?.contact).toBeUndefined();
+    expect(phone.pos.contact).toEqual({ x: 200, y: 100 });
+  });
+});
