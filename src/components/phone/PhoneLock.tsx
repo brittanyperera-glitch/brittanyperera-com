@@ -86,6 +86,7 @@ export function PhoneLock({ onUnlock }: { onUnlock: () => void }) {
             }}
             onPointerCancel={() => {
               from.current = null;
+              dragged.current = false;
               setDx(0);
             }}
             // A drag that stops short still ends in a click on the knob; that is not a tap.

@@ -439,6 +439,22 @@ describe("SetupFlow on a phone", () => {
     expect(stored()).toBeNull();
   });
 
+  it("a drag the system cancels does not stop the next plain tap from unlocking", () => {
+    renderFlow();
+    const knob = screen.getByRole("button", { name: copy.phone.lock.slide });
+    // jsdom does no layout, so give the track a width for the drag to travel in.
+    Object.defineProperty(knob.parentElement, "clientWidth", { value: 300 });
+    // jsdom has no PointerEvent, so a MouseEvent carries the coordinates React reads.
+    const pointer = (type: string, clientX: number) =>
+      fireEvent(knob, new MouseEvent(type, { bubbles: true, clientX }));
+    pointer("pointerdown", 0);
+    pointer("pointermove", 40);
+    pointer("pointercancel", 40);
+    expect(lock()).not.toBeNull();
+    unlock();
+    expect(lock()).toBeNull();
+  });
+
   it("a returning visitor lands on home with their dock: no lock, no app open", () => {
     window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
     const { container } = renderFlow();
