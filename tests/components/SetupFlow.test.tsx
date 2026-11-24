@@ -120,7 +120,8 @@ describe("SetupFlow", () => {
     renderFlow();
     throughBoot();
     click(/Continue/);
-    for (const r of screen.getAllByRole("radio")) expect(r).toHaveAttribute("aria-checked", "false");
+    for (const r of screen.getAllByRole("radio"))
+      expect(r).toHaveAttribute("aria-checked", "false");
     expect(screen.getByRole("button", { name: /Continue/ })).toBeDisabled();
     click(/Friend/, "radio");
     expect(screen.getByRole("button", { name: /Continue/ })).toBeEnabled();

@@ -112,9 +112,9 @@ export function SetupFlow() {
       setInstallLine(lines.length - 1);
       ids.push(window.setTimeout(() => dispatch({ type: "installDone" }), REDUCED_INSTALL_MS));
     } else {
-      lines.forEach((_, i) =>
-        ids.push(window.setTimeout(() => setInstallLine(i), i * INSTALL_LINE_MS)),
-      );
+      for (let i = 0; i < lines.length; i++) {
+        ids.push(window.setTimeout(() => setInstallLine(i), i * INSTALL_LINE_MS));
+      }
       ids.push(
         window.setTimeout(
           () => dispatch({ type: "installDone" }),
