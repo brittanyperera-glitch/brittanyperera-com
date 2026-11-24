@@ -80,7 +80,7 @@ describe("CV Builder content", () => {
       { when: "2018", label: "Built a playground in Sri Lanka" },
       { when: "2020–24", label: "Studied engineering at Oxford" },
       { when: "2023–24", label: "Optimised an F1 car's radiator" },
-      { when: "2025", label: "ML for jet engines at VietJet" },
+      { when: "2024–26", label: "ML for jet engines at VietJet" },
       { when: "Now", label: "Satellite AI at PangeAI" },
     ]);
     // Brittany 2026-10-20: pieces carry whole CV lines, never a bare word.
