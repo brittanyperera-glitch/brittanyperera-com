@@ -10,6 +10,8 @@ export type Project = {
   siteUrl: string;
   /** Title of the browser window. */
   siteLabel: string;
+  /** When set, the About window's button opens this in a new tab instead of the browser window. */
+  codeUrl?: string;
   /** A promo video shown in the About window, hosted in public/video. */
   video?: { src: string; poster: string; label: string };
 };
@@ -24,6 +26,8 @@ export const projects: Project[] = [
       "a private little site for two. for 100 days you act like the life you want is already yours. a countdown, one shared wall and a ring of tiny games around it. the real one's password protected, sorry",
     siteUrl: "https://100-days-of-delulu.vercel.app",
     siteLabel: "100 Days of Delulu, live site",
+    // GitHub refuses iframes, so this goes to a new tab, not the browser window.
+    codeUrl: "https://github.com/brittanyperera-glitch/delulu-template",
     // Web encode of the promo animatic (archived as a release on the Delulu repo, which is private).
     video: {
       src: "/video/delulu-promo.mp4",
@@ -46,6 +50,7 @@ export const projects: Project[] = [
 export const projectUi = {
   aboutTitle: "About {title}",
   openSite: "open the site",
+  viewCode: "view the code",
   reload: "Reload",
   address: "Address",
   newTab: "open in a new tab",

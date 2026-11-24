@@ -2,7 +2,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useEffect } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { BrowserWindow } from "@/components/windows/BrowserWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
@@ -109,10 +109,36 @@ describe("About window", () => {
     expect(within(win("project:trip")).getByText("fixture about")).toBeInTheDocument();
   });
 
-  it("has the open-the-site button as its default button", () => {
-    setup(["project:delulu"]);
-    const btn = within(win("project:delulu")).getByRole("button", { name: projectUi.openSite });
+  it("has the open-the-site button as Group Trip's default button", () => {
+    setup(["project:trip"]);
+    const btn = within(win("project:trip")).getByRole("button", { name: projectUi.openSite });
     expect(btn).toHaveClass("default");
+  });
+
+  it("Delulu offers view the code, not the live site, and no link to the live site", () => {
+    setup(["project:delulu"]);
+    const w = within(win("project:delulu"));
+    expect(w.getByRole("button", { name: projectUi.viewCode })).toHaveClass("default");
+    expect(w.queryByRole("button", { name: projectUi.openSite })).toBeNull();
+    expect(win("project:delulu").innerHTML).not.toContain("100-days-of-delulu.vercel.app");
+  });
+
+  it("view the code opens the template repo in a new tab, through the leave alert, no frame", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const user = setup(["project:delulu"]);
+    await user.click(
+      within(win("project:delulu")).getByRole("button", { name: projectUi.viewCode }),
+    );
+    const alert = await screen.findByRole("alertdialog");
+    await user.click(within(alert).getByRole("button", { name: copy.alerts.leave.ok }));
+    expect(open).toHaveBeenCalledWith(
+      "https://github.com/brittanyperera-glitch/delulu-template",
+      "_blank",
+      "noopener",
+    );
+    expect(win("browser:delulu")).toHaveAttribute("hidden");
+    expect(frames()).toHaveLength(0);
+    open.mockRestore();
   });
 
   it("open the site opens the browser window with the right iframe src", async () => {
