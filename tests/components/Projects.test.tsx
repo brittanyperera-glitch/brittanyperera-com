@@ -51,8 +51,15 @@ if (!trip || !delulu || !site) throw new Error("projects must hold delulu and tr
 const aboutTitle = (title: string) => projectUi.aboutTitle.replace("{title}", title);
 
 describe("project content", () => {
-  it("holds only 100 Days of Delulu and Group Trip Hero, with their live sites", () => {
-    expect(projects.map((p) => p.id).sort()).toEqual(["delulu", "trip"]);
+  it("holds the six case studies, with Group Trip Hero the only live site", () => {
+    expect(projects.map((p) => p.id).sort()).toEqual([
+      "agents",
+      "delulu",
+      "engine",
+      "radiator",
+      "site",
+      "trip",
+    ]);
     expect(delulu.title).toBe("100 Days of Delulu");
     expect(trip.title).toBe("Group Trip Hero");
     expect(delulu.siteUrl).toBeUndefined();
@@ -63,11 +70,20 @@ describe("project content", () => {
   });
 });
 
+const noCase = {
+  problem: undefined,
+  built: undefined,
+  hardest: undefined,
+  result: undefined,
+  stack: undefined,
+  links: undefined,
+};
+
 describe("Projects folder", () => {
-  it("shows exactly two icons, and opening one opens its About window, not the site", async () => {
+  it("shows exactly six icons, and opening one opens its About window, not the site", async () => {
     const user = setup(["projects"]);
     const w = within(win("projects").querySelector(".body") as HTMLElement);
-    expect(w.getAllByRole("button")).toHaveLength(2);
+    expect(w.getAllByRole("button")).toHaveLength(6);
     expect(
       w.getByText(copy.windows.projectsInfo.replace("{n}", String(projects.length))),
     ).toBeInTheDocument();
@@ -81,11 +97,11 @@ describe("Projects folder", () => {
 describe("About window", () => {
   it("is titled About <project> and holds the title and one button when the about text is empty", () => {
     setup(["project:trip"], {
-      "project:trip": <ProjectWindow project={{ ...trip, about: "" }} />,
+      "project:trip": <ProjectWindow project={{ ...trip, ...noCase, about: "" }} />,
     });
     const w = win("project:trip");
     expect(w).toHaveAttribute("aria-label", aboutTitle(trip.title));
-    expect(within(w).getByRole("heading").textContent).toBe(trip.title);
+    expect(within(w).getByRole("heading", { level: 3 }).textContent).toBe(trip.title);
     expect(within(w.querySelector(".body") as HTMLElement).getAllByRole("button")).toHaveLength(1);
     expect(w.querySelector("iframe")).toBeNull();
     expect(w.querySelector(".body p:not(.actions-right)")).toBeNull();
@@ -116,6 +132,16 @@ describe("About window", () => {
     setup(["project:trip"]);
     const btn = within(win("project:trip")).getByRole("button", { name: projectUi.openSite });
     expect(btn).toHaveClass("default");
+  });
+
+  it("a project with no live site and no code button shows no action button", () => {
+    setup(["project:engine"]);
+    expect(
+      within(win("project:engine")).queryByRole("button", { name: projectUi.openSite }),
+    ).toBeNull();
+    expect(
+      within(win("project:engine")).queryByRole("button", { name: projectUi.viewCode }),
+    ).toBeNull();
   });
 
   it("Delulu offers view the code, not the live site, and no link to the live site", () => {
@@ -263,13 +289,16 @@ describe("case-study template", () => {
 
   it("renders only the sections that are present", () => {
     setup(["project:trip"], {
-      "project:trip": <ProjectWindow project={{ ...trip, result: "just this" }} />,
+      "project:trip": <ProjectWindow project={{ ...trip, ...noCase, result: "just this" }} />,
     });
     expect(headingsOf(win("project:trip"))).toEqual([trip.title, projectUi.sections.result]);
   });
 
   it("the two real projects render only their title, buttons and promo", () => {
-    setup(["project:trip", "project:delulu"]);
+    setup(["project:trip", "project:delulu"], {
+      "project:trip": <ProjectWindow project={{ ...trip, ...noCase }} />,
+      "project:delulu": <ProjectWindow project={{ ...delulu, ...noCase }} />,
+    });
     expect(headingsOf(win("project:trip"))).toEqual(["Group Trip Hero"]);
     expect(headingsOf(win("project:delulu"))).toEqual(["100 Days of Delulu"]);
     expect(linksOf(win("project:trip"))).toEqual([]);

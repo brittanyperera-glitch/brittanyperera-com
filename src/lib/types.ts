@@ -1,6 +1,6 @@
 export type Visitor = "recruiter" | "collab" | "client" | "friend";
 
-export type ProjectId = "delulu" | "trip";
+export type ProjectId = "delulu" | "trip" | "site" | "agents" | "engine" | "radiator";
 
 export type WinId =
   | "cv"
@@ -40,4 +40,6 @@ export type IconName =
   | "globe"
   | "camera"
   | "play"
-  | "bubble";
+  | "bubble"
+  | "engine"
+  | "radiator";

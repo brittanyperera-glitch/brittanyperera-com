@@ -93,17 +93,20 @@ export function ProjectWindow({ project }: { project: Project }) {
         />
       )}
       <CaseStudy project={project} />
-      <p className="actions-right">
-        <button
-          type="button"
-          className="pbtn default"
-          onClick={() =>
-            codeUrl ? actions.leave(codeUrl) : open(`browser:${project.id}` as WinId)
-          }
-        >
-          {codeUrl ? projectUi.viewCode : projectUi.openSite}
-        </button>
-      </p>
+      {/* Only projects with a browser window (siteUrl) or a repo button get one; others would open nothing. */}
+      {(codeUrl || project.siteUrl) && (
+        <p className="actions-right">
+          <button
+            type="button"
+            className="pbtn default"
+            onClick={() =>
+              codeUrl ? actions.leave(codeUrl) : open(`browser:${project.id}` as WinId)
+            }
+          >
+            {codeUrl ? projectUi.viewCode : projectUi.openSite}
+          </button>
+        </p>
+      )}
     </>
   );
 }

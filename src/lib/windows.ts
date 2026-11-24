@@ -146,6 +146,10 @@ const ANCHORS: Partial<Record<WinId, Anchor>> = {
   truths: { fx: 0.4, fy: 0.5 },
   "project:delulu": { fx: 0.15, fy: 0.05 },
   "project:trip": { fx: 0.1, fy: 0.05 },
+  "project:site": { fx: 0.2, fy: 0.1 },
+  "project:agents": { fx: 0.25, fy: 0.15 },
+  "project:engine": { fx: 0.3, fy: 0.1 },
+  "project:radiator": { fx: 0.35, fy: 0.15 },
   // Below the About window that opens them, so the button that was pressed stays visible.
   "browser:trip": { fx: 0.1, fy: 0.3 },
 };

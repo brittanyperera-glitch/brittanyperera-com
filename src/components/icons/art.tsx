@@ -679,6 +679,59 @@ const mac: Art = (p) => (
   </>
 );
 
+const engine: Art = (p) => (
+  <>
+    <defs>
+      <Radial
+        id="Nac"
+        p={p}
+        cx={0.36}
+        cy={0.32}
+        r={0.9}
+        stops={[
+          [0, "#f2f2f2"],
+          [1, "#9a9a9a"],
+        ]}
+      />
+    </defs>
+    <circle cx="16" cy="16" r="12.5" fill={u(p, "Nac")} stroke={INK} />
+    <circle cx="16" cy="16" r="9" fill="#3a3f48" stroke={INK} strokeWidth={0.6} />
+    <path
+      d="M16 8Q19 12.5 16 16Q13 12.5 16 8ZM24 16Q19.5 19 16 16Q19.5 13 24 16ZM16 24Q13 19.5 16 16Q19 19.5 16 24ZM8 16Q12.5 13 16 16Q12.5 19 8 16Z"
+      fill="#c9ced6"
+      stroke={INK}
+      strokeWidth={0.5}
+      strokeLinejoin="round"
+    />
+    <circle cx="16" cy="16" r="2" fill="#7d8591" stroke={INK} strokeWidth={0.6} />
+    <path d="M6.5 11.5Q8 8.2 11 6.8" stroke="#fff" strokeOpacity={0.8} strokeLinecap="round" />
+  </>
+);
+
+const radiator: Art = (p) => (
+  <>
+    <defs>
+      <Grad
+        id="Core"
+        p={p}
+        stops={[
+          [0, "#e3e6ea"],
+          [1, "#8c939d"],
+        ]}
+      />
+    </defs>
+    <rect x="3.5" y="6.5" width="25" height="19" rx="1.5" fill={u(p, "Core")} stroke={INK} />
+    <path
+      d="M8.5 8.5V23.5M12.5 8.5V23.5M16.5 8.5V23.5M20.5 8.5V23.5M24.5 8.5V23.5"
+      stroke="#4a4f57"
+      strokeWidth={1.4}
+    />
+    <rect x="1.5" y="10.5" width="2" height="4" fill="#c33" stroke={INK} strokeWidth={0.6} />
+    <rect x="28.5" y="17.5" width="2" height="4" fill="#36c" stroke={INK} strokeWidth={0.6} />
+    <path d="M5 8.5H27" stroke="#fff" strokeOpacity={0.8} />
+  </>
+);
+
 export const ART = {
   doc,
   folder,
@@ -696,6 +749,8 @@ export const ART = {
   note,
   bomb,
   mac,
+  engine,
+  radiator,
 } satisfies Record<string, Art>;
 
 export type ArtName = keyof typeof ART;
