@@ -16,7 +16,7 @@ export type TitleMetrics = { titleLeft: number; titleRight: number };
 type Viewport = { w: number; h: number };
 
 /** A window or the icon area, in viewport pixels. */
-export type Box = { x: number; y: number; w: number; h: number };
+export type Box = { x: number; y: number; w: number; h: number; id?: WinId };
 
 export type WinAction =
   | { type: "open"; id: WinId }
@@ -33,6 +33,11 @@ export type WinAction =
       h: number;
       chrome: number;
       viewport: Viewport;
+    }
+  | {
+      type: "refit";
+      viewport: Viewport;
+      sizes: Partial<Record<WinId, { w: number; h: number; chrome: number }>>;
     }
   | { type: "clampAll"; viewport: Viewport; sizes: Partial<Record<WinId, TitleMetrics>> }
   | { type: "closeAll" }
@@ -58,6 +63,8 @@ const TITLE_H = 22;
 const MIN_TITLE = 80;
 const STEP = 16;
 const OVERLAP_PX = 60;
+// The Stickies note is there to be read, so sitting on it costs more than sitting on other windows.
+const NOTE_WEIGHT = 4;
 const BURY_PX = 20;
 // Window z must stay below the menu bar (5000); renormalise well before it gets there.
 const Z_BASE = 10;
@@ -196,7 +203,11 @@ export function placeWindow(
         Math.abs(x - px) +
         Math.abs(y - py) +
         buried * BURY_PX +
-        openBoxes.reduce((sum, o) => sum + overlapArea(o, box), 0) / OVERLAP_PX;
+        openBoxes.reduce(
+          (sum, o) => sum + overlapArea(o, box) * (o.id === "note" ? NOTE_WEIGHT : 1),
+          0,
+        ) /
+          OVERLAP_PX;
       if (cost < bestCost) {
         bestCost = cost;
         best = { x, y };
@@ -204,6 +215,18 @@ export function placeWindow(
     }
   }
   return best;
+}
+
+// The whole window inside the viewport when it fits, and a body cap so it ends above the bottom edge.
+function fitWindow(
+  a: { x: number; y: number; w: number; h: number; chrome: number },
+  v: Viewport,
+): { pos: { x: number; y: number }; cap: number } {
+  const maxX = v.w - a.w;
+  const maxY = v.h - PAD - a.h;
+  const x = maxX >= 0 ? Math.min(Math.max(a.x, 0), maxX) : 0;
+  const y = maxY >= TOP ? Math.min(Math.max(a.y, TOP), maxY) : TOP;
+  return { pos: { x, y }, cap: Math.max(MIN_BODY, v.h - PAD - y - a.chrome) };
 }
 
 export function windowsReducer(s: WinState, a: WinAction): WinState {
@@ -222,13 +245,24 @@ export function windowsReducer(s: WinState, a: WinAction): WinState {
     case "move":
       return { ...s, pos: { ...s.pos, [a.id]: clampPos(a.x, a.y, a.viewport, a) } };
     case "place": {
-      const { viewport: v } = a;
-      const maxX = v.w - a.w;
-      const maxY = v.h - PAD - a.h;
-      const x = maxX >= 0 ? Math.min(Math.max(a.x, 0), maxX) : 0;
-      const y = maxY >= TOP ? Math.min(Math.max(a.y, TOP), maxY) : TOP;
-      const cap = Math.max(MIN_BODY, v.h - PAD - y - a.chrome);
-      return { ...s, pos: { ...s.pos, [a.id]: { x, y } }, cap: { ...s.cap, [a.id]: cap } };
+      const fit = fitWindow(a, a.viewport);
+      return { ...s, pos: { ...s.pos, [a.id]: fit.pos }, cap: { ...s.cap, [a.id]: fit.cap } };
+    }
+    case "refit": {
+      // The viewport changed under open windows: the `place` clamp again, from their natural sizes.
+      let next = s;
+      for (const id of s.open) {
+        const at = s.pos[id];
+        const size = a.sizes[id];
+        if (!at || !size) continue;
+        const fit = fitWindow({ ...at, ...size }, a.viewport);
+        next = {
+          ...next,
+          pos: { ...next.pos, [id]: fit.pos },
+          cap: { ...next.cap, [id]: fit.cap },
+        };
+      }
+      return next;
     }
     case "clampAll": {
       const pos = { ...s.pos };

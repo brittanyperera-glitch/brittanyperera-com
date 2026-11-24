@@ -5,7 +5,7 @@ import { copy } from "@/content/copy";
 import type { WinId } from "@/lib/types";
 import { type Box, parentOf, placeWindow, topWindow } from "@/lib/windows";
 import { useDesktop } from "./Desktop";
-import { measureTitle } from "./titleMetrics";
+import { measureNatural, measureTitle } from "./titleMetrics";
 
 // Widths from the approved mockup. Where a window sits comes from placeWindow, not from here.
 const WIDTH: Record<string, number> = {
@@ -62,17 +62,7 @@ export function Window({
     if (!isOpen || phone || !el) return;
     const s = latest.current;
     const viewport = { w: window.innerWidth, h: window.innerHeight };
-    const natural = (section: HTMLElement) => {
-      const prev = section.style.getPropertyValue("--body-max");
-      section.style.setProperty("--body-max", "none");
-      const r = section.getBoundingClientRect();
-      const body = section.querySelector<HTMLElement>(".body");
-      const chrome = r.height - (body?.getBoundingClientRect().height ?? 0);
-      if (prev) section.style.setProperty("--body-max", prev);
-      else section.style.removeProperty("--body-max");
-      return { w: r.width, h: r.height, chrome };
-    };
-    const me = natural(el);
+    const me = measureNatural(el);
     let at = s.pos[id];
     if (!at) {
       const icons = [...document.querySelectorAll<HTMLElement>(".icons .icon")].map((i) =>
@@ -93,9 +83,9 @@ export function Window({
         if (!section) continue;
         const r = section.getBoundingClientRect();
         const known = s.pos[other];
-        const size = known ? { w: r.width, h: r.height } : natural(section);
+        const size = known ? { w: r.width, h: r.height } : measureNatural(section);
         const spot = known ?? placeWindow(other, viewport, size, boxes, iconsBox);
-        boxes.push({ x: spot.x, y: spot.y, w: size.w, h: size.h });
+        boxes.push({ x: spot.x, y: spot.y, w: size.w, h: size.h, id: other });
       }
       at = placeWindow(id, viewport, me, boxes, iconsBox);
     }

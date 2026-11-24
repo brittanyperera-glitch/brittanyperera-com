@@ -302,3 +302,42 @@ describe("placeWindow", () => {
     expect(at.x + 620).toBeLessThanOrEqual(700);
   });
 });
+
+describe("refit", () => {
+  const big = { w: 1920, h: 1080 };
+  const small = { w: 1280, h: 720 };
+  const size = { w: 640, h: 900, chrome: 40 };
+  const opened = windowsReducer(windowsReducer(initialWindows, { type: "open", id: "cv" }), {
+    type: "place",
+    id: "cv",
+    x: 1200,
+    y: 100,
+    ...size,
+    viewport: big,
+  });
+
+  it("after the viewport shrinks, an open window comes back whole and its body cap shrinks", () => {
+    expect(opened.cap?.cv).toBe(big.h - 8 - 100 - 40);
+    const s = windowsReducer(opened, { type: "refit", viewport: small, sizes: { cv: size } });
+    expect(s.pos.cv).toEqual({ x: small.w - 640, y: 30 });
+    expect(s.cap?.cv).toBe(small.h - 8 - 30 - 40);
+  });
+
+  it("leaves closed windows and windows with no measured size alone", () => {
+    const closed = windowsReducer(opened, { type: "close", id: "cv" });
+    expect(windowsReducer(closed, { type: "refit", viewport: small, sizes: { cv: size } })).toEqual(
+      closed,
+    );
+    expect(windowsReducer(opened, { type: "refit", viewport: small, sizes: {} })).toEqual(opened);
+  });
+});
+
+describe("placeWindow and the note", () => {
+  it("steers a later window off the note when there is room beside it", () => {
+    const v = { w: 1280, h: 720 };
+    const icons: Box = { x: v.w - 100, y: 30, w: 92, h: 546 };
+    const note: Box = { x: 932, y: 515, w: 240, h: 197, id: "note" };
+    const at = placeWindow("cv", v, { w: 640, h: 3000 }, [note], icons);
+    expect(at.x + 640).toBeLessThanOrEqual(note.x);
+  });
+});

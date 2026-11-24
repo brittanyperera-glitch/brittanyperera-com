@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { projects } from "../../src/content/projects";
-import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup } from "./helpers";
+import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup, win } from "./helpers";
 
 type Size = { width: number; height: number };
 
@@ -126,6 +126,9 @@ const LANDING_SIZES: Size[] = [
   { width: 1366, height: 768 },
   { width: 1440, height: 900 },
   { width: 1920, height: 1080 },
+  // Small laptop, and a portrait tablet (768 is above the 700px phone breakpoint, so desktop mode).
+  { width: 1024, height: 600 },
+  { width: 768, height: 1024 },
 ];
 const VISITORS = ["recruiter", "collab", "client", "friend"] as const;
 
@@ -170,4 +173,38 @@ for (const visitor of VISITORS) {
       expect(await landingProblems(page, size)).toEqual([]);
     });
   }
+}
+
+test("shrinking the viewport from 1920x1080 to 1280x720 keeps every open window whole on screen", async ({
+  page,
+}, info) => {
+  test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+  await blockSites(page);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await skipSetup(page, "friend");
+  await page.goto("/");
+  await settle(page, info);
+  for (const id of ["cvbuilder", "trash", "music"] as const) await openWin(page, id);
+  const small = { width: 1280, height: 720 };
+  await page.setViewportSize(small);
+  await expect
+    .poll(async () => (await landingProblems(page, small)).filter((p) => p.startsWith("window")))
+    .toEqual([]);
+});
+
+// The board is sized from the body cap, so it must fit without a scrollbar of its own.
+for (const size of LANDING_SIZES) {
+  test(`CV Builder at ${size.width}x${size.height}: the board fits its window body without scrolling`, async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+    await page.setViewportSize(size);
+    await skipSetup(page, "recruiter");
+    await page.goto("/");
+    await settle(page, info);
+    await openWin(page, "cvbuilder");
+    const body = win(page, "cvbuilder").locator(".body");
+    const [scroll, client] = await body.evaluate((el) => [el.scrollHeight, el.clientHeight]);
+    expect(scroll).toBeLessThanOrEqual(client + 1);
+  });
 }
