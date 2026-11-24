@@ -1,7 +1,8 @@
 /* The phone's status bar, home screen and lock screen. Hidden everywhere until the same
    (max-width: 700px) query phone.css and Desktop use, so the server HTML needs no script to show
    the right one. The no-JS stylesheet in layout.tsx hides these again so a script-less phone just
-   gets the CV. Light text sits on a dark wallpaper and dark text on white cards, for contrast. */
+   gets the CV. Colours are the --ph-* dark tokens from phone.css: white text on a dark wallpaper and on
+   dark glass cards. */
 .phone-status,
 .phone-home {
   display: none;
@@ -27,9 +28,9 @@
     padding: 0 8px;
     font-size: 14px;
     font-weight: 700;
-    color: #1a2230;
-    background: linear-gradient(#f4f6f9, #d4dae3);
-    border-bottom: 1px solid #8b96a6;
+    color: var(--ph-text);
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
   }
 
   .phone-home {
@@ -39,10 +40,10 @@
     flex-direction: column;
     overflow-y: auto;
     padding-top: 14px;
-    color: #fff;
+    color: var(--ph-text);
     background:
-      radial-gradient(110% 60% at 30% 0%, rgba(255, 255, 255, 0.12) 0, transparent 65%),
-      linear-gradient(#4a5a78, #3a4760 55%, #2f3a50);
+      radial-gradient(110% 60% at 30% 0%, rgba(255, 255, 255, 0.06) 0, transparent 65%),
+      linear-gradient(to bottom, var(--ph-wall-top), var(--ph-wall-mid) 55%, var(--ph-wall-bot));
   }
 
   .phone-grid {
@@ -70,7 +71,7 @@
   .phone-app:focus-visible,
   .pill:focus-visible,
   .knob:focus-visible {
-    outline: 3px solid #fff;
+    outline: 3px solid var(--ph-ring);
     outline-offset: 2px;
   }
 
@@ -123,9 +124,10 @@
     margin: 22px 14px 0;
     padding: 14px;
     border-radius: 14px;
-    color: #1a2230;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 4px 14px rgba(20, 30, 50, 0.3);
+    color: var(--ph-text);
+    background: var(--ph-glass);
+    border: 1px solid var(--ph-hair);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
   }
 
   .who-q {
@@ -143,10 +145,15 @@
   .pill {
     min-height: 48px;
     padding: 4px 8px;
-    border: 1px solid #7c8aa0;
+    border: 1px solid var(--ph-edge);
     border-radius: 10px;
-    background: linear-gradient(#fff, #e9edf2 50%, #dde3ea 51%, #f1f4f7);
-    color: #1a2230;
+    background: linear-gradient(
+      var(--ph-key-hi),
+      var(--ph-raised) 50%,
+      var(--ph-cell) 51%,
+      var(--ph-raised)
+    );
+    color: var(--ph-text);
     font: inherit;
     font-size: 15px;
     font-weight: 700;
@@ -155,8 +162,8 @@
   }
 
   .pill[aria-pressed="true"] {
-    border-color: #24477f;
-    background: linear-gradient(#4472b8, #2a5498 50%, #244b88 51%, #2f5ea4);
+    border-color: var(--ph-btn-edge);
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
     color: #fff;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
   }
@@ -164,7 +171,7 @@
   .who-hint {
     margin: 10px 0 0;
     font-size: 15px;
-    color: #46536a;
+    color: var(--ph-text2);
   }
 
   .phone-foot {
@@ -179,8 +186,8 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     padding: 10px 6px 8px;
-    background: linear-gradient(rgba(255, 255, 255, 0.18), rgba(20, 28, 45, 0.55));
-    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.6));
+    border-top: 1px solid var(--ph-hair);
   }
 
   /* The lock reuses .setup, which is a centred full-screen overlay for the laptop's assistant. */
@@ -189,17 +196,17 @@
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    color: #fff;
+    color: var(--ph-text);
     background:
-      radial-gradient(110% 60% at 30% 0%, rgba(255, 255, 255, 0.12) 0, transparent 65%),
-      linear-gradient(#4a5a78, #3a4760 55%, #2f3a50);
+      radial-gradient(110% 60% at 30% 0%, rgba(255, 255, 255, 0.06) 0, transparent 65%),
+      linear-gradient(to bottom, var(--ph-wall-top), var(--ph-wall-mid) 55%, var(--ph-wall-bot));
   }
 
   .lock-top {
     padding: 14px 0 16px;
     text-align: center;
-    background: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    background: linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+    border-bottom: 1px solid var(--ph-hair);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   }
 
@@ -229,11 +236,11 @@
   .bubble {
     max-width: 340px;
     padding: 14px 16px;
-    border: 1px solid #fff;
+    border: 1px solid var(--ph-hair);
     border-radius: 14px;
-    color: #1a2230;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 6px 20px rgba(20, 30, 50, 0.35);
+    color: var(--ph-text);
+    background: var(--ph-glass);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
   }
 
   .bubble p {
@@ -246,7 +253,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #2f5ea4;
+    color: var(--ph-link);
   }
 
   .bubble .msg {
@@ -264,8 +271,8 @@
 
   .lock-bottom {
     padding: 26px 20px 34px;
-    border-top: 1px solid rgba(255, 255, 255, 0.45);
-    background: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.14));
+    border-top: 1px solid var(--ph-hair);
+    background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.07));
   }
 
   .slider {
@@ -274,10 +281,10 @@
     align-items: center;
     height: 64px;
     border-radius: 14px;
-    background: linear-gradient(#2d3647, #465269);
+    background: linear-gradient(var(--ph-bg), var(--ph-cell));
     box-shadow:
-      inset 0 2px 5px rgba(0, 0, 0, 0.5),
-      0 1px 0 rgba(255, 255, 255, 0.45);
+      inset 0 2px 5px rgba(0, 0, 0, 0.7),
+      0 1px 0 rgba(255, 255, 255, 0.12);
   }
 
   .knob {
@@ -292,9 +299,9 @@
     height: 54px;
     border: 0;
     border-radius: 10px;
-    color: #2f5ea4;
-    background: linear-gradient(#fff, #dde3ea 50%, #c6ced9 51%, #e6ebf1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     touch-action: none;
     cursor: pointer;
   }
@@ -310,7 +317,12 @@
     text-align: center;
     font-size: 22px;
     color: transparent;
-    background-image: linear-gradient(90deg, #b8c2d2 40%, #fff 50%, #b8c2d2 60%);
+    background-image: linear-gradient(
+      90deg,
+      var(--ph-text2) 40%,
+      var(--ph-text) 50%,
+      var(--ph-text2) 60%
+    );
     background-size: 220% 100%;
     background-position: 120% 0;
     -webkit-background-clip: text;
