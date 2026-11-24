@@ -4,6 +4,7 @@ import { CvBuilderWindow } from "./CvBuilderWindow";
 import { GarageWindow } from "./GarageWindow";
 import { MusicWindow } from "./MusicWindow";
 import { PhotosWindow } from "./PhotosWindow";
+import { TruthsWindow } from "./TruthsWindow";
 import { YouTubeWindow } from "./YouTubeWindow";
 
 /** Window body for each of the apps; page.tsx spreads this into the desktop's windows map. */
@@ -13,4 +14,5 @@ export const appWindows: Partial<Record<WinId, ReactNode>> = {
   garage: <GarageWindow />,
   photos: <PhotosWindow />,
   youtube: <YouTubeWindow />,
+  truths: <TruthsWindow />,
 };

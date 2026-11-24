@@ -3,6 +3,7 @@ import { contact } from "./contact";
 import { cvBuilder } from "./cvbuilder";
 import { music } from "./music";
 import { photos } from "./photos";
+import { truths } from "./truths";
 import { youtube } from "./youtube";
 
 type MenuItem = { label: string; action?: string; open?: WinId };
@@ -134,6 +135,7 @@ export const copy = {
     { open: "youtube", label: youtube.ui.title, icon: "play" },
     { open: "contact", label: "Contact", icon: "mail" },
     { open: "trash", label: "Trash", icon: "trash" },
+    { open: "truths", label: truths.title, icon: "bubble" },
   ] as { open: WinId; label: string; icon: IconName }[],
   windowTitles: {
     cv: "CV.pdf",
@@ -145,6 +147,7 @@ export const copy = {
     garage: music.appName,
     photos: photos.title,
     youtube: youtube.ui.title,
+    truths: truths.title,
     note: "Start here",
   } as Record<Exclude<WinId, `project:${string}` | `browser:${string}`>, string>,
   chrome: {

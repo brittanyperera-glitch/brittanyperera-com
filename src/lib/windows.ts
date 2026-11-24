@@ -144,6 +144,7 @@ const ANCHORS: Partial<Record<WinId, Anchor>> = {
   garage: { fx: 0, fy: 1 },
   photos: { fx: 0, fy: 0 },
   youtube: { fx: 0.3, fy: 1 },
+  truths: { fx: 0.4, fy: 0.5 },
   "project:delulu": { fx: 0.15, fy: 0.05 },
   "project:trip": { fx: 0.1, fy: 0.05 },
   // Below the About window that opens them, so the button that was pressed stays visible.
