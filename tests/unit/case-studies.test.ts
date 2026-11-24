@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import buildInfo from "@/content/build-info.json";
 import { projects } from "@/content/projects";
 
 const PROBLEMS: Record<string, string> = {
@@ -30,5 +31,14 @@ describe("case studies", () => {
   });
   it("uses the approved Problem line for each project", () => {
     for (const p of projects) expect(p.problem, p.id).toBe(PROBLEMS[p.id]);
+  });
+  it("states the same test counts as the About box", () => {
+    const tens = (n: number) => Math.floor(n / 10) * 10;
+    const site = projects.find((p) => p.id === "site");
+    expect(site?.result).toMatch(
+      new RegExp(
+        `^${tens(buildInfo.unitTests)}\\+ unit and ${tens(buildInfo.e2eTests)}\\+ browser tests`,
+      ),
+    );
   });
 });
