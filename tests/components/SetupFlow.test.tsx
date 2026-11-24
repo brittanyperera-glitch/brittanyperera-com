@@ -116,6 +116,24 @@ describe("SetupFlow", () => {
     );
   });
 
+  it("Continue on the visitor step is disabled until a radio is picked", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    for (const r of screen.getAllByRole("radio"))
+      expect(r).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeDisabled();
+    click(/Friend/, "radio");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeEnabled();
+  });
+
+  it("focus moves to the first radio when the visitor step appears", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    expect(document.activeElement).toBe(screen.getAllByRole("radio")[0]);
+  });
+
   it("never shows a colour picker on any step", () => {
     renderFlow();
     throughBoot();
@@ -132,6 +150,7 @@ describe("SetupFlow", () => {
     expect(document.querySelector(".speech")).toBeNull();
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("be honest, who are you?");
+    click(/Friend/, "radio");
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("thats it, promise");
   });
@@ -154,25 +173,26 @@ describe("SetupFlow", () => {
     expect(openIds()).toEqual(landing("friend"));
   });
 
-  it("install lines hold 1s each, or 2s under reduced motion", () => {
-    const first = copy.setup.installLines[0];
+  it("install lines run 350ms apart and finish within 3s; reduced motion shows all at once, done within 1.2s", () => {
     const second = copy.setup.installLines[1];
     const { unmount } = renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
+    advance(400);
     expect(screen.getByText(second)).toBeInTheDocument();
+    advance(2600);
+    expect(setupDialog()).toBeNull();
     unmount();
+    window.localStorage.clear();
 
     mockMedia([REDUCED]);
     renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
-    expect(screen.getByText(first)).toBeInTheDocument();
-    expect(screen.queryByText(second)).toBeNull();
-    advance(1000);
-    expect(screen.getByText(second)).toBeInTheDocument();
+    advance(50);
+    for (const line of copy.setup.installLines) expect(screen.getByText(line)).toBeInTheDocument();
+    advance(1150);
+    expect(setupDialog()).toBeNull();
   });
 
   it("reduced motion shows all four greetings at once, each with its lang", () => {

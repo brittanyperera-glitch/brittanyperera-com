@@ -24,7 +24,9 @@ const SPLASH_TAIL_MS = 400;
 const REDUCED_BOOT_MS = 0;
 const REDUCED_SPLASH_MS = 200;
 const HELLO_MS = 1800;
+const INSTALL_LINE_MS = 350;
 const INSTALL_TAIL_MS = 700;
+const REDUCED_INSTALL_MS = 1000;
 
 const isVisitor = (v: unknown): v is Visitor => copy.setup.visitors.some((x) => x.id === v);
 
@@ -104,15 +106,22 @@ export function SetupFlow() {
 
   useEffect(() => {
     if (s.phase !== "installing") return;
-    const hold = reduced ? 2000 : 1000;
     const lines = copy.setup.installLines;
-    const ids = lines.map((_, i) => window.setTimeout(() => setInstallLine(i), i * hold));
-    ids.push(
-      window.setTimeout(
-        () => dispatch({ type: "installDone" }),
-        (lines.length - 1) * hold + INSTALL_TAIL_MS,
-      ),
-    );
+    const ids: number[] = [];
+    if (reduced) {
+      setInstallLine(lines.length - 1);
+      ids.push(window.setTimeout(() => dispatch({ type: "installDone" }), REDUCED_INSTALL_MS));
+    } else {
+      for (let i = 0; i < lines.length; i++) {
+        ids.push(window.setTimeout(() => setInstallLine(i), i * INSTALL_LINE_MS));
+      }
+      ids.push(
+        window.setTimeout(
+          () => dispatch({ type: "installDone" }),
+          (lines.length - 1) * INSTALL_LINE_MS + INSTALL_TAIL_MS,
+        ),
+      );
+    }
     return () => {
       for (const id of ids) window.clearTimeout(id);
     };
@@ -133,14 +142,16 @@ export function SetupFlow() {
   useEffect(() => {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
-    writeJSON(DONE_KEY, { visitor: s.visitor });
+    if (!s.visitor) throw new Error("visitor not picked");
+    const visitor = s.visitor;
+    writeJSON(DONE_KEY, { visitor });
     const phone = desk.mode === "phone";
     if (!resumed.current) focusPending.current = { phone };
     if (phone) {
-      open(phoneWindow(s.visitor));
+      open(phoneWindow(visitor));
       if (resumed.current) alert({ icon: "note", body: copy.alerts.phone });
     } else {
-      for (const id of copy.firstWindows[s.visitor]) open(id);
+      for (const id of copy.firstWindows[visitor]) open(id);
     }
   }, [s.phase, s.visitor, desk.mode, open, alert]);
 
@@ -150,6 +161,7 @@ export function SetupFlow() {
   useEffect(() => {
     const pending = focusPending.current;
     if (!pending || s.phase !== "done" || !front) return;
+    if (!s.visitor) throw new Error("visitor not picked");
     focusPending.current = null;
     const main = phoneWindow(s.visitor);
     document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
