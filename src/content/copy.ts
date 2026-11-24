@@ -71,8 +71,10 @@ export const copy = {
       ok: "Restart",
     },
     download: "downloading CV.pdf (me, minus the personality)",
-    copyEmail: "copied! go on then",
+    copyEmail: "copied my personal email! go on then",
     copyEmailFailed: `couldnt copy it, heres the address: ${contact.email}`,
+    copyWorkEmail: "copied my work email! go on then",
+    copyWorkEmailFailed: `couldnt copy it, heres the address: ${contact.workEmail}`,
     soundOn: "sound on. sorry in advance",
     leave: {
       text: "this opens in a new tab. come back after pls",
@@ -192,7 +194,10 @@ export const copy = {
   windows: {
     projectsInfo: "{n} items",
     openHint: "Double-click an icon (or select it and press Return) to open it.",
-    copyEmail: "Copy email",
+    copyEmail: "Copy personal email",
+    copyWorkEmail: "Copy work email",
+    workLabel: "work",
+    personalLabel: "personal",
     github: "GitHub",
     linkedin: "LinkedIn",
   },
