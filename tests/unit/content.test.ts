@@ -117,7 +117,7 @@ describe("content strings", () => {
     expect(paths).toContain("apps.photos.albums[0].title");
     expect(paths).toContain("apps.photos.ui.watchVideo");
     expect(paths).toContain("apps.projectUi.openSite");
-    expect(paths).toContain("projects[0].siteUrl");
+    expect(paths).toContain("projects[1].siteUrl");
   });
   it("lists photo albums with unique ids, none empty, and videos that exist", () => {
     const ids = photos.albums.map((a) => a.id);

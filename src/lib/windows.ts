@@ -136,7 +136,6 @@ const ANCHORS: Partial<Record<WinId, Anchor>> = {
   "project:delulu": { fx: 0.15, fy: 0.05 },
   "project:trip": { fx: 0.1, fy: 0.05 },
   // Below the About window that opens them, so the button that was pressed stays visible.
-  "browser:delulu": { fx: 0.15, fy: 0.3 },
   "browser:trip": { fx: 0.1, fy: 0.3 },
 };
 

@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { PixelIcon } from "@/components/PixelIcon";
-import { type Project, projectUi } from "@/content/projects";
+import { projectUi, type SiteProject } from "@/content/projects";
+import type { WinId } from "@/lib/types";
 import "@/styles/browser.css";
 
 // A late-90s browser around a project's live site. The window stays mounted while closed, so the
 // frame is only rendered while it is open: closing unloads the site.
-export function BrowserWindow({ project }: { project: Project }) {
+export function BrowserWindow({ project }: { project: SiteProject }) {
   const { state, actions } = useDesktop();
-  const isOpen = state.open.includes(`browser:${project.id}`);
+  const isOpen = state.open.includes(`browser:${project.id}` as WinId);
   // Cross-origin frames cannot be told to reload, so Reload remounts the frame instead.
   const [loads, setLoads] = useState(0);
   const [loading, setLoading] = useState(true);

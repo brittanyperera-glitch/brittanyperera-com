@@ -8,7 +8,7 @@ import { BrowserWindow } from "@/components/windows/BrowserWindow";
 import { ProjectsWindow } from "@/components/windows/ProjectsWindow";
 import { ProjectWindow } from "@/components/windows/ProjectWindow";
 import { copy } from "@/content/copy";
-import { projects, projectUi } from "@/content/projects";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 import type { WinId } from "@/lib/types";
 
 function Opener({ ids }: { ids: WinId[] }) {
@@ -22,10 +22,10 @@ function Opener({ ids }: { ids: WinId[] }) {
 const windows: Partial<Record<WinId, ReactNode>> = {
   projects: <ProjectsWindow />,
   ...Object.fromEntries(
-    projects.flatMap((p) => [
-      [`project:${p.id}`, <ProjectWindow key={p.id} project={p} />],
-      [`browser:${p.id}`, <BrowserWindow key={`b${p.id}`} project={p} />],
-    ]),
+    projects.flatMap((p) => [[`project:${p.id}`, <ProjectWindow key={p.id} project={p} />]]),
+  ),
+  ...Object.fromEntries(
+    siteProjects.map((p) => [`browser:${p.id}`, <BrowserWindow key={`b${p.id}`} project={p} />]),
   ),
 };
 
@@ -46,7 +46,8 @@ const win = (id: string): HTMLElement => {
 const frames = () => document.querySelectorAll("iframe");
 const trip = projects.find((p) => p.id === "trip");
 const delulu = projects.find((p) => p.id === "delulu");
-if (!trip || !delulu) throw new Error("projects must hold delulu and trip");
+const site = siteProjects.find((p) => p.id === "trip");
+if (!trip || !delulu || !site) throw new Error("projects must hold delulu and trip");
 const aboutTitle = (title: string) => projectUi.aboutTitle.replace("{title}", title);
 
 describe("project content", () => {
@@ -54,8 +55,10 @@ describe("project content", () => {
     expect(projects.map((p) => p.id).sort()).toEqual(["delulu", "trip"]);
     expect(delulu.title).toBe("100 Days of Delulu");
     expect(trip.title).toBe("Group Trip Hero");
-    expect(delulu.siteUrl).toBe("https://100-days-of-delulu.vercel.app");
-    expect(trip.siteUrl).toBe("https://grouptriphero.brittanyperera.com/#/guest");
+    expect(delulu.siteUrl).toBeUndefined();
+    expect(delulu.siteLabel).toBeUndefined();
+    expect(site.siteUrl).toBe("https://grouptriphero.brittanyperera.com/#/guest");
+    expect(siteProjects.map((p) => p.id)).toEqual(["trip"]);
     for (const p of projects) expect(typeof p.about).toBe("string");
   });
 });
@@ -136,7 +139,7 @@ describe("About window", () => {
       "_blank",
       "noopener",
     );
-    expect(win("browser:delulu")).toHaveAttribute("hidden");
+    expect(document.querySelector('section[data-win="browser:delulu"]')).toBeNull();
     expect(frames()).toHaveLength(0);
     open.mockRestore();
   });
@@ -148,7 +151,7 @@ describe("About window", () => {
     expect(win("browser:trip")).not.toHaveAttribute("hidden");
     expect(frames()).toHaveLength(1);
     const frame = frames()[0];
-    expect(frame).toHaveAttribute("src", trip.siteUrl);
+    expect(frame).toHaveAttribute("src", site.siteUrl);
     expect(frame).toHaveAttribute("title", trip.title);
     expect(frame).toHaveAttribute("loading", "lazy");
     expect(frame).toHaveAttribute(
@@ -160,24 +163,24 @@ describe("About window", () => {
 
 describe("Browser window", () => {
   it("carries a read-only location field with the URL, a throbber and no brand names", () => {
-    setup(["browser:delulu"]);
-    const w = win("browser:delulu");
-    expect(w).toHaveAttribute("aria-label", delulu.siteLabel);
+    setup(["browser:trip"]);
+    const w = win("browser:trip");
+    expect(w).toHaveAttribute("aria-label", site.siteLabel);
     const field = within(w).getByRole("textbox", { name: projectUi.address });
-    expect(field).toHaveValue(delulu.siteUrl);
+    expect(field).toHaveValue(site.siteUrl);
     expect(field).toHaveAttribute("readonly");
     expect(w.querySelector(".browser-throbber svg")).not.toBeNull();
     expect(w.textContent ?? "").not.toMatch(/netscape|explorer|navigator/i);
   });
 
   it("Reload remounts the frame on the same URL", async () => {
-    const user = setup(["browser:delulu"]);
+    const user = setup(["browser:trip"]);
     const before = frames()[0];
-    await user.click(within(win("browser:delulu")).getByRole("button", { name: projectUi.reload }));
+    await user.click(within(win("browser:trip")).getByRole("button", { name: projectUi.reload }));
     const after = frames()[0];
     expect(frames()).toHaveLength(1);
     expect(after).not.toBe(before);
-    expect(after).toHaveAttribute("src", delulu.siteUrl);
+    expect(after).toHaveAttribute("src", site.siteUrl);
   });
 
   it("open in a new tab goes through the leave alert", async () => {

@@ -2,6 +2,7 @@
 
 import { useDesktop } from "@/components/desktop/Desktop";
 import { type Project, projectUi } from "@/content/projects";
+import type { WinId } from "@/lib/types";
 
 // A SimpleText-style read-me; its one button opens the site in the browser window.
 export function ProjectWindow({ project }: { project: Project }) {
@@ -29,7 +30,9 @@ export function ProjectWindow({ project }: { project: Project }) {
         <button
           type="button"
           className="pbtn default"
-          onClick={() => (codeUrl ? actions.leave(codeUrl) : open(`browser:${project.id}`))}
+          onClick={() =>
+            codeUrl ? actions.leave(codeUrl) : open(`browser:${project.id}` as WinId)
+          }
         >
           {codeUrl ? projectUi.viewCode : projectUi.openSite}
         </button>

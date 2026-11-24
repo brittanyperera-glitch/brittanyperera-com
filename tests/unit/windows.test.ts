@@ -161,7 +161,6 @@ describe("helpers", () => {
 
   it("parentOf maps a browser window back to its About window", () => {
     expect(parentOf("browser:trip")).toBe("project:trip");
-    expect(parentOf("browser:delulu")).toBe("project:delulu");
   });
 
   it("phone mode: closing a browser window goes back to its About window, then to projects", () => {

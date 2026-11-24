@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { music } from "../../src/content/music";
-import { projects, projectUi } from "../../src/content/projects";
+import { projects, projectUi, siteProjects } from "../../src/content/projects";
 import type { Visitor, WinId } from "../../src/lib/types";
 
 export const SETUP_KEY = "bp:setup-done";
@@ -93,5 +93,6 @@ export const ALL_WINDOWS: WinId[] = [
   "garage",
   "photos",
   "youtube",
-  ...projects.flatMap((p) => [`project:${p.id}`, `browser:${p.id}`] as WinId[]),
+  ...projects.map((p) => `project:${p.id}` as WinId),
+  ...siteProjects.map((p) => `browser:${p.id}` as WinId),
 ];

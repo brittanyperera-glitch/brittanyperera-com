@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useAlert } from "@/components/alert/AlertProvider";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { projects, projectUi } from "@/content/projects";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 
 function setup(children?: React.ReactNode) {
   const utils = render(<Desktop windows={{}}>{children}</Desktop>);
@@ -153,9 +153,12 @@ describe("desktop shell", () => {
     for (const p of projects) {
       expect(win(aboutTitle(p.title))).toHaveAttribute("hidden");
       expect(win(aboutTitle(p.title))).toHaveAttribute("data-win", `project:${p.id}`);
+    }
+    for (const p of siteProjects) {
       expect(win(p.siteLabel)).toHaveAttribute("hidden");
       expect(win(p.siteLabel)).toHaveAttribute("data-win", `browser:${p.id}`);
     }
+    expect(document.querySelector('section[data-win="browser:delulu"]')).toBeNull();
   });
 
   it("gives every window a stable data-win hook", () => {

@@ -81,11 +81,11 @@ describe("Photos opening album", () => {
 });
 
 describe("Photos album list", () => {
-  it("shows one folder per album that has items, General first, in a Finder-style grid", async () => {
+  it("shows one folder per album that has items, in content order, in a Finder-style grid", async () => {
     const user = setup();
     await openPhotos(user);
     const folders = within(body()).getAllByRole("button");
-    expect(folders.map((b) => b.textContent)).toEqual(["General", "Vietnam", "Morocco"]);
+    expect(folders.map((b) => b.textContent)).toEqual(["Vietnam", "General", "Morocco"]);
     expect(body().querySelector(".folder-grid")).not.toBeNull();
     expect(within(body()).queryByRole("button", { name: "Empty album" })).toBeNull();
     expect(body().querySelector("img")).toBeNull();
