@@ -5,7 +5,6 @@ import { Desktop } from "@/components/desktop/Desktop";
 import { IconButton } from "@/components/desktop/IconButton";
 import { MAC_ICON_NAMES, MacIcon } from "@/components/icons/MacIcon";
 import { copy } from "@/content/copy";
-import { music } from "@/content/music";
 import { projects } from "@/content/projects";
 import type { IconName } from "@/lib/types";
 
@@ -14,7 +13,6 @@ const ALERT_ICONS: IconName[] = ["caution", "note", "bomb", "mac"];
 const FOLDER_ICONS: IconName[] = [
   ...copy.desktopIcons.map((i) => i.icon),
   ...projects.map((p) => p.icon),
-  ...music.instruments.map((i) => i.icon),
   "garage",
   "folder",
   "globe",

@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen, within } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useEffect } from "react";
 import { describe, expect, it } from "vitest";
@@ -9,6 +10,7 @@ import { TrashWindow } from "@/components/windows/TrashWindow";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
 import { trash } from "@/content/trash";
+import { windowBox } from "@/content/windowbox";
 import type { WinId } from "@/lib/types";
 
 function Opener({ ids }: { ids: WinId[] }) {
@@ -111,6 +113,81 @@ describe("CV", () => {
       "href",
       "/cv",
     );
+  });
+});
+
+describe("Title bar boxes", () => {
+  const box = (name: string) => within(win("cv")).getByRole("button", { name });
+  const at = () => {
+    const { left, top, width } = win("cv").style;
+    return { left, top, width };
+  };
+
+  it("labels the zoom and collapse boxes as buttons", () => {
+    setup(["cv"]);
+    expect(box(windowBox.zoom)).toBeInTheDocument();
+    expect(box(windowBox.collapse)).toBeInTheDocument();
+    expect(win("cv").querySelector("span.zoom, span.shade")).toBeNull();
+  });
+
+  it("zoom fills the screen below the menu bar, and a second click restores the box", async () => {
+    const user = setup(["cv"]);
+    const before = at();
+    await user.click(box(windowBox.zoom));
+    expect(win("cv")).toHaveClass("zoomed");
+    expect(at()).toEqual({ left: "0px", top: "24px", width: "100vw" });
+    expect(win("cv").style.height).toBe("calc(100vh - 24px)");
+    await user.click(box(windowBox.zoomBack));
+    expect(win("cv")).not.toHaveClass("zoomed");
+    expect(at()).toEqual(before);
+  });
+
+  it("collapse hides the body and keeps the title bar, and a second click shows it", async () => {
+    const user = setup(["cv"]);
+    const body = win("cv").querySelector(".body") as HTMLElement;
+    expect(body).toBeVisible();
+    await user.click(box(windowBox.collapse));
+    expect(body).not.toBeVisible();
+    expect(win("cv").querySelector(".titlebar")).toBeVisible();
+    await user.click(box(windowBox.expand));
+    expect(body).toBeVisible();
+  });
+
+  it("a zoomed window is not dragged by its title bar", () => {
+    setup(["cv"]);
+    fireEvent.click(box(windowBox.zoom));
+    const bar = win("cv").querySelector(".titlebar") as HTMLElement;
+    fireEvent.pointerDown(bar, { button: 0, clientX: 10, clientY: 10 });
+    fireEvent.pointerMove(bar, { clientX: 300, clientY: 300 });
+    expect(at().left).toBe("0px");
+    expect(at().top).toBe("24px");
+  });
+
+  it("the phone title bar has neither box", () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) =>
+      ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList) as typeof window.matchMedia;
+    try {
+      setup(["cv"]);
+      expect(within(win("cv")).queryByRole("button", { name: windowBox.zoom })).toBeNull();
+      expect(within(win("cv")).queryByRole("button", { name: windowBox.collapse })).toBeNull();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
+  it("draws no resize grip", () => {
+    const css = readFileSync("src/styles/platinum.css", "utf8");
+    expect(css).not.toMatch(/\.win::after/);
   });
 });
 

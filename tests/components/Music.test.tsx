@@ -3,16 +3,10 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GarageWindow } from "@/components/apps/GarageWindow";
-import { InstrumentWindow } from "@/components/apps/InstrumentWindow";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { music } from "@/content/music";
 
 const track = { src: "/music/fixture.mp3", title: "Fixture tune" };
-const instruments = [
-  { id: "guitar", name: "Fixture guitar", icon: "guitar", line: "a fixture line" },
-  { id: "piano", name: "Fixture piano", icon: "piano", line: "" },
-] as typeof music.instruments;
-
 const play = vi.fn(() => Promise.resolve());
 const pause = vi.fn();
 beforeEach(() => {
@@ -22,25 +16,6 @@ beforeEach(() => {
   HTMLMediaElement.prototype.pause = pause;
 });
 afterEach(() => vi.restoreAllMocks());
-
-describe("InstrumentWindow", () => {
-  it("shows the instrument name and its line", () => {
-    render(<InstrumentWindow id="guitar" instruments={instruments} />);
-    expect(screen.getByRole("heading", { level: 3, name: "Fixture guitar" })).toBeInTheDocument();
-    expect(screen.getByText("a fixture line")).toBeInTheDocument();
-  });
-
-  it("renders no line paragraph when the line is empty", () => {
-    const { container } = render(<InstrumentWindow id="piano" instruments={instruments} />);
-    expect(screen.getByRole("heading", { level: 3, name: "Fixture piano" })).toBeInTheDocument();
-    expect(container.querySelector("p")).toBeNull();
-  });
-
-  it("draws a 64px pixel icon", () => {
-    const { container } = render(<InstrumentWindow id="guitar" instruments={instruments} />);
-    expect(container.querySelector("svg")).toHaveAttribute("width", "64");
-  });
-});
 
 function Opener() {
   const { open } = useDesktop();

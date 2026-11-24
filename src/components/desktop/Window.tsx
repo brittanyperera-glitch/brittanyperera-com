@@ -2,8 +2,9 @@
 
 import { type CSSProperties, type ReactNode, useLayoutEffect, useRef } from "react";
 import { copy } from "@/content/copy";
+import { windowBox } from "@/content/windowbox";
 import type { WinId } from "@/lib/types";
-import { type Box, parentOf, placeWindow, topWindow } from "@/lib/windows";
+import { type Box, MENU_BAR, parentOf, placeWindow, topWindow } from "@/lib/windows";
 import { useDesktop } from "./Desktop";
 import { measureNatural, measureTitle } from "./titleMetrics";
 
@@ -16,9 +17,6 @@ const WIDTH: Record<string, number> = {
   trash: 390,
   cvbuilder: 560,
   music: 360,
-  "music:guitar": 340,
-  "music:piano": 340,
-  "music:ukulele": 340,
   garage: 380,
   photos: 370,
   youtube: 620,
@@ -48,6 +46,8 @@ export function Window({
   const width = WIDTH[id] ?? FALLBACK_WIDTH;
   const pos = state.pos[id];
   const cap = state.cap?.[id];
+  const zoomed = state.zoomed?.[id] !== undefined;
+  const shaded = state.shaded?.[id] === true;
   // The effect below reads the open order and stored positions without re-running on every change.
   const latest = useRef(state);
   latest.current = state;
@@ -59,7 +59,8 @@ export function Window({
   // windows all open in one commit, so the ones not yet placed are placed here too, in open order).
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!isOpen || phone || !el) return;
+    // Zoomed or rolled-up, a window has no natural size to measure; it is placed once it is neither.
+    if (!isOpen || phone || zoomed || shaded || !el) return;
     const s = latest.current;
     const viewport = { w: window.innerWidth, h: window.innerHeight };
     const me = measureNatural(el);
@@ -90,14 +91,14 @@ export function Window({
       at = placeWindow(id, viewport, me, boxes, iconsBox);
     }
     dispatch({ type: "place", id, x: at.x, y: at.y, ...me, viewport });
-  }, [isOpen, phone, id, dispatch]);
+  }, [isOpen, phone, zoomed, shaded, id, dispatch]);
 
   const raise = () => {
     if (!isFront) focus(id);
   };
 
   const onTitlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || phone || (e.target as HTMLElement).closest("button")) return;
+    if (e.button !== 0 || phone || zoomed || (e.target as HTMLElement).closest("button")) return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -119,6 +120,22 @@ export function Window({
     });
   };
 
+  const zoom = () => {
+    const el = ref.current;
+    if (!el) return;
+    // A rolled-up window has no body to measure; the box it goes back to is the unrolled one.
+    const body = el.querySelector<HTMLElement>(".body");
+    if (body) body.hidden = false;
+    const me = measureNatural(el);
+    if (body) body.hidden = shaded;
+    dispatch({
+      type: "zoom",
+      id,
+      ...me,
+      viewport: { w: window.innerWidth, h: window.innerHeight },
+    });
+  };
+
   const endDrag = () => {
     drag.current = null;
   };
@@ -126,7 +143,14 @@ export function Window({
   return (
     <section
       ref={ref}
-      className={isFront ? "win bevel front" : "win bevel"}
+      className={[
+        "win bevel",
+        isFront && "front",
+        !phone && zoomed && "zoomed",
+        !phone && shaded && "shaded",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={title}
       data-win={id}
       hidden={!isOpen}
@@ -136,7 +160,8 @@ export function Window({
           : ({
               left: pos?.x ?? 0,
               top: pos?.y ?? 0,
-              width,
+              width: zoomed ? "100vw" : width,
+              ...(zoomed && !shaded ? { height: `calc(100vh - ${MENU_BAR}px)` } : {}),
               zIndex: state.z[id],
               ...(cap === undefined ? {} : { "--body-max": `${cap}px` }),
             } as CSSProperties)
@@ -162,10 +187,26 @@ export function Window({
           </span>
         </button>
         <span className="t">{title}</span>
-        <span className="zoom" aria-hidden="true" />
-        <span className="shade" aria-hidden="true" />
+        {phone ? null : (
+          <>
+            <button
+              type="button"
+              className="zoom"
+              aria-label={zoomed ? windowBox.zoomBack : windowBox.zoom}
+              onClick={zoom}
+            />
+            <button
+              type="button"
+              className="shade"
+              aria-label={shaded ? windowBox.expand : windowBox.collapse}
+              onClick={() => dispatch({ type: "shade", id })}
+            />
+          </>
+        )}
       </div>
-      <div className="body well">{children}</div>
+      <div className="body well" hidden={shaded && !phone}>
+        {children}
+      </div>
     </section>
   );
 }

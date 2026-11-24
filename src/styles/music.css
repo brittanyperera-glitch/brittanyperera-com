@@ -1,67 +1,8 @@
-/* Music windows. The body's own padding and white well are dropped so the panels run edge to edge. */
-.win[data-win^="music:"] .body,
+/* Garage window. The body's own padding and white well are dropped so the panels run edge to edge. */
 .win[data-win="garage"] .body {
   padding: 0;
   overflow: auto;
   line-height: normal;
-}
-
-/* Get Info panel: the icon in a recessed tile, the name under a Platinum header band. */
-.win[data-win^="music:"] .body {
-  background: linear-gradient(#f2f2f2, #dcdcdc);
-}
-
-.instrument {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 4px 16px;
-  padding: 22px 20px 24px;
-}
-
-.instrument-tile {
-  grid-row: 1 / span 2;
-  display: grid;
-  place-items: center;
-  width: 88px;
-  height: 88px;
-  background: radial-gradient(circle at 40% 30%, #fff, #ececf4 70%, #d2d2de);
-  border: 1px solid #555;
-  box-shadow:
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 #9a9a9a,
-    1px 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.instrument-tile svg {
-  filter: drop-shadow(1px 2px 1.2px rgba(0, 0, 0, 0.4));
-}
-
-.instrument h3,
-.instrument p {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.instrument h3 {
-  align-self: end;
-  font-size: 15px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #9a9a9a;
-  box-shadow: 0 1px 0 #fff;
-}
-
-.instrument p {
-  align-self: start;
-  padding-top: 4px;
-  color: #444;
-}
-
-/* A line-less instrument is just icon and name, so the name centres on the tile. */
-.instrument h3:last-child {
-  grid-row: 1 / span 2;
-  align-self: center;
 }
 
 /* ---------- Garage Brittany ---------- */

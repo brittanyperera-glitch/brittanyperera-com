@@ -5,7 +5,6 @@ import { photos } from "../src/content/photos";
 import { projects } from "../src/content/projects";
 import { youtube } from "../src/content/youtube";
 
-// Instrument lines are optional (Brittany, 2026-10-19: "no lines needed for instruments").
 const missing: string[] = [
   ...(music.track ? [] : ["music: no audio track for Garage Brittany"]),
   ...(photos.albums.some((a) => a.items.length > 0) ? [] : ["photos: no album with photos"]),

@@ -10,16 +10,6 @@ export function MusicWindow() {
   const [selected, setSelected] = useState<string | null>(null);
   return (
     <div className="folder-grid">
-      {music.instruments.map((i) => (
-        <IconButton
-          key={i.id}
-          icon={i.icon}
-          label={i.name}
-          selected={selected === i.id}
-          onSelect={() => setSelected(i.id)}
-          onOpen={() => open(`music:${i.id}`)}
-        />
-      ))}
       <IconButton
         icon="garage"
         label={music.appName}

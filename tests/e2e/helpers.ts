@@ -54,12 +54,9 @@ export async function openWin(page: Page, id: WinId) {
     if (!title) throw new Error(`unknown project window ${id}`);
     if (!(await win(page, "projects").isVisible())) await openWin(page, "projects");
     await win(page, "projects").locator("button.icon", { hasText: title }).focus();
-  } else if (id === "garage" || id.startsWith("music:")) {
-    const name =
-      id === "garage" ? music.appName : music.instruments.find((i) => `music:${i.id}` === id)?.name;
-    if (!name) throw new Error(`unknown music window ${id}`);
+  } else if (id === "garage") {
     if (!(await win(page, "music").isVisible())) await openWin(page, "music");
-    await win(page, "music").locator("button.icon", { hasText: name }).focus();
+    await win(page, "music").locator("button.icon", { hasText: music.appName }).focus();
   } else {
     await page.locator(`.icons [data-open="${id}"]`).focus();
   }
@@ -93,9 +90,6 @@ export const ALL_WINDOWS: WinId[] = [
   "trash",
   "cvbuilder",
   "music",
-  "music:guitar",
-  "music:piano",
-  "music:ukulele",
   "garage",
   "photos",
   "youtube",
