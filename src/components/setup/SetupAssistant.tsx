@@ -14,7 +14,7 @@ const countText = (n: number, total: number) =>
 
 type Props = {
   step: SetupState["step"];
-  visitor: Visitor;
+  visitor: Visitor | null;
   /** Index into copy.setup.hello for the cycling greeting. */
   helloIndex: number;
   /** Reduced motion: show every greeting at once instead of cycling. */
@@ -48,7 +48,7 @@ export function SetupAssistant({
   const alertOpen = useAlertOpen();
   useFocusTrap(rootRef, !alertOpen);
   const last = step === s.steps.length - 1;
-  const visitorLabel = s.visitors.find((v) => v.id === visitor)?.label ?? visitor;
+  const visitorLabel = s.visitors.find((v) => v.id === visitor)?.label ?? "";
   const hello = s.hello[helloIndex % s.hello.length];
   const pct = installing ? Math.round(((installLine + 1) / s.installLines.length) * 100) : 0;
 
@@ -149,7 +149,7 @@ export function SetupAssistant({
             type="button"
             ref={nextRef}
             className="pbtn default"
-            disabled={installing}
+            disabled={installing || (step === 1 && !visitor)}
             onClick={last ? onGoAhead : onNext}
           >
             {last ? s.goAhead : s.next}

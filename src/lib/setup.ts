@@ -6,7 +6,7 @@ export type SetupPhase = "boot" | "splash" | "steps" | "installing" | "done";
 export type SetupState = {
   phase: SetupPhase;
   step: 0 | 1 | 2;
-  visitor: Visitor;
+  visitor: Visitor | null;
 };
 
 export type SetupAction =
@@ -20,7 +20,7 @@ export type SetupAction =
   | { type: "resume"; visitor: Visitor };
 
 export function initialSetup(): SetupState {
-  return { phase: "boot", step: 0, visitor: "friend" };
+  return { phase: "boot", step: 0, visitor: null };
 }
 
 export function setupReducer(s: SetupState, a: SetupAction): SetupState {
@@ -30,7 +30,7 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
       if (s.phase === "splash") return { ...s, phase: "steps" };
       return s;
     case "next":
-      return s.phase === "steps" && s.step < 2
+      return s.phase === "steps" && s.step < 2 && !(s.step === 1 && !s.visitor)
         ? { ...s, step: (s.step + 1) as SetupState["step"] }
         : s;
     case "back":
@@ -40,7 +40,7 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
     case "pickVisitor":
       return { ...s, visitor: a.visitor };
     case "goAhead":
-      return s.phase === "steps" && s.step === 2 ? { ...s, phase: "installing" } : s;
+      return s.phase === "steps" && s.step === 2 && s.visitor ? { ...s, phase: "installing" } : s;
     case "installDone":
       return s.phase === "installing" ? { ...s, phase: "done" } : s;
     case "skip":

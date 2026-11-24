@@ -116,6 +116,16 @@ describe("SetupFlow", () => {
     );
   });
 
+  it("Continue on the visitor step is disabled until a radio is picked", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    for (const r of screen.getAllByRole("radio")) expect(r).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeDisabled();
+    click(/Friend/, "radio");
+    expect(screen.getByRole("button", { name: /Continue/ })).toBeEnabled();
+  });
+
   it("never shows a colour picker on any step", () => {
     renderFlow();
     throughBoot();
@@ -132,6 +142,7 @@ describe("SetupFlow", () => {
     expect(document.querySelector(".speech")).toBeNull();
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("be honest, who are you?");
+    click(/Friend/, "radio");
     click(/Continue/);
     expect(document.querySelector(".speech")).toHaveTextContent("thats it, promise");
   });

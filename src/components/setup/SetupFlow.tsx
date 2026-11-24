@@ -133,14 +133,15 @@ export function SetupFlow() {
   useEffect(() => {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
-    writeJSON(DONE_KEY, { visitor: s.visitor });
+    const visitor = s.visitor ?? "recruiter";
+    writeJSON(DONE_KEY, { visitor });
     const phone = desk.mode === "phone";
     if (!resumed.current) focusPending.current = { phone };
     if (phone) {
-      open(phoneWindow(s.visitor));
+      open(phoneWindow(visitor));
       if (resumed.current) alert({ icon: "note", body: copy.alerts.phone });
     } else {
-      for (const id of copy.firstWindows[s.visitor]) open(id);
+      for (const id of copy.firstWindows[visitor]) open(id);
     }
   }, [s.phase, s.visitor, desk.mode, open, alert]);
 
@@ -151,7 +152,7 @@ export function SetupFlow() {
     const pending = focusPending.current;
     if (!pending || s.phase !== "done" || !front) return;
     focusPending.current = null;
-    const main = phoneWindow(s.visitor);
+    const main = phoneWindow(s.visitor ?? "recruiter");
     document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
     if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
   }, [s.phase, s.visitor, front, alert]);
