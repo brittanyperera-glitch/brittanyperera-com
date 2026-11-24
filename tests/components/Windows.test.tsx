@@ -97,8 +97,11 @@ describe("CV", () => {
       for (const b of e.bullets ?? []) expect(text, b).toContain(b);
       if (e.summary) expect(text, e.summary).toContain(e.summary);
     }
-    for (const s of cv.skills) expect(text, s).toContain(s);
-    for (const l of cv.languages) expect(text, l).toContain(l);
+    for (const [label, items] of cv.skills) {
+      expect(text, label).toContain(label);
+      expect(text, items).toContain(items);
+    }
+    expect(text, cv.languages).toContain(cv.languages);
     for (const h of Object.values(cv.sections)) expect(text, h).toContain(h);
   });
 

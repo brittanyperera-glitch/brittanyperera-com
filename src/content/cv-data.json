@@ -1,0 +1,181 @@
+{
+  "name": "Brittany Kawshalya Perera",
+  "title": "AI Software Engineer, Geospatial AI",
+  "profile": "AI software engineer with an MEng in Engineering Science from Oxford. At PangeAI I'm part of the team building an agentic AI platform that answers questions about any place on Earth from satellite imagery, terrain and climate data. I speak to clients around the world, design imagery classifiers that extract features from satellite images, and contribute to the platform itself, whose only limits are what people want to know about the Earth and what the data can tell them. Before that I built machine-learning models for an airline's engine fleet and designed an optimised radiator for a Formula One car.",
+  "contact": [
+    {
+      "text": "brittanykawshalya@gmail.com",
+      "href": "mailto:brittanykawshalya@gmail.com"
+    },
+    {
+      "text": "brittanyperera.com",
+      "href": "https://brittanyperera.com"
+    },
+    {
+      "text": "linkedin.com/in/brittany-perera-a6bb32219",
+      "href": "https://linkedin.com/in/brittany-perera-a6bb32219"
+    },
+    {
+      "text": "github.com/brittanyperera-glitch",
+      "href": "https://github.com/brittanyperera-glitch"
+    }
+  ],
+  "experience": [
+    {
+      "role": "AI Software Engineer",
+      "org": "PangeAI",
+      "place": "Prague, Czechia",
+      "dates": "May 2026 to now",
+      "bullets": [
+        "Work with clients worldwide, acting as their forward-deployed engineer when needed, across insurance, energy, utilities, housing and infrastructure in Europe, the US, Japan, the Middle East and Central America. I take what each client needs and build it into the platform as general, robust capability that works in any region, so every client after them gets it too. Technical contact for a resort and data-centre developer.",
+        "Build core parts of PangeAI's agentic geospatial platform: the analysis tools the AI agent calls for flood, hydrology, terrain, climate and infrastructure (flow paths, ponding, cut-and-fill, live river gauges), 20+ global and regional datasets in its catalogue, government flood maps served through our FastAPI tile server, and risk report export in the React map interface.",
+        "Run applied computer-vision research on satellite, aerial and radar imagery (building damage, solar panels, building height, change detection) as pre-registered experiments on held-out data. My wildfire damage model on NVIDIA's C-RADIO encoder scored F1 0.987 on 853 unseen homes, ahead of GPT-5.5 vision at 0.955; a radar damage screen reached AUC 0.795 on the Morocco earthquake.",
+        "Assess NVIDIA's AI stack (NIM, NeMo, Earth-2, C-RADIO) against our product, benchmark ideas and drop the weak ones with numbers, and brief leadership on where PangeAI fits.",
+        "Turn research findings into use cases, delivery plans and commercial opportunities: proposals, client briefings and the call on which ideas get built and which get dropped.",
+        "Drove the final sprint of our US Department of Defense (SERDP) wildfire fuels prize entry: 1 m 3D fuel maps built from public data, validated across 16 sites, with a 3D viewer and 1,129 automated tests.",
+        "Built Ground Truth, PangeAI's daily satellite-image guessing game, from prototype to a production-ready app: server-side scoring and anti-cheat, worldwide leaderboards and groups, a party mode for live events, and 216 locations with no repeats for a year."
+      ]
+    },
+    {
+      "role": "Powerplant Engineer & Software Developer",
+      "org": "VietJet Air",
+      "place": "Ho Chi Minh City, Vietnam",
+      "dates": "Feb 2024 to May 2026",
+      "bullets": [
+        "Built an AI-driven engine health dashboard for the airline's engine fleet, combining live data, analytics and predictive models for engineering and management.",
+        "Applied machine learning that adapts to live engine data across the fleet, monitoring changes in engine degradation and predicting each engine's future status from its exhaust gas temperature (EGT) margin.",
+        "Predictive maintenance for aircraft engines: modelled how much margin each wash recovers and turned it into adaptive wash schedules for ground engineers, saving fuel and cost.",
+        "Shipped the tools as cloud apps and APIs with CI/CD and automated tests, and validated the models with time-based splits, scenario tests and SHAP."
+      ]
+    },
+    {
+      "role": "Private Tutor",
+      "org": "Oakley Tutors",
+      "place": "",
+      "dates": "Dec 2023 to May 2026",
+      "bullets": ["Taught A-level physics and maths, part-time and remotely."]
+    },
+    {
+      "role": "Undergraduate Researcher",
+      "org": "Mercedes-AMG Petronas F1",
+      "place": "Brackley & Oxford, UK",
+      "dates": "Oct 2023 to Jun 2024",
+      "bullets": [
+        "Designed an optimised radiator for the Formula One car, combining CFD with algorithmic design optimisation.",
+        "Built parametric MATLAB and Python simulations of coolant flow, heat rejection, pressure drop and aerodynamic interaction.",
+        "Compared geometries and flow paths to cut mass and drag without losing cooling."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "label": "Personal",
+      "items": [
+        {
+          "name": "AI-optimised group trip planner",
+          "text": "Full-stack app for deciding a trip as a group (destinations, itinerary, voting, admin), with a game-like interface, backend, database and end-to-end tests."
+        },
+        {
+          "name": "Competitive goal tracker",
+          "text": "Full-stack app where players set goals, log progress and compete over a fixed run of days. Next.js, Postgres with Drizzle, deployed on Vercel, 269 automated tests."
+        },
+        {
+          "name": "AI engineering workflow",
+          "text": "My own multi-agent setup for running research and engineering workstreams in parallel, with review gates, handovers and a searchable knowledge base."
+        }
+      ]
+    },
+    {
+      "label": "University, 2020–2024",
+      "items": [
+        {
+          "name": "Free flight analysis",
+          "text": "MATLAB modelling of aerofoil behaviour in incompressible flow."
+        },
+        {
+          "name": "Physiological control systems",
+          "text": "Designed an implantable NHS device to mitigate stress urinary incontinence."
+        },
+        {
+          "name": "Walking robot",
+          "text": "Designed and built a battery-powered robot that navigates terrain, using SolidWorks and 3D printing."
+        },
+        {
+          "name": "Fabrication",
+          "text": "Built a stainless-steel toolbox using industrial machining and welding."
+        }
+      ]
+    }
+  ],
+  "skills": [
+    [
+      "Machine learning",
+      "Computer vision, PyTorch, scikit-learn, image encoders, training, held-out evaluation, SHAP"
+    ],
+    [
+      "Geospatial",
+      "Satellite and aerial imagery, optical and radar data, Google Earth Engine, rasterio, GDAL, GeoPandas, Shapely, H3, STAC, COG, terrain and hydrology"
+    ],
+    [
+      "AI agents & backend",
+      "Python, FastAPI, LangGraph, LangChain, LangSmith, Pydantic, tool-calling agents, evals and tracing, PostgreSQL, Redis, DuckDB"
+    ],
+    [
+      "Agentic coding",
+      "Claude Code; parallel coding and research agents with review gates and handovers"
+    ],
+    ["Frontend", "TypeScript, React, Mapbox GL, three.js, Tailwind"],
+    [
+      "Cloud & quality",
+      "Google Cloud, Cloud Run, Docker, Cloudflare, GitHub Actions, pytest, Playwright, Vitest, Sentry"
+    ],
+    ["Languages", "English (native), Sinhala (fluent), French and German (intermediate)"]
+  ],
+  "education": [
+    {
+      "role": "MEng Engineering Science",
+      "org": "University of Oxford, St Edmund Hall",
+      "dates": "2020 to 2024",
+      "lines": [
+        "Modules: thermodynamics, control systems, chemical processes, biomechanics, imaging."
+      ]
+    },
+    {
+      "role": "A-levels",
+      "org": "Torquay Girls' Grammar School",
+      "dates": "2020",
+      "lines": [
+        "Mathematics (A), Physics (A), Chemistry (A), Extended Project (A), AS Further Mathematics (A). GCSEs: all 9s and an A* across 10 subjects."
+      ]
+    }
+  ],
+  "leadership": [
+    {
+      "role": "College President, St Edmund Hall",
+      "dates": "2021 to 2022",
+      "text": "Represented 700+ students and led a 16-person committee on rent, bursaries and policy."
+    },
+    {
+      "role": "May Ball President",
+      "dates": "2022",
+      "text": "Ran a 950-guest ball on a six-figure budget, including sponsorship and contractors."
+    },
+    {
+      "role": "Fundraising Campaigner, St Edmund Hall",
+      "dates": "2022",
+      "text": "Raised £20,000+ from industry contacts and donors."
+    },
+    {
+      "role": "Summer Camp Counsellor, USA",
+      "dates": "Jun to Aug 2022",
+      "text": "Children aged 6 to 17: sports, woodwork, camping and paddle-boarding expeditions."
+    },
+    {
+      "role": "Other",
+      "dates": "",
+      "text": "Officer Cadet, Oxford University Air Squadron. Captain, University Development Squad football. College hockey goalkeeper. Duke of Edinburgh Bronze and Silver. Built a playground at a children's hospital in Kurunegala, Sri Lanka (2018)."
+    }
+  ],
+  "languages": "English (native), Sinhala (fluent), French and German (intermediate)",
+  "awards": "Duke of Edinburgh Bronze and Silver"
+}
