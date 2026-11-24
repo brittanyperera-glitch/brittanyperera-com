@@ -51,7 +51,7 @@ if (!trip || !delulu || !site) throw new Error("projects must hold delulu and tr
 const aboutTitle = (title: string) => projectUi.aboutTitle.replace("{title}", title);
 
 describe("project content", () => {
-  it("holds only 100 Days of Delulu and Group Trip Hero, with their live sites", () => {
+  it("holds the six case studies, with Group Trip Hero the only live site", () => {
     expect(projects.map((p) => p.id).sort()).toEqual([
       "agents",
       "delulu",
@@ -132,6 +132,16 @@ describe("About window", () => {
     setup(["project:trip"]);
     const btn = within(win("project:trip")).getByRole("button", { name: projectUi.openSite });
     expect(btn).toHaveClass("default");
+  });
+
+  it("a project with no live site and no code button shows no action button", () => {
+    setup(["project:engine"]);
+    expect(
+      within(win("project:engine")).queryByRole("button", { name: projectUi.openSite }),
+    ).toBeNull();
+    expect(
+      within(win("project:engine")).queryByRole("button", { name: projectUi.viewCode }),
+    ).toBeNull();
   });
 
   it("Delulu offers view the code, not the live site, and no link to the live site", () => {
