@@ -77,7 +77,7 @@
         },
         {
           "name": "Competitive goal tracker",
-          "text": "Full-stack app where players set goals, log progress and compete over a fixed run of days. Next.js, Postgres with Drizzle, deployed on Vercel, 269 automated tests."
+          "text": "Full-stack app where players set goals, log progress and compete over a fixed run of days. Next.js, Postgres with Drizzle, on Vercel, 300+ automated tests."
         },
         {
           "name": "AI engineering workflow",
