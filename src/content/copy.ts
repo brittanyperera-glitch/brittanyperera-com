@@ -26,7 +26,7 @@ export const copy = {
     steps: [
       {
         title: "Introduction",
-        sub: "this assistant sets up my Mac for you. takes about 20 seconds, or skip it (no hard feelings).",
+        sub: "it seems youve got into my computer. all the stuff is clickable, it is my computer of course. nosiness is welcome.",
       },
       { title: "About You", sub: "who's visiting? ill open the right stuff first." },
       { title: "Conclusion", sub: "all set. click Go Ahead and ill set up the Mac with:" },
