@@ -1,7 +1,7 @@
 import { copy } from "@/content/copy";
 import type { Visitor, WinId } from "./types";
 
-export type SetupPhase = "boot" | "splash" | "steps" | "installing" | "done";
+export type SetupPhase = "boot" | "splash" | "steps" | "installing" | "lock" | "done";
 
 export type SetupState = {
   phase: SetupPhase;
@@ -18,10 +18,18 @@ export type SetupAction =
   | { type: "installDone" }
   | { type: "skip" }
   | { type: "resume"; visitor: Visitor }
-  | { type: "replay" };
+  | { type: "replay" }
+  | { type: "lock" }
+  | { type: "unlock" };
 
 /** Fired on window by the crash alert's Restart; the setup flow replays the boot, same visitor. */
 export const REPLAY_EVENT = "bp:replay-boot";
+
+/** localStorage key holding `{ visitor }` once the visitor is known. */
+export const DONE_KEY = "bp:setup-done";
+
+/** The width under which the site is a phone: the one query Desktop and SetupFlow agree on. */
+export const PHONE_QUERY = "(max-width: 700px)";
 
 export function initialSetup(): SetupState {
   return { phase: "boot", step: 0, visitor: null };
@@ -51,6 +59,11 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
       return s.phase === "done" ? s : { ...s, phase: "done", visitor: s.visitor ?? "recruiter" };
     case "replay":
       return s.visitor ? { phase: "boot", step: 0, visitor: s.visitor } : s;
+    // A phone skips the boot and the assistant: a new visitor gets the lock, which opens onto home.
+    case "lock":
+      return s.phase === "boot" ? { ...s, phase: "lock" } : s;
+    case "unlock":
+      return s.phase === "lock" ? { ...s, phase: "done" } : s;
     case "resume":
       return { ...s, phase: "done", visitor: a.visitor };
   }
@@ -62,7 +75,7 @@ export function visitorFromQuery(search: string): Visitor | null {
   return copy.setup.visitors.find((x) => x.id === v)?.id ?? null;
 }
 
-/** The one window a phone shows: the last of the visitor's first windows, skipping the note. */
+/** The visitor's main window: the last of their first windows, skipping the note. */
 export function phoneWindow(visitor: Visitor): WinId {
   const wins = copy.firstWindows[visitor].filter((id) => id !== "note");
   return wins[wins.length - 1];

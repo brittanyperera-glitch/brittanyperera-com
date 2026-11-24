@@ -156,11 +156,41 @@ export const copy = {
       special: "Special",
     },
     close: "Close",
+    home: "Home",
     back: "‹ Back",
     closeLabel: "Close",
     ok: "OK",
     soundOn: "Sound: on",
     soundOff: "Sound: off",
+  },
+  // Phone view (under 700px): a lock screen for a new visitor, then a home screen.
+  phone: {
+    statusName: "brittany",
+    lock: {
+      label: "Lock screen",
+      from: "brittany",
+      message:
+        "it seems youve got into my phone. all the stuff is clickable, it is my phone of course. nosiness is welcome.",
+      slide: "slide to come in",
+    },
+    who: {
+      question: "who's visiting? ill put your stuff in the dock.",
+      skip: "or skip it, everything's here anyway",
+      picked: "{hint}, theyre in the dock",
+    },
+    dockLabel: "Dock",
+    footer: "the full mac version is on a laptop",
+    // Her decision 24 Nov: CV Builder is leaving the site, so it is not on the phone.
+    apps: ["cv", "projects", "music", "photos", "youtube", "contact", "trash"] as WinId[],
+    // The four apps in the dock, left to right; the other apps sit in the grid above. "none" is
+    // the dock before anyone has said who they are.
+    docks: {
+      none: ["cv", "projects", "music", "contact"],
+      recruiter: ["cv", "projects", "contact", "photos"],
+      collab: ["projects", "cv", "contact", "photos"],
+      client: ["contact", "projects", "cv", "photos"],
+      friend: ["youtube", "music", "photos", "cv"],
+    } as Record<Visitor | "none", WinId[]>,
   },
   windows: {
     projectsInfo: "{n} items",
