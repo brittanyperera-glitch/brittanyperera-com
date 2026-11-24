@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CvDocument } from "@/components/cv/CvDocument";
@@ -34,5 +36,25 @@ describe("CvDocument", () => {
     render(<CvDocument headingLevel={3} />);
     expect(screen.queryByRole("link", { name: cv.backLabel })).toBeNull();
     expect(screen.queryByRole("link", { name: cv.downloadLabel })).toBeNull();
+  });
+});
+
+describe("CvDocument header spacing", () => {
+  const css = (f: string) => readFileSync(join(process.cwd(), "src/styles", f), "utf8");
+  const rule = (sheet: string, selector: string) =>
+    sheet.match(new RegExp(`${selector.replace(/[.\\[\]"]/g, "\\$&")}\\s*{([^}]*)}`))?.[1] ?? "";
+
+  it("renders each header link as its own element", () => {
+    const { container } = render(<CvDocument headingLevel={3} />);
+    expect(container.querySelectorAll(".cv-links > a").length).toBeGreaterThanOrEqual(3);
+  });
+
+  it.each([
+    ["the /cv page", "cv-print.css", ".cv-links"],
+    ["the CV window", "windows.css", ".win .cv-doc .cv-links"],
+  ])("%s spaces the header links with a flex gap", (_n, file, selector) => {
+    const body = rule(css(file), selector);
+    expect(body).toMatch(/display:\s*flex/);
+    expect(body).toMatch(/gap:\s*[1-9]/);
   });
 });
