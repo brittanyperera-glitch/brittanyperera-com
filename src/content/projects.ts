@@ -27,6 +27,27 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    id: "trip",
+    title: "Group Trip Hero",
+    icon: "palm",
+    // Brittany's words, 2026-10-19.
+    about:
+      "i didnt want the group chat drama. i made an app to optimize the trip for us- we vote, the ai makes sure we're all happy",
+    siteUrl: "https://grouptriphero.brittanyperera.com/#/guest",
+    siteLabel: "Group Trip Hero, live site",
+    problem: "Five friends, one trip to Sri Lanka, no adventures gone un-adventured.",
+    built:
+      "A voting game for the trip. Everyone swipes each activity into Must, Keen, Meh or Skip, the close calls go to head-to-head votes, and the plan comes out with travel legs, booking deadlines, Poya days and the weather. Every swipe is logged, so the plan can show why it picked what it picked.",
+    hardest:
+      "Making everyone happy. Head-to-head votes have to be fair, and someone still has to be assigned to book the accommodation.",
+    result: "Live for the group, with 2,000+ unit tests and 200+ browser tests.",
+    stack: ["React", "Vite", "Supabase", "Vitest", "Playwright", "Vercel"],
+    links: {
+      live: "https://grouptriphero.brittanyperera.com/#/guest",
+      repo: "https://github.com/brittanyperera-glitch/grouptripplanner",
+    },
+  },
+  {
     id: "delulu",
     title: "100 Days of Delulu",
     icon: "heart",
@@ -41,16 +62,68 @@ export const projects: Project[] = [
       poster: "/video/delulu-promo-poster.jpg",
       label: "100 Days of Delulu promo video",
     },
+    problem: "The platform to get you to be the person you want to be.",
+    built:
+      "A private site for two: a 100-day countdown, a shared scrapbook wall and a ring of little games around it (time bombs on a classified terminal, prophecies on a scroll, dares, bets, a jar). One shared code locks every page. Then I turned it into a template anyone can host.",
+    result:
+      "Live since 7 Sep, with 300+ automated tests. Every test run checks the database migrations against an in-memory Postgres.",
+    stack: [
+      "Next.js",
+      "React",
+      "Postgres with Drizzle",
+      "Tailwind",
+      "Vercel Blob",
+      "Vitest",
+      "Playwright",
+    ],
+    links: { repo: "https://github.com/brittanyperera-glitch/delulu-template" },
   },
   {
-    id: "trip",
-    title: "Group Trip Hero",
-    icon: "palm",
-    // Brittany's words, 2026-10-19.
-    about:
-      "i didnt want the group chat drama. i made an app to optimize the trip for us- we vote, the ai makes sure we're all happy",
-    siteUrl: "https://grouptriphero.brittanyperera.com/#/guest",
-    siteLabel: "Group Trip Hero, live site",
+    id: "site",
+    title: "This site",
+    icon: "mac",
+    about: "",
+    problem: "A website with all the stuff I want in it. Professional, but not boring and flat.",
+    built:
+      "A late-90s Mac you can poke around in. It asks who you are and opens what suits you, the windows drag, there's a Two Truths and a Lie game, and on a phone it turns into an old-school phone in dark mode. All the words live in one content folder, away from the code.",
+    hardest: "Making it fun while it still reads as professional.",
+    result:
+      "550+ automated tests, including one that fails if the CV on the site and the PDF stop matching.",
+    stack: ["Next.js", "React", "TypeScript", "Vitest", "Playwright", "Vercel"],
+    links: { repo: "https://github.com/brittanyperera-glitch/brittanyperera-com" },
+  },
+  {
+    id: "agents",
+    title: "How I work with AI agents",
+    icon: "bubble",
+    about: "",
+    problem: "I want my agents to do what I want them to do before I tell them.",
+    built:
+      "My own setup on Claude Code. Cheaper models build, stronger ones review, and sessions hand work over to each other. Over 150 guards catch the mistakes agents keep repeating, like saying a test passed without running it, and every time I correct one it becomes a rule.",
+    stack: ["Claude Code", "Python hooks", "git"],
+  },
+  {
+    id: "engine",
+    title: "Engine health ML",
+    icon: "engine",
+    about: "",
+    problem: "Jet engines lose efficiency between washes, and the timing of washes was guesswork.",
+    built:
+      "A fleet engine health dashboard that learns from live data. It tracks each engine's exhaust gas temperature margin, predicts where it's heading and works out how much a wash recovers, which turns into wash schedules the ground engineers can use to save fuel.",
+    result:
+      "Validated with time-based splits, scenario tests and SHAP explanations; shipped as cloud apps and APIs with CI/CD.",
+    stack: ["Python", "ML", "cloud APIs", "CI/CD"],
+  },
+  {
+    id: "radiator",
+    title: "F1 radiator",
+    icon: "radiator",
+    about: "",
+    problem: "A radiator has to reject more heat while weighing less and costing less drag.",
+    built:
+      "A radiator design driven by CFD and an optimisation loop. Parametric MATLAB and Python models covered coolant flow, heat rejection, pressure drop and how it all plays with the car's aero.",
+    result: "Compared geometries and flow paths to cut mass and drag without losing cooling.",
+    stack: ["CFD", "MATLAB", "Python"],
   },
 ];
 

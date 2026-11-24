@@ -34,7 +34,8 @@ const all = [
   ...walk({ music, photos, youtube, truths, projectUi, windowBox }, "apps", []),
 ];
 
-const wordExempt = (p: string) => /^projects\[\d+\]\.about$/.test(p) || p.startsWith("cv");
+const wordExempt = (p: string) =>
+  /^projects\[\d+\]\.(about|problem|built|hardest|result)$/.test(p) || p.startsWith("cv");
 
 describe("content strings", () => {
   it("collects strings from every module", () => {
@@ -126,7 +127,7 @@ describe("content strings", () => {
     expect(paths).toContain("apps.photos.items[0].caption");
     expect(paths).toContain("apps.photos.ui.countMany");
     expect(paths).toContain("apps.projectUi.openSite");
-    expect(paths).toContain("projects[1].siteUrl");
+    expect(paths).toContain("projects[0].siteUrl");
   });
   it("lists photos with unique srcs that all exist under public/", () => {
     // PhotoGrid keys thumbnails by src.
@@ -137,7 +138,14 @@ describe("content strings", () => {
   it("has no Travel, Whereflix, Gift Finder or SchengenKit entry in the UI content", () => {
     const menus = [...copy.menus.view, ...copy.desktopIcons];
     expect(menus.some((m) => /travel/i.test(m.label))).toBe(false);
-    expect(projects.map((p) => p.title)).toEqual(["100 Days of Delulu", "Group Trip Hero"]);
+    expect(projects.map((p) => p.title)).toEqual([
+      "Group Trip Hero",
+      "100 Days of Delulu",
+      "This site",
+      "How I work with AI agents",
+      "Engine health ML",
+      "F1 radiator",
+    ]);
   });
 });
 
