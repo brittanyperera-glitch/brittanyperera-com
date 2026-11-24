@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
@@ -8,5 +9,6 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["tests/setup.ts"],
   },
-  resolve: { alias: { "@": new URL("./src", import.meta.url).pathname } },
+  // fileURLToPath, not .pathname: the repo lives under "Personal Projects" and .pathname keeps %20.
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
 });
