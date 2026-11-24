@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { siteProjects } from "../../src/content/projects";
-import { ALL_WINDOWS, NOT_ON_PHONE_HOME, openWin, openWindows, settle, skipSetup } from "./helpers";
+import { ALL_WINDOWS, openWin, openWindows, settle, skipSetup } from "./helpers";
 
 type Size = { width: number; height: number };
 
@@ -115,7 +115,7 @@ test("every window opened at 390x844: controls stay on screen", async ({ page },
   await settle(page, info);
   expect(await problems(page, PHONE_SIZE), "before opening anything").toEqual([]);
 
-  for (const id of ALL_WINDOWS.filter((w) => !NOT_ON_PHONE_HOME.includes(w))) {
+  for (const id of ALL_WINDOWS) {
     await openWin(page, id);
     expect(await problems(page, PHONE_SIZE), `after opening ${id}`).toEqual([]);
   }

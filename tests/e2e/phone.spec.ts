@@ -5,15 +5,7 @@ import { cv } from "../../src/content/cv";
 import { music } from "../../src/content/music";
 import { siteProjects } from "../../src/content/projects";
 import { truths } from "../../src/content/truths";
-import {
-  ALL_WINDOWS,
-  NOT_ON_PHONE_HOME,
-  openWin,
-  PHONE_GAP,
-  settle,
-  skipSetup,
-  win,
-} from "./helpers";
+import { ALL_WINDOWS, openWin, settle, skipSetup, win } from "./helpers";
 
 const SIZES = [
   { width: 320, height: 568 },
@@ -22,7 +14,7 @@ const SIZES = [
   { width: 430, height: 932 },
 ];
 const SHOT_SIZE = { width: 390, height: 844 };
-const PHONE_WINDOWS = ALL_WINDOWS.filter((id) => !NOT_ON_PHONE_HOME.includes(id));
+const PHONE_WINDOWS = ALL_WINDOWS;
 
 test.beforeEach(async ({ page: _page }, info) => {
   test.skip(info.project.name !== "phone", "the phone view is phone-project only");
@@ -149,7 +141,6 @@ test("phone: Photos opens to a thumbnail grid and a tap opens the viewer", async
 });
 
 test("phone: Two Truths can be played to 'got it'", async ({ page }, info) => {
-  test.fixme(NOT_ON_PHONE_HOME.includes("truths"), PHONE_GAP);
   await landOnHome(page, SHOT_SIZE, info);
   await openWin(page, "truths");
   const lie = truths.rounds[0].statements.find((s) => s.lie)?.text;

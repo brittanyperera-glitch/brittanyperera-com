@@ -31,8 +31,6 @@ export async function skipSetup(page: Page, visitor: Visitor = "recruiter") {
  * Apps with a laptop icon but no way in on a phone (not in copy.phone.apps, src/content/copy.ts).
  * Phone specs skip them with a fixme; drop an id here once the home screen carries it.
  */
-export const NOT_ON_PHONE_HOME: WinId[] = ["truths"];
-export const PHONE_GAP = "Two Truths has no home-screen icon on a phone (copy.phone.apps)";
 
 export const win = (page: Page, id: WinId): Locator => page.locator(`section[data-win="${id}"]`);
 

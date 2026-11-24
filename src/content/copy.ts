@@ -180,7 +180,7 @@ export const copy = {
     dockLabel: "Dock",
     footer: "the full mac version is on a laptop",
     // Her decision 24 Nov: CV Builder is leaving the site, so it is not on the phone.
-    apps: ["cv", "projects", "music", "photos", "youtube", "contact", "trash"] as WinId[],
+    apps: ["cv", "projects", "music", "photos", "youtube", "truths", "contact", "trash"] as WinId[],
     // The four apps in the dock, left to right; the other apps sit in the grid above. "none" is
     // the dock before anyone has said who they are.
     docks: {

@@ -102,6 +102,26 @@ const ART: Partial<Record<WinId, { a: string; b: string; art: ReactNode }>> = {
       </>
     ),
   },
+  truths: {
+    a: "#ffb347",
+    b: "#d9661f",
+    art: (
+      <>
+        <path
+          d="M14 12h36a5 5 0 0 1 5 5v22a5 5 0 0 1-5 5H34l-11 9v-9h-9a5 5 0 0 1-5-5V17a5 5 0 0 1 5-5z"
+          fill="#fff"
+        />
+        <path
+          d="M26 23a6 6 0 1 1 9 5.2c-2 1.2-3 2.3-3 4.3"
+          fill="none"
+          stroke="#c85a1a"
+          strokeWidth="3.6"
+          strokeLinecap="round"
+        />
+        <circle cx="32" cy="38" r="2.3" fill="#c85a1a" />
+      </>
+    ),
+  },
   trash: {
     a: "#b8c1cc",
     b: "#5e6670",

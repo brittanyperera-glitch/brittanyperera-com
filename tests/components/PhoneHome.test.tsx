@@ -41,13 +41,14 @@ describe("phone home screen (server markup)", () => {
     expect(bar.querySelector(".status-clock")).toHaveTextContent(/\d/);
   });
 
-  it("shows seven apps, three in the grid and four in the neutral dock, and no CV Builder", () => {
+  it("shows eight apps, four in the grid and four in the neutral dock, Two Truths included and no CV Builder", () => {
     const { home } = renderHome();
     const grid = [...home.querySelectorAll<HTMLElement>(".phone-grid [data-open]")].map(
       (e) => e.dataset.open,
     );
     expect(dock(home)).toEqual(copy.phone.docks.none);
-    expect(grid).toHaveLength(3);
+    expect(grid).toHaveLength(4);
+    expect(grid).toContain("truths");
     expect([...grid, ...dock(home)].sort()).toEqual([...copy.phone.apps].sort());
     expect(home.querySelector('[data-open="cvbuilder"]')).toBeNull();
   });
