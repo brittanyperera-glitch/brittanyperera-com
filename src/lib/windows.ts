@@ -73,7 +73,7 @@ const Z_CEILING = 4000;
 export function parentOf(id: WinId): WinId | null {
   if (id.startsWith("project:")) return "projects";
   if (id.startsWith("browser:")) return `project:${id.slice("browser:".length)}` as WinId;
-  if (id.startsWith("music:") || id === "garage") return "music";
+  if (id === "garage") return "music";
   return null;
 }
 
@@ -127,9 +127,6 @@ const ANCHORS: Partial<Record<WinId, Anchor>> = {
   trash: { fx: 0.5, fy: 0.2 },
   cvbuilder: { fx: 0, fy: 0 },
   music: { fx: 0.15, fy: 0.1 },
-  "music:guitar": { fx: 0.2, fy: 0.15 },
-  "music:piano": { fx: 0.25, fy: 0.2 },
-  "music:ukulele": { fx: 0.3, fy: 0.25 },
   garage: { fx: 0, fy: 1 },
   photos: { fx: 0, fy: 0 },
   youtube: { fx: 0.3, fy: 1 },

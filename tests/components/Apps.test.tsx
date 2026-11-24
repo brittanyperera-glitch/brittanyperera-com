@@ -44,15 +44,7 @@ describe("new desktop apps", () => {
 
   it("renders a window for every new WinId", () => {
     setup();
-    const ids: WinId[] = [
-      "cvbuilder",
-      "music",
-      "music:guitar",
-      "music:piano",
-      "music:ukulele",
-      "garage",
-      "photos",
-    ];
+    const ids: WinId[] = ["cvbuilder", "music", "garage", "photos"];
     for (const id of ids) {
       expect(document.querySelector(`section[data-win="${id}"]`), id).not.toBeNull();
     }
@@ -83,46 +75,21 @@ describe("new desktop apps", () => {
 });
 
 describe("Music folder", () => {
-  it("lists three instruments and Garage Brittany, each opening its window", async () => {
+  it("holds Garage Brittany alone, and opening it shows its window", async () => {
     const user = setup();
     await user.dblClick(icon(music.folderTitle));
     const folder = win(music.folderTitle);
-    const targets: [string, string][] = [
-      ...music.instruments.map((i) => [i.name, `music:${i.id}`] as [string, string]),
-      [music.appName, "garage"],
-    ];
-    expect(within(folder).getAllByRole("button")).toHaveLength(targets.length + 1);
-    for (const [name, id] of targets) {
-      const section = document.querySelector(`section[data-win="${id}"]`) as HTMLElement;
-      expect(section).toHaveAttribute("hidden");
-      await user.dblClick(within(folder).getByRole("button", { name }));
-      expect(section).not.toHaveAttribute("hidden");
-    }
+    expect(within(folder).getAllByRole("button")).toHaveLength(2);
+    const section = document.querySelector('section[data-win="garage"]') as HTMLElement;
+    expect(section).toHaveAttribute("hidden");
+    await user.dblClick(within(folder).getByRole("button", { name: music.appName }));
+    expect(section).not.toHaveAttribute("hidden");
   });
 
-  it("titles each instrument window with the instrument name", () => {
+  it("has no instrument windows", () => {
     setup();
-    for (const i of music.instruments) {
-      expect(document.querySelector(`section[data-win="music:${i.id}"]`)).toHaveAttribute(
-        "aria-label",
-        i.name,
-      );
-    }
+    expect(document.querySelector('section[data-win^="music:"]')).toBeNull();
     expect(win(music.appName)).toHaveAttribute("data-win", "garage");
-  });
-
-  it("an instrument window shows only its name as a heading", async () => {
-    const user = setup();
-    await user.dblClick(icon(music.folderTitle));
-    await user.dblClick(
-      within(win(music.folderTitle)).getByRole("button", { name: music.instruments[0].name }),
-    );
-    const body = document.querySelector(
-      `section[data-win="music:${music.instruments[0].id}"] .body`,
-    ) as HTMLElement;
-    expect(within(body).getByRole("heading", { level: 3 })).toHaveTextContent(
-      music.instruments[0].name,
-    );
   });
 });
 

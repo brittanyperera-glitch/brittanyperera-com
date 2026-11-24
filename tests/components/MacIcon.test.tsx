@@ -14,7 +14,6 @@ const ALERT_ICONS: IconName[] = ["caution", "note", "bomb", "mac"];
 const FOLDER_ICONS: IconName[] = [
   ...copy.desktopIcons.map((i) => i.icon),
   ...projects.map((p) => p.icon),
-  ...music.instruments.map((i) => i.icon),
   "garage",
   "folder",
   "globe",

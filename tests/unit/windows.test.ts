@@ -175,10 +175,7 @@ describe("helpers", () => {
     expect(s.open).toEqual(["projects"]);
   });
 
-  it("parentOf maps instrument windows and the Garage player to the Music folder", () => {
-    expect(parentOf("music:guitar")).toBe("music");
-    expect(parentOf("music:piano")).toBe("music");
-    expect(parentOf("music:ukulele")).toBe("music");
+  it("parentOf maps the Garage player to the Music folder", () => {
     expect(parentOf("garage")).toBe("music");
     expect(parentOf("music")).toBeNull();
   });
