@@ -212,7 +212,7 @@ describe("case-study template", () => {
     result: "fixture result",
     stack: ["Next.js", "Postgres"],
     links: { live: "https://example.com/live", repo: "https://example.com/repo" },
-    image: { src: "/fixture.png", alt: "fixture alt" },
+    image: { src: "/fixture.png", alt: "fixture alt", width: 640, height: 360 },
   };
   const headingsOf = (w: HTMLElement) =>
     within(w)
@@ -239,6 +239,26 @@ describe("case-study template", () => {
     expect(linksOf(w)).toEqual(["https://example.com/live", "https://example.com/repo"]);
     expect(within(w).getByText("Postgres")).toBeInTheDocument();
     expect(within(w).getByAltText("fixture alt")).toHaveAttribute("src", "/fixture.png");
+  });
+
+  it("a case-study link goes through the leave alert, then opens in a new tab", async () => {
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    const user = setup(["project:trip"], { "project:trip": <ProjectWindow project={full} /> });
+    await user.click(
+      within(win("project:trip")).getByRole("link", { name: projectUi.linkLabels.repo }),
+    );
+    expect(open).not.toHaveBeenCalled();
+    const alert = await screen.findByRole("alertdialog");
+    await user.click(within(alert).getByRole("button", { name: copy.alerts.leave.ok }));
+    expect(open).toHaveBeenCalledWith("https://example.com/repo", "_blank", "noopener");
+    open.mockRestore();
+  });
+
+  it("gives the image its width and height", () => {
+    setup(["project:trip"], { "project:trip": <ProjectWindow project={full} /> });
+    const img = within(win("project:trip")).getByAltText("fixture alt");
+    expect(img).toHaveAttribute("width", "640");
+    expect(img).toHaveAttribute("height", "360");
   });
 
   it("renders only the sections that are present", () => {

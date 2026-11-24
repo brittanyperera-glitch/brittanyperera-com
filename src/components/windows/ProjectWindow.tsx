@@ -9,6 +9,7 @@ const LINK_KEYS = ["live", "repo", "video"] as const;
 
 // Optional case-study sections, in content order; each renders only when the project has it.
 function CaseStudy({ project }: { project: Project }) {
+  const { actions } = useDesktop();
   const { stack, links, image } = project;
   const linkList = LINK_KEYS.flatMap((k) => {
     const href = links?.[k];
@@ -40,7 +41,13 @@ function CaseStudy({ project }: { project: Project }) {
           <ul className="case-links">
             {linkList.map(({ k, href }) => (
               <li key={k}>
-                <a href={href} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    actions.leave(href);
+                  }}
+                >
                   {projectUi.linkLabels[k]}
                 </a>
               </li>
@@ -50,7 +57,14 @@ function CaseStudy({ project }: { project: Project }) {
       )}
       {image && (
         // biome-ignore lint/performance/noImgElement: a fixed-size window figure, not a page image
-        <img className="case-image" src={image.src} alt={image.alt} loading="lazy" />
+        <img
+          className="case-image"
+          src={image.src}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+          loading="lazy"
+        />
       )}
     </>
   );

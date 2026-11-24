@@ -22,7 +22,7 @@ export type Project = {
   stack?: string[];
   /** Outbound links listed in the case study; separate from the button above. */
   links?: { live?: string; repo?: string; video?: string };
-  image?: { src: string; alt: string };
+  image?: { src: string; alt: string; width: number; height: number };
 };
 
 export const projects: Project[] = [
