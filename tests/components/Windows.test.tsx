@@ -83,11 +83,12 @@ describe("CV", () => {
     expect(win("cv").querySelector(".body")?.lastElementChild).toBe(hint);
   });
 
-  it("shows the whole CV: every role, education, leadership entry, skill and language", () => {
+  it("shows the whole CV: every role, project, education, leadership entry, skill and language", () => {
     setup(["cv"]);
     const text = win("cv").textContent ?? "";
     const entries: { title: string; summary?: string; bullets?: readonly string[] }[] = [
       ...cv.roles,
+      ...cv.projects,
       ...cv.education,
       ...cv.leadership,
     ];
