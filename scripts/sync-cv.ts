@@ -3,15 +3,17 @@ import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 
-// The CV text lives outside this repo; override the path with CV_SOURCE.
-const CV_SOURCE =
-  process.env.CV_SOURCE ?? "/Users/brittanyperera/Desktop/Personal Projects/CV/source/content.js";
+// The CV text lives outside this repo; CV_SOURCE is the absolute path to its content.js.
+const CV_SOURCE = process.env.CV_SOURCE ?? "";
+if (!CV_SOURCE && process.argv[1] === import.meta.filename) {
+  console.error("CV_SOURCE is not set. Point it at the CV folder's source/content.js.");
+  process.exit(1);
+}
 
 const root = resolve(import.meta.dirname, "..");
 
 // The site writes ranges as "May 2026 to now" and keeps en dashes for digit ranges only.
 const norm = (s: string) => s.replace(/ – /g, " to ").replace(/\bPresent\b/g, "now");
-const isPhone = (s: string) => /^\+?[\d\s]{9,}$/.test(s);
 
 type Src = {
   name: string;
@@ -32,7 +34,7 @@ export function toCvData(src: Src) {
     name: src.name,
     title: src.title,
     profile: src.profile,
-    contact: src.contact.filter((c) => !isPhone(c.text)),
+    contact: src.contact.filter((c) => c.href),
     experience: src.experience.map((e) => ({ ...e, dates: norm(e.dates) })),
     projects: src.projects.map((p) => ({ label: norm(p.label), items: p.items })),
     skills: src.skills,
@@ -49,7 +51,10 @@ function main() {
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, `${JSON.stringify(toCvData(src), null, 2)}\n`);
   // Biome's JSON layout differs from JSON.stringify; format so `pnpm lint` stays green.
-  execFileSync("pnpm", ["exec", "biome", "format", "--write", out], { cwd: root, stdio: "ignore" });
+  execFileSync("pnpm", ["exec", "biome", "format", "--write", out], {
+    cwd: root,
+    stdio: "inherit",
+  });
   copyFileSync(
     join(dirname(CV_SOURCE), "..", "Brittany_Perera_CV_2026_public.pdf"),
     join(root, "public/Brittany-Perera-CV.pdf"),

@@ -31,7 +31,6 @@ const extraLines = [
   "Ran a 950-guest May Ball",
   "Taught A-level physics and maths",
   "Raised £20,000+ from donors",
-  "Built a daily satellite guessing game",
 ];
 
 export const cvBuilder = {

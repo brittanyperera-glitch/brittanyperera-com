@@ -16,7 +16,7 @@ function Entries({ items }: { items: readonly Entry[] }) {
         <span>{e.title}</span>
         <span className="cv-when">{e.when}</span>
       </div>
-      <p>{[e.org, e.place].filter(Boolean).join(", ")}</p>
+      {e.org || e.place ? <p>{[e.org, e.place].filter(Boolean).join(", ")}</p> : null}
       {e.summary ? <p>{e.summary}</p> : null}
       {e.bullets && e.bullets.length > 0 ? (
         <ul>
