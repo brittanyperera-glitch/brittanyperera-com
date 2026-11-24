@@ -16,6 +16,7 @@ import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertP
 import { copy } from "@/content/copy";
 import { projects, projectUi } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
+import { REPLAY_EVENT } from "@/lib/setup";
 import { removeKey } from "@/lib/storage";
 import type { WinId } from "@/lib/types";
 import {
@@ -256,7 +257,16 @@ function DesktopInner({ windows, children }: DesktopProps) {
               {a.crash.text}
             </>
           ),
-          buttons: [{ label: a.crash.button, primary: true }],
+          buttons: [
+            {
+              label: a.crash.button,
+              primary: true,
+              run: () => {
+                dispatch({ type: "closeAll" });
+                window.dispatchEvent(new Event(REPLAY_EVENT));
+              },
+            },
+          ],
         }),
       leave: (href: string) =>
         alert({

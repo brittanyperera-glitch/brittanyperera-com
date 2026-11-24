@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react"
 import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { initialSetup, phoneWindow, setupReducer } from "@/lib/setup";
+import { initialSetup, phoneWindow, REPLAY_EVENT, setupReducer } from "@/lib/setup";
 import { readJSON, writeJSON } from "@/lib/storage";
 import type { Visitor } from "@/lib/types";
 import { topWindow } from "@/lib/windows";
@@ -58,6 +58,16 @@ export function SetupFlow() {
       resumed.current = true;
       dispatch({ type: "resume", visitor: saved.visitor });
     }
+  }, []);
+
+  useEffect(() => {
+    const replay = () => {
+      finished.current = false;
+      resumed.current = true;
+      dispatch({ type: "replay" });
+    };
+    window.addEventListener(REPLAY_EVENT, replay);
+    return () => window.removeEventListener(REPLAY_EVENT, replay);
   }, []);
 
   // Everything but the overlays is inert, and unreachable by Tab, until setup is over.

@@ -269,6 +269,30 @@ describe("SetupFlow", () => {
   });
 });
 
+describe("Break something > Restart", () => {
+  it("replays the boot splash, keeps the stored visitor and lands on the same first windows", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    const { container } = renderFlow();
+    expect(openIds()).toEqual(landing("friend"));
+    fireEvent.click(screen.getByRole("button", { name: "Special" }));
+    fireEvent.click(screen.getByRole("button", { name: "Break something" }));
+    const alert = screen.getByRole("alertdialog");
+    expect(alert).toHaveTextContent(copy.alerts.crash.title);
+    expect(alert).toHaveTextContent(copy.alerts.crash.text);
+    fireEvent.click(within(alert).getByRole("button", { name: "Restart" }));
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(bootOverlay(container)).not.toBeNull();
+    expect(openIds()).toEqual([]);
+    throughBoot();
+    expect(setupDialog()).toBeNull();
+    expect(bootOverlay(container)).toBeNull();
+    expect(openIds()).toEqual(landing("friend"));
+    expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
+      visitor: "friend",
+    });
+  });
+});
+
 describe("SetupFlow focus and motion", () => {
   const desktopEl = (c: HTMLElement) => c.querySelector(".desktop") as HTMLElement;
 

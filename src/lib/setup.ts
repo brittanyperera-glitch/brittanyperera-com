@@ -17,7 +17,11 @@ export type SetupAction =
   | { type: "goAhead" }
   | { type: "installDone" }
   | { type: "skip" }
-  | { type: "resume"; visitor: Visitor };
+  | { type: "resume"; visitor: Visitor }
+  | { type: "replay" };
+
+/** Fired on window by the crash alert's Restart; the setup flow replays the boot, same visitor. */
+export const REPLAY_EVENT = "bp:replay-boot";
 
 export function initialSetup(): SetupState {
   return { phase: "boot", step: 0, visitor: null };
@@ -27,7 +31,7 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
   switch (a.type) {
     case "tick":
       if (s.phase === "boot") return { ...s, phase: "splash" };
-      if (s.phase === "splash") return { ...s, phase: "steps" };
+      if (s.phase === "splash") return { ...s, phase: s.visitor ? "done" : "steps" };
       return s;
     case "next":
       return s.phase === "steps" && s.step < 2 && !(s.step === 1 && !s.visitor)
@@ -44,7 +48,9 @@ export function setupReducer(s: SetupState, a: SetupAction): SetupState {
     case "installDone":
       return s.phase === "installing" ? { ...s, phase: "done" } : s;
     case "skip":
-      return s.phase === "done" ? s : { ...s, phase: "done", visitor: "recruiter" };
+      return s.phase === "done" ? s : { ...s, phase: "done", visitor: s.visitor ?? "recruiter" };
+    case "replay":
+      return s.visitor ? { phase: "boot", step: 0, visitor: s.visitor } : s;
     case "resume":
       return { ...s, phase: "done", visitor: a.visitor };
   }

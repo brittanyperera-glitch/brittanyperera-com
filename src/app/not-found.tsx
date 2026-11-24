@@ -7,7 +7,7 @@ import "@/styles/setup.css";
 
 // Static on purpose: no provider, no state, so a 404 renders even if everything else is broken.
 export default function NotFound() {
-  const crash = copy.alerts.crash;
+  const crash = copy.alerts.notFound;
   return (
     <div className="desktop">
       <div className="nf-layer">

@@ -59,9 +59,7 @@ describe("desktop shell", () => {
     const { user } = setup();
     await user.click(screen.getByRole("button", { name: "Special" }));
     await user.click(screen.getByRole("button", { name: "Break something" }));
-    expect(await screen.findByRole("alertdialog")).toHaveTextContent(
-      "Sorry, a system error occurred.",
-    );
+    expect(await screen.findByRole("alertdialog")).toHaveTextContent(copy.alerts.crash.text);
   });
 
   it("Special > Empty Trash confirms; Keep them closes; Empty Trash shows the follow-up", async () => {
@@ -186,7 +184,7 @@ describe("alert behaviour on the desktop", () => {
     await user.click(screen.getByRole("button", { name: "Special" }));
     await user.click(screen.getByRole("button", { name: "Break something" }));
     expect(
-      await screen.findByRole("alertdialog", { name: /Sorry, a system error occurred/ }),
+      await screen.findByRole("alertdialog", { name: new RegExp(copy.alerts.crash.title) }),
     ).toBeVisible();
   });
 

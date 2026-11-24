@@ -97,6 +97,11 @@ export const copy = {
       ],
     },
     crash: {
+      title: "well, that broke.",
+      text: "you found the button. restarting is the classic fix.",
+      button: "Restart",
+    },
+    notFound: {
       title: "Sorry, a system error occurred.",
       text: "(this page doesnt exist, or i broke it)",
       button: "Restart",

@@ -118,6 +118,29 @@ describe("setupReducer", () => {
   });
 });
 
+describe("replay", () => {
+  it("goes back to boot keeping the visitor, and the splash then ends in done", () => {
+    const done = setupReducer(initialSetup(), { type: "resume", visitor: "client" });
+    const s = run(done, { type: "replay" });
+    expect(s).toEqual({ phase: "boot", step: 0, visitor: "client" });
+    expect(run(s, { type: "tick" }, { type: "tick" }).phase).toBe("done");
+  });
+
+  it("skip while replaying keeps the stored visitor", () => {
+    const s = run(
+      setupReducer(initialSetup(), { type: "resume", visitor: "client" }),
+      { type: "replay" },
+      { type: "skip" },
+    );
+    expect(s).toEqual({ phase: "done", step: 0, visitor: "client" });
+  });
+
+  it("with no visitor there is nothing to replay", () => {
+    const s = initialSetup();
+    expect(setupReducer(s, { type: "replay" })).toBe(s);
+  });
+});
+
 describe("phoneWindow", () => {
   it("picks the most relevant single window per visitor", () => {
     expect(phoneWindow("recruiter")).toBe("cv");
