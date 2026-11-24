@@ -33,26 +33,76 @@
     display: flex;
   }
 
+  /* The title bar is the app's nav bar. Equal side padding keeps the title centred whatever the
+     back button says. */
   .desktop .win .titlebar {
-    height: 34px;
+    height: 44px;
+    margin: 0;
+    padding: 0 96px;
+    background: linear-gradient(#f7f8fb, #d9dde6);
+    border-bottom: 1px solid #8f98a8;
   }
 
-  /* The close box carries its own label ("Close", or "Back" for a project), so it grows to fit it. */
+  .desktop .win .titlebar::before {
+    display: none;
+  }
+
+  /* The not-front rule is repeated because a server-rendered window has no .front yet. */
+  .desktop .win .titlebar .t,
+  .desktop .win:not(.front) .titlebar .t {
+    background: none;
+    padding: 0;
+    font-size: 17px;
+    font-weight: bold;
+    color: #1c2330;
+  }
+
+  /* The back button carries its own label ("Home", or the parent app), so it grows to fit it. The
+     chevron is drawn here so the label stays exactly the copy string. */
   .desktop .win .titlebar .close {
     display: flex;
     align-items: center;
     gap: 6px;
     width: auto;
-    min-width: 26px;
-    height: 26px;
-    top: 3px;
-    padding: 0 8px;
+    max-width: 84px;
+    height: 32px;
+    top: 6px;
+    left: 8px;
+    padding: 0 10px 0 8px;
     font: inherit;
-    color: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(#3f6fb8, #2d5a9e);
+    border: 1px solid #2d5a9e;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
+  /* The 32px button reaches 44px with this 6px halo (platinum.css gives a 5px one). */
+  .desktop .win .titlebar .close::after {
+    inset: -6px;
+  }
+
+  .desktop .win .pbtn {
+    min-height: 44px;
+  }
+
+  .desktop .win .titlebar .close::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #fff;
+    border-left: 2px solid #fff;
+    transform: translateX(2px) rotate(45deg);
   }
 
   .desktop .win .titlebar .close .close-label {
-    display: inline;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
@@ -63,6 +113,13 @@
   .desktop .win .body {
     max-height: none;
     flex: 1;
+  }
+
+  /* Keeps a body inside the viewport width: long unbroken text (an email address, a URL) wraps
+     instead of widening the scroll area past the screen. */
+  .desktop .win .body {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .desktop .folder-grid {
@@ -76,4 +133,197 @@
 
 .desktop[data-mode="phone"] .win .titlebar {
   cursor: default;
+}
+
+/* Light grouped-list look (variant B) for the CV, Projects, Contact, Trash and Photos apps only.
+   CV Builder, Music, Garage and YouTube keep their own phone styles. */
+@media (max-width: 700px) {
+  .desktop
+    .win:is(
+      [data-win="cv"],
+      [data-win="projects"],
+      [data-win="contact"],
+      [data-win="trash"],
+      [data-win="photos"]
+    ) {
+    padding: 0;
+    background: #eef1f7;
+    border: 0;
+  }
+
+  .desktop
+    .win:is(
+      [data-win="cv"],
+      [data-win="projects"],
+      [data-win="contact"],
+      [data-win="trash"],
+      [data-win="photos"]
+    )
+    .body {
+    background: #eef1f7;
+    border: 0;
+    box-shadow: none;
+    font-size: 16px;
+  }
+
+  /* Photos keeps its own zero padding: the album viewer inside it runs edge to edge. */
+  .desktop
+    .win:is([data-win="cv"], [data-win="projects"], [data-win="contact"], [data-win="trash"])
+    .body {
+    padding: 14px;
+  }
+
+  /* Rows and cards are white groups with a hairline border and rounded corners. */
+  .desktop .win[data-win="projects"] .folder-grid,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums,
+  .desktop .win[data-win="trash"] .trash-list,
+  .desktop .win[data-win="contact"] .row,
+  .desktop .win[data-win="cv"] .cv-doc {
+    background: #fff;
+    border: 1px solid #c9d0de;
+    border-radius: 10px;
+    box-shadow: none;
+    overflow: hidden;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
+    margin: 14px;
+    padding: 0;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon {
+    width: 100%;
+    flex-direction: row;
+    gap: 14px;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e1e5ee;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon:last-child,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon:last-child {
+    border-bottom: 0;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon .label,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon .label {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    font-size: 17px;
+    line-height: 1.3;
+    color: #1c2330;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon::after,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon::after {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #9aa4b6;
+    border-right: 2px solid #9aa4b6;
+    transform: rotate(45deg);
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon.selected,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon.selected {
+    background: #dfe8f7;
+  }
+
+  .desktop .win[data-win="projects"] .folder-grid .icon.selected .label,
+  .desktop .win[data-win="photos"] .folder-grid.photo-albums .icon.selected .label {
+    background: none;
+    color: #1c2330;
+  }
+
+  .desktop .win:is([data-win="projects"], [data-win="trash"]) .info {
+    border: 0;
+    font-size: 14px;
+    color: #5b6578;
+  }
+
+  .desktop .win[data-win="trash"] .info {
+    margin: 0 0 10px;
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e1e5ee;
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li:last-child {
+    border-bottom: 0;
+  }
+
+  .desktop .win[data-win="trash"] .trash-list li:nth-child(even) {
+    background: none;
+  }
+
+  .desktop .win[data-win="contact"] .row {
+    padding: 14px;
+  }
+
+  .desktop .win[data-win="contact"] .email-field {
+    margin: 12px 0;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #c9d0de;
+    border-radius: 10px;
+    font-size: 17px;
+  }
+
+  /* The CV is one white card; the page-on-a-desk look of the laptop window goes. */
+  .desktop .win[data-win="cv"] .paper-desk {
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .paper {
+    padding: 16px;
+    box-shadow: none;
+    font-size: 15px;
+  }
+
+  /* Download PDF is the first control in the app: a full-width blue button above the document. */
+  .desktop .win[data-win="cv"] .doc-toolbar {
+    position: static;
+    margin: 0 0 14px;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .doc-name,
+  .desktop .win[data-win="cv"] .doc-toolbar .sep {
+    display: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .pbtn {
+    flex: 1;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
+    font-size: 17px;
+    color: #fff;
+    background: linear-gradient(#3f6fb8, #2d5a9e);
+    border: 1px solid #2d5a9e;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win="cv"] .doc-toolbar .pbtn svg {
+    width: 18px;
+    height: 18px;
+  }
 }

@@ -2,6 +2,7 @@
 
 import { type CSSProperties, type ReactNode, useLayoutEffect, useRef } from "react";
 import { copy } from "@/content/copy";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 import { windowBox } from "@/content/windowbox";
 import type { WinId } from "@/lib/types";
 import { type Box, MENU_BAR, parentOf, placeWindow, topWindow } from "@/lib/windows";
@@ -25,6 +26,17 @@ const WIDTH: Record<string, number> = {
   "browser:trip": 680,
 };
 const FALLBACK_WIDTH = 420;
+
+// Desktop.tsx builds the same titles for the windows it renders; a window only knows its own.
+function titleOf(id: WinId): string {
+  if (id.startsWith("project:")) {
+    const p = projects.find((x) => `project:${x.id}` === id);
+    return p ? projectUi.aboutTitle.replace("{title}", p.title) : id;
+  }
+  if (id.startsWith("browser:"))
+    return siteProjects.find((x) => `browser:${x.id}` === id)?.siteLabel ?? id;
+  return copy.windowTitles[id as keyof typeof copy.windowTitles] ?? id;
+}
 
 export function Window({
   id,
@@ -50,8 +62,9 @@ export function Window({
   // The effect below reads the open order and stored positions without re-running on every change.
   const latest = useRef(state);
   latest.current = state;
-  // On a phone the close box is the only way out, so it says where it goes.
-  const closeLabel = parentOf(id) ? copy.chrome.back : copy.chrome.closeLabel;
+  // On a phone this is the nav bar's back button, so it names where it goes: Home, or the parent app.
+  const parent = parentOf(id);
+  const closeLabel = parent ? titleOf(parent) : copy.chrome.home;
 
   // On every desktop open, before paint: measure the window at its natural height, then put it
   // wholly on screen. A first open is placed among the windows opened before it (a visitor's first
