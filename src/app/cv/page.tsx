@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: cv.metaTitle };
 export default function CvPage() {
   return (
     <main className="cv">
-      <CvDocument />
+      <CvDocument standalone />
     </main>
   );
 }
