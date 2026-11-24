@@ -53,10 +53,10 @@ describe("CV", () => {
       expect(w.getAllByText(t, { exact: false }).length).toBeGreaterThan(0);
   });
 
-  it("links to the full CV page, which works without JavaScript", () => {
+  it("has no see-the-full-CV link: the whole CV is already in the window", () => {
     setup(["cv"]);
-    const link = within(win("cv")).getByRole("link", { name: copy.windows.cvPageLink });
-    expect(link).toHaveAttribute("href", "/cv");
+    expect(within(win("cv")).queryByRole("link", { name: /full CV/i })).toBeNull();
+    expect(win("cv").querySelector('a[href="/cv"]')).toBeNull();
   });
 
   it("Download PDF shows the download alert", async () => {
@@ -105,12 +105,11 @@ describe("CV", () => {
     for (const h of Object.values(cv.sections)) expect(text, h).toContain(h);
   });
 
-  it("links to the full CV page with a plain anchor", () => {
+  it("holds every CV section heading", () => {
     setup(["cv"]);
-    expect(within(win("cv")).getByRole("link", { name: copy.windows.cvPageLink })).toHaveAttribute(
-      "href",
-      "/cv",
-    );
+    const w = within(win("cv"));
+    for (const h of Object.values(cv.sections))
+      expect(w.getByRole("heading", { name: h })).toBeVisible();
   });
 });
 

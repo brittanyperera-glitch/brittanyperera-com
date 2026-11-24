@@ -168,7 +168,6 @@ export const copy = {
   windows: {
     projectsInfo: "{n} items",
     openHint: "Double-click an icon (or select it and press Return) to open it.",
-    cvPageLink: "the full CV, as a page",
     copyEmail: "Copy email",
     github: "GitHub",
     linkedin: "LinkedIn",
