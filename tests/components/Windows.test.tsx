@@ -3,12 +3,13 @@ import { readFileSync } from "node:fs";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useEffect } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Desktop, useDesktop } from "@/components/desktop/Desktop";
 import { CvWindow } from "@/components/windows/CvWindow";
 import { TrashWindow } from "@/components/windows/TrashWindow";
 import { copy } from "@/content/copy";
 import { cv } from "@/content/cv";
+import { projects, projectUi, siteProjects } from "@/content/projects";
 import { trash } from "@/content/trash";
 import { windowBox } from "@/content/windowbox";
 import type { WinId } from "@/lib/types";
@@ -210,5 +211,65 @@ describe("Trash", () => {
       }),
     );
     expect(items()).toEqual(captions);
+  });
+});
+
+describe("Phone app nav bar", () => {
+  const original = window.matchMedia;
+  beforeEach(() => {
+    window.matchMedia = ((query: string) =>
+      ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList) as typeof window.matchMedia;
+  });
+  afterEach(() => {
+    window.matchMedia = original;
+  });
+
+  const back = (id: string) => {
+    const b = win(id).querySelector<HTMLButtonElement>(".titlebar .close");
+    if (!b) throw new Error(`no close button in ${id}`);
+    return b;
+  };
+  const label = (id: string) => back(id).querySelector(".close-label")?.textContent;
+
+  it("a top-level app's back button says Home and keeps the .close class", () => {
+    setup(["projects"]);
+    expect(copy.chrome.home).toBe("Home");
+    expect(label("projects")).toBe(copy.chrome.home);
+    expect(back("projects")).toHaveAccessibleName(copy.chrome.home);
+  });
+
+  it("a project says the parent window's title, and pressing it returns there", async () => {
+    const id = `project:${projects[0].id}` as WinId;
+    const user = setup([id]);
+    expect(label(id)).toBe(copy.windowTitles.projects);
+    await user.click(back(id));
+    expect(win(id)).toHaveAttribute("hidden");
+    expect(win("projects")).not.toHaveAttribute("hidden");
+  });
+
+  it("a project's site says the project's title, one level up", () => {
+    const site = siteProjects[0];
+    expect(site).toBeDefined();
+    const id = `browser:${site.id}` as WinId;
+    setup([id]);
+    expect(label(id)).toBe(projectUi.aboutTitle.replace("{title}", site.title));
+  });
+
+  it("the CV puts Download PDF above its first section heading", () => {
+    setup(["cv"]);
+    const w = win("cv");
+    const download = within(w).getByRole("button", { name: "Download PDF" });
+    const first = w.querySelector(".cv-doc h4");
+    if (!first) throw new Error("no section heading");
+    expect(download.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

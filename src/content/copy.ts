@@ -158,6 +158,7 @@ export const copy = {
     close: "Close",
     back: "‹ Back",
     closeLabel: "Close",
+    home: "Home",
     ok: "OK",
     soundOn: "Sound: on",
     soundOff: "Sound: off",

@@ -356,7 +356,7 @@ describe("extension seams", () => {
     expect(cv.style.width).toBe("");
   });
 
-  it("phone title bar labels the close box: Back for a child window, Close otherwise", async () => {
+  it("phone title bar names where the back button goes: the parent title for a child window, Home otherwise", async () => {
     vi.spyOn(window, "matchMedia").mockImplementation(
       (query: string) =>
         ({
@@ -381,13 +381,13 @@ describe("extension seams", () => {
       if (!found) throw new Error("no .close-label in the title bar");
       return found.textContent;
     };
-    expect(label(win("Projects"))).toBe(copy.chrome.closeLabel);
+    expect(label(win("Projects"))).toBe(copy.chrome.home);
     await user.click(screen.getByRole("button", { name: "File" }));
     await user.click(screen.getByRole("button", { name: "Open CV" }));
-    expect(label(win("CV.pdf"))).toBe(copy.chrome.closeLabel);
+    expect(label(win("CV.pdf"))).toBe(copy.chrome.home);
     await user.click(screen.getByRole("button", { name: "open project" }));
     expect(win(aboutTitle(projects[0].title))).not.toHaveAttribute("hidden");
-    expect(label(win(aboutTitle(projects[0].title)))).toBe(copy.chrome.back);
+    expect(label(win(aboutTitle(projects[0].title)))).toBe(copy.windowTitles.projects);
   });
 
   it("keeps inline left, top and width on desktop", async () => {
