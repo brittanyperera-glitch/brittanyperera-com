@@ -14,7 +14,7 @@ const item = (name: string) => ({
   caption: `caption ${name}`,
 });
 
-// General is deliberately NOT first here: the window must put it first itself.
+// Content order is kept as given; empty albums are filtered out by the window.
 const fixtures: PhotoAlbum[] = [
   { id: "vietnam", title: "Vietnam", videoIds: [youtube.videos[1].id], items: [item("v1")] },
   { id: "empty", title: "Empty album", items: [] },

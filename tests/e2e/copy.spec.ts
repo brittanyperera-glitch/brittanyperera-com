@@ -28,8 +28,8 @@ test("404 shows the bomb alert and Restart goes home", async ({ page }) => {
   const res = await page.goto("/does-not-exist");
   expect(res?.status()).toBe(404);
   const alert = page.getByRole("alertdialog");
-  await expect(alert).toContainText(copy.alerts.crash.title);
+  await expect(alert).toContainText(copy.alerts.notFound.title);
   await expect(alert.locator("svg")).toBeVisible();
-  await alert.getByRole("link", { name: copy.alerts.crash.button }).click();
+  await alert.getByRole("link", { name: copy.alerts.notFound.button }).click();
   await expect(page).toHaveURL(/\/$/);
 });
