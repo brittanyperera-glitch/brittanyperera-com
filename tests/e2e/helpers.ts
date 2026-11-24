@@ -86,6 +86,7 @@ export const ALL_WINDOWS: WinId[] = [
   "garage",
   "photos",
   "youtube",
+  "truths",
   ...projects.map((p) => `project:${p.id}` as WinId),
   ...siteProjects.map((p) => `browser:${p.id}` as WinId),
 ];

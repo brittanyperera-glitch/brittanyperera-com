@@ -10,6 +10,7 @@ import { music } from "@/content/music";
 import { photos } from "@/content/photos";
 import { projects, projectUi } from "@/content/projects";
 import { trash, trashHeader } from "@/content/trash";
+import { truths } from "@/content/truths";
 import { windowBox } from "@/content/windowbox";
 import { youtube } from "@/content/youtube";
 
@@ -30,7 +31,7 @@ const all = [
   ...walk(contact, "contact", []),
   ...walk({ trashHeader, trash }, "trash", []),
   ...walk(meta, "meta", []),
-  ...walk({ music, photos, youtube, projectUi, windowBox }, "apps", []),
+  ...walk({ music, photos, youtube, truths, projectUi, windowBox }, "apps", []),
 ];
 
 const wordExempt = (p: string) => /^projects\[\d+\]\.about$/.test(p) || p.startsWith("cv");

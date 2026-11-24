@@ -26,6 +26,7 @@ const NAMES: IconName[] = [
   "globe",
   "camera",
   "play",
+  "bubble",
 ];
 
 describe("pixel icons", () => {

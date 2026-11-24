@@ -11,6 +11,7 @@ export type WinId =
   | "garage"
   | "photos"
   | "youtube"
+  | "truths"
   | "note"
   | `project:${ProjectId}`
   | "browser:trip";
@@ -38,4 +39,5 @@ export type IconName =
   | "garage"
   | "globe"
   | "camera"
-  | "play";
+  | "play"
+  | "bubble";

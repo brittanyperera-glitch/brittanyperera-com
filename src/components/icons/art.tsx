@@ -391,6 +391,38 @@ const palm: Art = (p) => (
   </>
 );
 
+// A speech bubble with a question mark, for Two Truths.
+const bubble: Art = (p) => (
+  <>
+    <defs>
+      <Grad
+        id="Bub"
+        p={p}
+        x2={1}
+        stops={[
+          [0, "#ffffff"],
+          [1, "#c9d3e3"],
+        ]}
+      />
+    </defs>
+    <path
+      d="M5.5 4.5H26.5Q29.5 4.5 29.5 7.5V19.5Q29.5 22.5 26.5 22.5H16L9 28.5V22.5H5.5Q2.5 22.5 2.5 19.5V7.5Q2.5 4.5 5.5 4.5Z"
+      fill={u(p, "Bub")}
+      stroke={INK}
+      strokeLinejoin="round"
+    />
+    <path d="M5 6.2H27" stroke="#fff" strokeOpacity={0.7} />
+    <path
+      d="M12.8 10.4Q13.2 8 16 8Q19.2 8 19.2 10.8Q19.2 12.4 17.4 13.4Q16 14.2 16 15.6"
+      fill="none"
+      stroke="#34508a"
+      strokeWidth={2}
+      strokeLinecap="round"
+    />
+    <circle cx="16" cy="18.6" r="1.2" fill="#34508a" />
+  </>
+);
+
 const garage: Art = (p) => (
   <>
     <defs>
@@ -653,6 +685,7 @@ export const ART = {
   musicfolder,
   camera,
   play,
+  bubble,
   mail,
   trash,
   heart,
