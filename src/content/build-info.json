@@ -1,5 +1,5 @@
 {
   "stack": ["Next.js 16.3.4", "React 19.2.8", "TypeScript 5"],
   "unitTests": 356,
-  "e2eTests": 53
+  "e2eTests": 54
 }

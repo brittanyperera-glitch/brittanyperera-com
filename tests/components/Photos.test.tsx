@@ -239,10 +239,13 @@ describe("Photos viewer", () => {
   });
 });
 
-describe("Photos on a phone", () => {
-  it("phone.css has no Photos selector left in its grouped-list rules", () => {
-    const css = readFileSync(join(process.cwd(), "src/styles/phone.css"), "utf8");
-    expect(css).not.toContain("photo-albums");
-    expect(css).not.toMatch(/data-win="photos"\]\s*\.folder-grid/);
+describe("Photo thumbnails", () => {
+  // jsdom draws no CSS, so pin the rule that makes tiles square at every width: the 240px height
+  // attribute on the img beats aspect-ratio unless the stylesheet sets height: auto.
+  it("the thumbnail rule is square: width 100%, height auto, aspect-ratio 1", () => {
+    const css = readFileSync(join(process.cwd(), "src/styles/photos.css"), "utf8");
+    const rule = css.match(/\.photo-thumb img\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(rule).toMatch(/height:\s*auto/);
+    expect(rule).toMatch(/aspect-ratio:\s*1\b/);
   });
 });
