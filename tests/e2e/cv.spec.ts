@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { cv } from "../../src/content/cv";
 
 test("cv page content and print styling", async ({ page }) => {
   const res = await page.goto("/cv");
@@ -10,7 +11,7 @@ test("cv page content and print styling", async ({ page }) => {
   expect(text).toContain("AI Software Engineer");
   expect(text).toContain("VietJet Air");
   expect(text).toContain("Oakley Tutors");
-  expect(text).toContain("St Edmund Hall President");
+  expect(text).toContain(cv.leadership[0].title);
   expect(text).not.toContain("gmai.com");
   expect(text).not.toMatch(/\d(?:\s?\d){8,}/);
 

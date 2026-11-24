@@ -9,7 +9,9 @@ test.use({ javaScriptEnabled: false });
 test("no JavaScript: the CV window is visible, not a frozen boot screen", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator('section[data-win="cv"]')).toBeVisible();
-  await expect(page.locator('section[data-win="cv"]').getByText(cv.roles[0].title)).toBeVisible();
+  await expect(
+    page.locator('section[data-win="cv"]').getByText(cv.roles[0].title, { exact: true }),
+  ).toBeVisible();
   await expect(page.locator('section[data-win="about"]')).toHaveCount(0);
   await expect(page.locator(".boot")).toBeHidden();
   await expect(page.locator(".setup")).toBeHidden();
@@ -62,8 +64,8 @@ for (const size of NO_JS_SIZES) {
     const inWin = (id: string) => page.locator(`section[data-win="${id}"]`);
 
     await expect(inWin("about")).toHaveCount(0);
-    await expect(inWin("cv").getByText(cv.roles[0].title)).toBeVisible();
-    await expect(inWin("cv").getByText(cv.roles[1].title)).toBeVisible();
+    await expect(inWin("cv").getByText(cv.roles[0].title, { exact: true })).toBeVisible();
+    await expect(inWin("cv").getByText(cv.roles[1].title, { exact: true })).toBeVisible();
     for (const p of projects) {
       const w = inWin(`project:${p.id}`);
       await expect(w.getByRole("heading", { name: p.title })).toBeVisible();
