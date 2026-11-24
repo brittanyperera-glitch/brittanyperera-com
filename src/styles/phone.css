@@ -452,6 +452,11 @@
     border-bottom-color: var(--ph-sep);
   }
 
+  /* windows.css redeclares --doc-accent on .win, so the root token alone never reaches the CV. */
+  .desktop .win {
+    --doc-accent: var(--ph-link);
+  }
+
   /* windows.css sets these two lines at 11.5px for the laptop window; too small on a phone. */
   .desktop .win .cv-doc > h3 + p,
   .desktop .win .cv-doc .cv-head + p {

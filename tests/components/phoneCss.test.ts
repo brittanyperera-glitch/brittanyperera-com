@@ -167,11 +167,33 @@ describe("phone.css", () => {
 });
 
 // A light surface on a phone is a bug: the whole phone view is dark. A highlight or a text fill is
-// not a surface, so these two are the only exceptions.
+// not a surface, so these are the only exceptions.
 const LIGHT_OK = new Set([
   ".phone-ic::after", // the glossy sheen on a coloured app icon
   ".browser-page iframe", // a live third-party site paints its own page; a transparent one needs a white canvas
+  // Garage pads and slider thumbs are metal controls with dark glyphs on them, not surfaces.
+  ".desktop .garage-btn",
+  ".desktop .garage-btn:active",
+  ".desktop .garage-btn.pressed",
+  ".desktop .garage-slider::-webkit-slider-thumb",
+  ".desktop .garage-slider::-moz-range-thumb",
 ]);
+
+// Relative luminance ceiling for a phone background: #9a9aa0 (0.32) passes, #aeaeb2 (0.42) fails.
+const LIGHT_MAX = 0.35;
+function literals(value: string): number[][] {
+  const out: number[][] = [];
+  for (const m of value.matchAll(/#([0-9a-f]{6}|[0-9a-f]{3})\b/gi)) {
+    const h = m[1].length === 3 ? [...m[1]].map((c) => c + c).join("") : m[1];
+    out.push(channels(`#${h}`));
+  }
+  for (const m of value.matchAll(/rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\s*\)/g)) {
+    const a = m[4] === undefined ? 1 : Number(m[4]);
+    out.push([1, 2, 3].map((i) => Math.round(Number(m[i]) * a)));
+  }
+  if (/\bwhite\b/i.test(value)) out.push([255, 255, 255]);
+  return out;
+}
 
 describe("phone-scoped rules", () => {
   const files = readdirSync("src/styles").filter((f) => f.endsWith(".css"));
@@ -182,14 +204,16 @@ describe("phone-scoped rules", () => {
       if (r.selectors.every((s) => LIGHT_OK.has(s))) continue;
       for (const m of r.decls.matchAll(/(?:^|[\s;])background(?:-color|-image)?:\s*([^;]+)/g)) {
         const value = m[1];
-        const light =
-          /#fff\b|#ffffff\b|\bwhite\b/i.test(value) ||
-          [...value.matchAll(/rgba\(\s*255,\s*255,\s*255,\s*([\d.]+)\)/g)].some(
-            (a) => Number(a[1]) > 0.5,
-          );
+        // Any colour literal (hex, rgb, rgba; alpha laid over black) brighter than LIGHT_MAX.
+        const light = literals(value).some((l) => luminance(l) > LIGHT_MAX);
         if (light) bad.push(`${r.selectors.join(", ")} -> ${value.trim()}`);
       }
     }
     expect(bad).toEqual([]);
+  });
+
+  it("the CV's accent is re-set on .win, since windows.css redeclares --doc-accent there", () => {
+    const wins = phone.filter((r) => r.selectors.includes(".desktop .win"));
+    expect(wins.some((r) => /--doc-accent:\s*var\(--ph-link\)/.test(r.decls))).toBe(true);
   });
 });

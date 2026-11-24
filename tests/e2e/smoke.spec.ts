@@ -37,9 +37,10 @@ test("the desktop page has one main landmark and one h1 carrying the site title"
 test.describe("before any JavaScript runs", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("the desktop background is already painted (no white flash)", async ({ page }) => {
+  test("the desktop background is already painted (no white flash)", async ({ page }, info) => {
     await page.goto("/");
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bg).toBe("rgb(107, 124, 153)");
+    // Phones are always dark (her decision 24 Nov), the laptop keeps the blue-grey desk.
+    expect(bg).toBe(info.project.name === "phone" ? "rgb(0, 0, 0)" : "rgb(107, 124, 153)");
   });
 });
