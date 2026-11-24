@@ -118,3 +118,56 @@ test("every window opened at 390x844: controls stay on screen", async ({ page },
     expect(await problems(page, PHONE_SIZE), `after opening ${id}`).toEqual([]);
   }
 });
+
+// The landing for every visitor must fit the screen: windows whole inside it, desktop icons not
+// covered. The sizes include the laptop screens where the old percentage layout ran off the bottom.
+const LANDING_SIZES: Size[] = [
+  { width: 1280, height: 720 },
+  { width: 1366, height: 768 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+];
+const VISITORS = ["recruiter", "collab", "client", "friend"] as const;
+
+async function landingProblems(page: Page, vp: Size): Promise<string[]> {
+  return page.evaluate(
+    ({ w, h }) => {
+      const out: string[] = [];
+      const bar = document.querySelector(".menubar")?.getBoundingClientRect().bottom ?? 0;
+      for (const s of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
+        const r = s.getBoundingClientRect();
+        if (r.left < 0 || r.right > w || r.top < bar || r.bottom > h) {
+          const box = `${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`;
+          out.push(`window ${s.dataset.win} at ${box} is not inside ${w}x${h} below the menu bar`);
+        }
+      }
+      for (const icon of document.querySelectorAll<HTMLElement>(".icons .icon")) {
+        const r = icon.getBoundingClientRect();
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (!hit || !icon.contains(hit)) {
+          const by = hit?.closest<HTMLElement>("section[data-win]")?.dataset.win ?? hit?.tagName;
+          out.push(`icon "${icon.textContent?.trim()}" is covered by ${by}`);
+        }
+      }
+      return out;
+    },
+    { w: vp.width, h: vp.height },
+  );
+}
+
+for (const visitor of VISITORS) {
+  for (const size of LANDING_SIZES) {
+    test(`landing for ${visitor} at ${size.width}x${size.height}: windows fit and icons are uncovered`, async ({
+      page,
+    }, info) => {
+      test.skip(info.project.name === "phone", "desktop sizes run in the desktop project");
+      await blockSites(page);
+      await page.setViewportSize(size);
+      await skipSetup(page, visitor);
+      await page.goto("/");
+      await settle(page, info);
+      await expect(openWindows(page)).not.toHaveCount(0);
+      expect(await landingProblems(page, size)).toEqual([]);
+    });
+  }
+}
