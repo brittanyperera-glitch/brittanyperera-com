@@ -260,7 +260,11 @@ export function GameView({ game, paused, waiting, onOpenCv, phone, dispatch }: P
             </div>
           </div>
           {game.status === "playing" ? null : (
-            <button type="button" className="pbtn" onClick={() => dispatch({ type: "restart" })}>
+            <button
+              type="button"
+              className="pbtn cvb-again"
+              onClick={() => dispatch({ type: "restart" })}
+            >
               {cvBuilder.again}
             </button>
           )}

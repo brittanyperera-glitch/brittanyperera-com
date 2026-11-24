@@ -282,6 +282,32 @@ describe("CV Builder start", () => {
     expect(board().dataset.pieceY).toBe("1");
   });
 
+  it("waits for the first input again after a restart from the alert", () => {
+    vi.useFakeTimers();
+    setup(almostTopOut);
+    press(" ");
+    fireEvent.click(
+      within(screen.getByRole("alertdialog")).getByRole("button", { name: cvBuilder.lose.button }),
+    );
+    expect(screen.getByText(cvBuilder.startLabel)).toBeInTheDocument();
+    fall(5);
+    expect(board().dataset.pieceY).toBe("0");
+    press(" ");
+    fall(1);
+    expect(board().dataset.pieceY).toBe("1");
+  });
+
+  it("waits for the first input again after play again in the window", () => {
+    vi.useFakeTimers();
+    setup(almostTopOut);
+    press(" ");
+    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: cvBuilder.again }));
+    expect(screen.getByText(cvBuilder.startLabel)).toBeInTheDocument();
+    fall(5);
+    expect(board().dataset.pieceY).toBe("0");
+  });
+
   it("does not start while another window is in front", () => {
     vi.useFakeTimers();
     setup(undefined, CV_THEN_PROJECTS);
