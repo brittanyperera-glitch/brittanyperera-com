@@ -127,6 +127,13 @@ describe("SetupFlow", () => {
     expect(screen.getByRole("button", { name: /Continue/ })).toBeEnabled();
   });
 
+  it("focus moves to the first radio when the visitor step appears", () => {
+    renderFlow();
+    throughBoot();
+    click(/Continue/);
+    expect(document.activeElement).toBe(screen.getAllByRole("radio")[0]);
+  });
+
   it("never shows a colour picker on any step", () => {
     renderFlow();
     throughBoot();
@@ -183,7 +190,7 @@ describe("SetupFlow", () => {
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
     advance(50);
-    expect(screen.getByText(copy.setup.installLines.at(-1) as string)).toBeInTheDocument();
+    for (const line of copy.setup.installLines) expect(screen.getByText(line)).toBeInTheDocument();
     advance(1150);
     expect(setupDialog()).toBeNull();
   });

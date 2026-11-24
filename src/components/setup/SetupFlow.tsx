@@ -142,7 +142,8 @@ export function SetupFlow() {
   useEffect(() => {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
-    const visitor = s.visitor ?? "recruiter";
+    if (!s.visitor) throw new Error("visitor not picked");
+    const visitor = s.visitor;
     writeJSON(DONE_KEY, { visitor });
     const phone = desk.mode === "phone";
     if (!resumed.current) focusPending.current = { phone };
@@ -160,8 +161,9 @@ export function SetupFlow() {
   useEffect(() => {
     const pending = focusPending.current;
     if (!pending || s.phase !== "done" || !front) return;
+    if (!s.visitor) throw new Error("visitor not picked");
     focusPending.current = null;
-    const main = phoneWindow(s.visitor ?? "recruiter");
+    const main = phoneWindow(s.visitor);
     document.querySelector<HTMLElement>(`section[data-win="${main}"] .close`)?.focus();
     if (pending.phone) alert({ icon: "note", body: copy.alerts.phone });
   }, [s.phase, s.visitor, front, alert]);

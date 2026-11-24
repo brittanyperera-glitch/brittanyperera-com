@@ -57,6 +57,11 @@ export function SetupAssistant({
     nextRef.current?.focus();
   }, []);
 
+  // Continue is disabled until a visitor is picked, so hand focus to the first radio.
+  useEffect(() => {
+    if (step === 1) rootRef.current?.querySelector<HTMLElement>('[role="radio"]')?.focus();
+  }, [step]);
+
   return (
     <div ref={rootRef} className="setup" role="dialog" aria-modal="true" aria-label={s.windowTitle}>
       <div className="assistant bevel">
@@ -123,7 +128,11 @@ export function SetupAssistant({
                       <span style={{ width: `${pct}%` }} />
                     </div>
                     <div className="install-line" aria-live="polite">
-                      {installLine >= 0 ? s.installLines[installLine] : " "}
+                      {reduced
+                        ? s.installLines.map((l) => <div key={l}>{l}</div>)
+                        : installLine >= 0
+                          ? s.installLines[installLine]
+                          : " "}
                     </div>
                   </div>
                 )}
