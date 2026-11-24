@@ -116,4 +116,31 @@
   .browser-throbber {
     margin-left: auto;
   }
+
+  /* Dark chrome. The page itself is a third-party site, so the iframe keeps its white canvas. */
+  .desktop .browser-bar {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .browser-address {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+    border: 1px solid var(--ph-edge);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .desktop .browser-throbber {
+    background: var(--ph-raised);
+    border: 1px solid var(--ph-edge);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .desktop .browser-page {
+    background: var(--ph-bg);
+    box-shadow: none;
+  }
 }

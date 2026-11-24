@@ -1,3 +1,42 @@
+/* Phones are always dark, whatever the visitor's prefers-color-scheme: an iPhone-style dark mode.
+   The tokens are defined once here; phone-home.css and the phone blocks of the app stylesheets use
+   them. On html (not .desktop) because the alert and the lock sit beside the desktop, not in it.
+   Text pairs are 4.5:1 or better and the focus ring 3:1 or better on every surface, checked in
+   tests/components/phoneCss.test.ts. --accent and --accent-ink are the focus ring and selection
+   colours the app stylesheets already read, so they follow the dark palette without edits. */
+@media (max-width: 700px) {
+  html:has(.desktop) {
+    color-scheme: dark;
+    --ph-bg: #000000;
+    --ph-cell: #1c1c1e;
+    --ph-raised: #2c2c2e;
+    --ph-sep: #2c2c2e;
+    --ph-hair: #38383a;
+    --ph-edge: #48484a;
+    --ph-key-hi: #3a3a3c;
+    --ph-text: #ffffff;
+    --ph-text2: #a1a1a6;
+    --ph-link: #409cff;
+    --ph-btn-top: #1670dc;
+    --ph-btn-bot: #0a58c0;
+    --ph-btn-edge: #0a4a9f;
+    --ph-ring: #ffffff;
+    --ph-glass: rgba(28, 28, 30, 0.94);
+    --ph-wall-top: #1d2536;
+    --ph-wall-mid: #121722;
+    --ph-wall-bot: #0a0d14;
+    --accent: var(--ph-ring);
+    --accent-ink: #000000;
+    --doc-accent: var(--ph-link);
+  }
+
+  /* html body: beats desktop.css's textured desk background whichever stylesheet loads last. */
+  html body:has(.desktop) {
+    color: var(--ph-text);
+    background: var(--ph-bg);
+  }
+}
+
 /* Phones: the desktop becomes a grid of big icons and each window opens full screen, one at a time.
    Layout is keyed on the same (max-width: 700px) query Desktop uses for its mode, so it applies on
    the server-rendered HTML and without JavaScript. Before hydration a window still carries its
@@ -39,8 +78,8 @@
     height: 44px;
     margin: 0;
     padding: 0 96px;
-    background: linear-gradient(#f7f8fb, #d9dde6);
-    border-bottom: 1px solid #8f98a8;
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
   }
 
   .desktop .win .titlebar::before {
@@ -54,7 +93,7 @@
     padding: 0;
     font-size: 17px;
     font-weight: bold;
-    color: #1c2330;
+    color: var(--ph-text);
   }
 
   /* The back button carries its own label ("Home", or the parent app), so it grows to fit it. The
@@ -73,8 +112,8 @@
     font-size: 14px;
     font-weight: bold;
     color: #fff;
-    background: linear-gradient(#3f6fb8, #2d5a9e);
-    border: 1px solid #2d5a9e;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
     border-radius: 6px;
     box-shadow: none;
   }
@@ -135,7 +174,7 @@
   cursor: default;
 }
 
-/* Light grouped-list look (variant B) for the CV, Projects, Contact, Trash and Photos apps only.
+/* Dark grouped-list look (variant B) for the CV, Projects, Contact, Trash and Photos apps only.
    CV Builder, Music, Garage and YouTube keep their own phone styles. */
 @media (max-width: 700px) {
   .desktop
@@ -147,7 +186,7 @@
       [data-win="photos"]
     ) {
     padding: 0;
-    background: #eef1f7;
+    background: var(--ph-bg);
     border: 0;
   }
 
@@ -160,7 +199,7 @@
       [data-win="photos"]
     )
     .body {
-    background: #eef1f7;
+    background: var(--ph-bg);
     border: 0;
     box-shadow: none;
     font-size: 16px;
@@ -173,13 +212,14 @@
     padding: 14px;
   }
 
-  /* Rows and cards are white groups with a hairline border and rounded corners. */
+  /* Rows and cards are dark grouped cells with a hairline border and rounded corners. */
   .desktop .win[data-win="projects"] .folder-grid,
   .desktop .win[data-win="trash"] .trash-list,
   .desktop .win[data-win="contact"] .row,
   .desktop .win[data-win="cv"] .cv-doc {
-    background: #fff;
-    border: 1px solid #c9d0de;
+    color: var(--ph-text);
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
     border-radius: 10px;
     box-shadow: none;
     overflow: hidden;
@@ -199,7 +239,7 @@
     gap: 14px;
     padding: 12px 14px;
     text-align: left;
-    border-bottom: 1px solid #e1e5ee;
+    border-bottom: 1px solid var(--ph-sep);
   }
 
   .desktop .win[data-win="projects"] .folder-grid .icon:last-child {
@@ -213,7 +253,7 @@
     background: none;
     font-size: 17px;
     line-height: 1.3;
-    color: #1c2330;
+    color: var(--ph-text);
   }
 
   .desktop .win[data-win="projects"] .folder-grid .icon::after {
@@ -221,24 +261,24 @@
     flex: none;
     width: 8px;
     height: 8px;
-    border-top: 2px solid #9aa4b6;
-    border-right: 2px solid #9aa4b6;
+    border-top: 2px solid var(--ph-text2);
+    border-right: 2px solid var(--ph-text2);
     transform: rotate(45deg);
   }
 
   .desktop .win[data-win="projects"] .folder-grid .icon.selected {
-    background: #dfe8f7;
+    background: var(--ph-raised);
   }
 
   .desktop .win[data-win="projects"] .folder-grid .icon.selected .label {
     background: none;
-    color: #1c2330;
+    color: var(--ph-text);
   }
 
   .desktop .win:is([data-win="projects"], [data-win="trash"]) .info {
     border: 0;
     font-size: 14px;
-    color: #5b6578;
+    color: var(--ph-text2);
   }
 
   .desktop .win[data-win="trash"] .info {
@@ -247,7 +287,7 @@
 
   .desktop .win[data-win="trash"] .trash-list li {
     padding: 12px 14px;
-    border-bottom: 1px solid #e1e5ee;
+    border-bottom: 1px solid var(--ph-sep);
   }
 
   .desktop .win[data-win="trash"] .trash-list li:last-child {
@@ -265,13 +305,14 @@
   .desktop .win[data-win="contact"] .email-field {
     margin: 12px 0;
     padding: 12px 14px;
-    background: #fff;
-    border: 1px solid #c9d0de;
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
     border-radius: 10px;
+    box-shadow: none;
     font-size: 17px;
   }
 
-  /* The CV is one white card; the page-on-a-desk look of the laptop window goes. */
+  /* The CV is one dark card; the page-on-a-desk look of the laptop window goes. */
   .desktop .win[data-win="cv"] .paper-desk {
     margin: 0;
     padding: 0;
@@ -308,8 +349,8 @@
     margin: 0;
     font-size: 17px;
     color: #fff;
-    background: linear-gradient(#3f6fb8, #2d5a9e);
-    border: 1px solid #2d5a9e;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
     border-radius: 10px;
     box-shadow: none;
   }
@@ -317,5 +358,139 @@
   .desktop .win[data-win="cv"] .doc-toolbar .pbtn svg {
     width: 18px;
     height: 18px;
+  }
+}
+
+/* Dark paint for every window and the alert. The Platinum rules in platinum.css, windows.css and
+   desktop.css set light colours with specificity up to (0,3,0); the [data-win] and .desktop
+   prefixes here put each rule above them, so stylesheet load order does not matter. */
+@media (max-width: 700px) {
+  /* The nav bar spans the full width, so a window has no 5px Platinum frame. */
+  .desktop .win[data-win] {
+    padding: 0;
+    color: var(--ph-text);
+    background: var(--ph-bg);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .desktop .win[data-win] .body {
+    color: var(--ph-text);
+    background: var(--ph-bg);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .alert-layer a,
+  .desktop .win .body a,
+  .desktop .win .doc-toolbar a,
+  .desktop .win .body .linklike {
+    color: var(--ph-link);
+  }
+
+  .desktop .win .body .info,
+  .desktop .win .open-hint,
+  .desktop .win .album-count,
+  .desktop .win .yt-by {
+    color: var(--ph-text2);
+  }
+
+  .desktop .win .body .info {
+    border-bottom-color: var(--ph-sep);
+  }
+
+  .desktop .win .tag {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+    border-color: var(--ph-edge);
+  }
+
+  /* Buttons: a glossy raised key; the default one is the blue primary. */
+  .alert-layer .pbtn,
+  .desktop .win .pbtn {
+    color: var(--ph-text);
+    background: linear-gradient(
+      var(--ph-key-hi),
+      var(--ph-raised) 50%,
+      var(--ph-cell) 51%,
+      var(--ph-raised)
+    );
+    border: 1px solid var(--ph-edge);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .alert-layer .pbtn.default,
+  .desktop .win .pbtn.default {
+    color: #fff;
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border-color: var(--ph-btn-edge);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .alert-layer .pbtn:active,
+  .desktop .win .pbtn:active {
+    filter: brightness(0.8);
+  }
+
+  .alert-layer .pbtn[disabled],
+  .desktop .win .pbtn[disabled] {
+    color: var(--ph-text2);
+  }
+
+  /* The CV's own text colours (windows.css) are dark greys meant for paper. */
+  .desktop .win[data-win="cv"] .cv-doc p,
+  .desktop .win[data-win="cv"] .cv-doc ul {
+    color: var(--ph-text);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc .cv-when {
+    color: var(--ph-text2);
+  }
+
+  .desktop .win[data-win="cv"] .cv-doc h4 {
+    border-bottom-color: var(--ph-sep);
+  }
+
+  .desktop .win .readme {
+    background: var(--ph-cell);
+    border-bottom: 1px solid var(--ph-hair);
+  }
+
+  .desktop .win .case-image,
+  .desktop .win .promo {
+    border-color: var(--ph-edge);
+  }
+
+  .desktop .win fieldset {
+    margin: 0 0 10px;
+    border: 1px solid var(--ph-hair);
+    border-radius: 10px;
+  }
+
+  /* Folder icons inside a window (Music's list): label chips are plain text on the dark page. */
+  .desktop .win .icon .label {
+    color: var(--ph-text);
+    background: none;
+  }
+
+  .desktop .win .icon.selected .label {
+    color: var(--ph-text);
+    background: var(--ph-raised);
+  }
+
+  /* The Stickies note is yellow on a laptop; on a phone it is one more dark cell. */
+  .desktop .win[data-win="note"] .titlebar {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+  }
+
+  .desktop .win[data-win="note"] .titlebar .t {
+    color: var(--ph-text);
+  }
+
+  .desktop .win[data-win="note"] .body {
+    color: var(--ph-text);
+    background: var(--ph-cell);
   }
 }

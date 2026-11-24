@@ -321,4 +321,95 @@
   .scrap-scroll {
     height: 28px;
   }
+
+  /* Dark: album and photo pages are black like Photos on a phone; the Platinum toolbar, mat and
+     scroll bar become dark glass and cells. */
+  .desktop .photo-albums,
+  .desktop .photo-grid {
+    background: var(--ph-bg);
+  }
+
+  .desktop .album-tile {
+    color: var(--ph-text);
+  }
+
+  .desktop .album-cover,
+  .desktop .photo-thumb {
+    background: var(--ph-raised);
+  }
+
+  .desktop .scrap-toolbar,
+  .desktop .scrap-foot {
+    background: var(--ph-glass);
+    border-bottom: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-foot {
+    border-top: 1px solid var(--ph-hair);
+    border-bottom: 0;
+  }
+
+  .desktop .scrap-sep {
+    background: var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-page {
+    background: var(--ph-bg);
+    box-shadow: none;
+  }
+
+  .desktop .photo-stage {
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .photo-stage img {
+    border-color: var(--ph-hair);
+    box-shadow: none;
+  }
+
+  .desktop .win .body .photo-caption {
+    color: var(--ph-text);
+    background: var(--ph-cell);
+    border: 1px solid var(--ph-hair);
+    box-shadow: none;
+  }
+
+  /* The end arrows are dark glyphs on light tiles and cannot be recoloured, and the slider needs
+     the room on a phone; the drag bar stays. */
+  .desktop .scrap-scrollbar {
+    padding: 0 8px;
+    background: var(--ph-cell);
+    border-top: 1px solid var(--ph-hair);
+  }
+
+  .desktop .scrap-scrollbar::before,
+  .desktop .scrap-scrollbar::after {
+    display: none;
+  }
+
+  .desktop .scrap-scroll::-webkit-slider-runnable-track {
+    background: var(--ph-raised);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-moz-range-track {
+    background: var(--ph-raised);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-webkit-slider-thumb {
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    box-shadow: none;
+  }
+
+  .desktop .scrap-scroll::-moz-range-thumb {
+    background: linear-gradient(to bottom, var(--ph-btn-top), var(--ph-btn-bot));
+    border: 1px solid var(--ph-btn-edge);
+    box-shadow: none;
+  }
 }
