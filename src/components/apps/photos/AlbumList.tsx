@@ -40,6 +40,7 @@ export function AlbumList({ albums, onOpen, focusId }: Props) {
             alt=""
             width={240}
             height={240}
+            loading="lazy"
             decoding="async"
           />
           <span className="album-title">{a.title}</span>

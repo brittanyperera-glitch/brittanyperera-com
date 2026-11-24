@@ -131,6 +131,9 @@ describe("content strings", () => {
   it("lists photo albums with unique ids, none empty, and videos that exist", () => {
     const ids = photos.albums.map((a) => a.id);
     for (const a of photos.albums) expect(a.items.length).toBeGreaterThan(0);
+    // AlbumGrid keys thumbnails by src, so a photo appears once per album.
+    for (const a of photos.albums)
+      expect(new Set(a.items.map((i) => i.src)).size).toBe(a.items.length);
     expect(new Set(ids).size).toBe(ids.length);
     const known = new Set(youtube.videos.map((v) => v.id));
     for (const a of photos.albums)
