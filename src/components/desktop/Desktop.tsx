@@ -29,7 +29,7 @@ import {
 } from "@/lib/windows";
 import { DesktopIcons } from "./DesktopIcons";
 import { MenuBar } from "./MenuBar";
-import { measureTitle } from "./titleMetrics";
+import { measureNatural, measureTitle, type Natural } from "./titleMetrics";
 import { Window } from "./Window";
 
 const CV_PDF = "/Brittany-Perera-CV.pdf";
@@ -123,14 +123,16 @@ function DesktopInner({ windows, children }: DesktopProps) {
   // one has no layout, and Window re-clamps it when it next opens.
   const clampWindows = useCallback(() => {
     const sizes: Partial<Record<WinId, TitleMetrics>> = {};
+    const natural: Partial<Record<WinId, Natural>> = {};
+    const phone = document.querySelector('.desktop[data-mode="phone"]') !== null;
     for (const el of document.querySelectorAll<HTMLElement>("section[data-win]:not([hidden])")) {
       sizes[el.dataset.win as WinId] = measureTitle(el);
+      if (!phone) natural[el.dataset.win as WinId] = measureNatural(el);
     }
-    dispatch({
-      type: "clampAll",
-      viewport: { w: window.innerWidth, h: window.innerHeight },
-      sizes,
-    });
+    const viewport = { w: window.innerWidth, h: window.innerHeight };
+    dispatch({ type: "clampAll", viewport, sizes });
+    // A window opened large must not stay off-screen after the viewport shrinks.
+    dispatch({ type: "refit", viewport, sizes: natural });
   }, []);
 
   useEffect(() => {

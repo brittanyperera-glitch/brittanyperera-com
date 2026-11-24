@@ -1,8 +1,7 @@
 /* Browser window: late-90s Platinum chrome (toolbar, address field, throbber) around the live site. */
 .win[data-win^="browser:"] .body {
   padding: 0;
-  max-height: none;
-  overflow: hidden;
+  overflow: auto;
   line-height: normal;
 }
 

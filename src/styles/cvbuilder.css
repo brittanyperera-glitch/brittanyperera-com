@@ -11,8 +11,7 @@
 /* The game fills the window body edge to edge on a dark ground. */
 .win[data-win="cvbuilder"] .body {
   padding: 0;
-  max-height: none;
-  overflow: hidden;
+  overflow: auto;
   background: #2a2f3a;
   border-color: #111;
   box-shadow: none;
@@ -25,8 +24,9 @@
 }
 
 .cvb {
-  /* 1024x600 is the tight case: ~330px of banner, padding, cabinet and hint sit around the 16 rows. */
-  --cvb-cell: clamp(15px, calc((100vh - 330px) / 16), 21px);
+  /* ~330px of banner, padding, cabinet and hint sit around the 16 rows. The rows take what the
+     window's body cap leaves (set by Window.tsx), so the board never needs its own scrollbar. */
+  --cvb-cell: clamp(10px, calc((var(--body-max, 100vh) - 330px) / 16), 21px);
   --cvb-mini: 12px;
   --cvb-ink: #1b1b1b;
   color: #e8ecf4;
