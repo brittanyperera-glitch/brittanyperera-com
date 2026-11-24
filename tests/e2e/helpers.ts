@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
+import { expect, type Locator, type Page, type TestInfo, test } from "@playwright/test";
 import { copy } from "../../src/content/copy";
 import { music } from "../../src/content/music";
 import { projects, projectUi, siteProjects } from "../../src/content/projects";
@@ -27,16 +27,50 @@ export async function skipSetup(page: Page, visitor: Visitor = "recruiter") {
   );
 }
 
+/**
+ * Apps with a laptop icon but no way in on a phone (not in copy.phone.apps, src/content/copy.ts).
+ * Phone specs skip them with a fixme; drop an id here once the home screen carries it.
+ */
+export const NOT_ON_PHONE_HOME: WinId[] = ["truths"];
+export const PHONE_GAP = "Two Truths has no home-screen icon on a phone (copy.phone.apps)";
+
 export const win = (page: Page, id: WinId): Locator => page.locator(`section[data-win="${id}"]`);
 
 export const openWindows = (page: Page): Locator => page.locator("section[data-win]:not([hidden])");
 
-/** Wait for hydration to finish removing the boot and setup overlays. */
-export async function settle(page: Page, _info: TestInfo) {
+/**
+ * Wait for hydration to finish removing the boot and setup overlays. On a phone that also means
+ * the home screen is live: it is inert until the client knows it is a phone.
+ */
+export async function settle(page: Page, info: TestInfo) {
   await expect(page.locator(".boot, .setup")).toHaveCount(0);
+  if (isPhone(info)) {
+    await expect(page.locator(".phone-home")).not.toHaveAttribute("inert");
+    // The dev server's badge sits over the dock's first icon and swallows taps; a visitor never sees it.
+    await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+  }
 }
 
-/** Opens a window the way a keyboard user would: focus its icon and press Enter. */
+/** Phone only: back out of whatever is open (each back goes to the parent) until the home screen shows. */
+export async function goHome(page: Page) {
+  const front = page.locator("section[data-win]:not([hidden]) .close");
+  for (let i = 0; i < 6 && (await front.count()) > 0; i++) await front.last().click();
+  await expect(page.locator("section[data-win]:not([hidden])")).toHaveCount(0);
+}
+
+/** The visitor's own way to a top-level app: its icon on the desktop, or on the phone's home screen. */
+async function openTopLevel(page: Page, id: WinId) {
+  const info = test.info();
+  if (isPhone(info)) {
+    await goHome(page);
+    await page.locator(`.phone-home [data-open="${id}"]`).tap();
+    return;
+  }
+  await page.locator(`.icons [data-open="${id}"]`).focus();
+  await page.keyboard.press("Enter");
+}
+
+/** Opens a window as a visitor would: Enter on its icon (laptop), a tap on its home-screen icon (phone). */
 export async function openWin(page: Page, id: WinId) {
   if (id.startsWith("browser:")) {
     // The way in is the About window's default button, as for a visitor.
@@ -52,7 +86,9 @@ export async function openWin(page: Page, id: WinId) {
     if (!(await win(page, "music").isVisible())) await openWin(page, "music");
     await win(page, "music").locator("button.icon", { hasText: music.appName }).focus();
   } else {
-    await page.locator(`.icons [data-open="${id}"]`).focus();
+    await openTopLevel(page, id);
+    await expect(win(page, id)).toBeVisible();
+    return;
   }
   await page.keyboard.press("Enter");
   await expect(win(page, id)).toBeVisible();

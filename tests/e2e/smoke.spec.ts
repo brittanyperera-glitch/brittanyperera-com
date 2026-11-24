@@ -1,9 +1,18 @@
 import { expect, test } from "@playwright/test";
 import { meta } from "../../src/content/meta";
+import { isPhone } from "./helpers";
 
-test("home page responds and renders the desktop shell", async ({ page }) => {
+test("home page responds and renders the shell for the screen size", async ({ page }, info) => {
   const res = await page.goto("/");
   expect(res?.status()).toBe(200);
+  if (isPhone(info)) {
+    // A phone gets the status bar and home screen, with the CV one tap away; no menu bar.
+    await expect(page.locator(".phone-status")).toBeVisible();
+    await expect(page.locator(".phone-home")).toBeVisible();
+    await expect(page.locator('.phone-home [data-open="cv"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Special" })).toBeHidden();
+    return;
+  }
   await expect(page.getByRole("button", { name: "Special" })).toBeVisible();
   await expect(page.getByRole("button", { name: "CV", exact: true })).toBeVisible();
 });

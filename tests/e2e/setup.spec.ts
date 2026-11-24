@@ -9,6 +9,7 @@ const LAPTOP_ONLY = "a phone gets the lock screen, not the Setup Assistant";
 
 test.beforeEach(async ({ page: _page }, info) => {
   test.skip(isPhone(info) && !info.title.startsWith("phone:"), LAPTOP_ONLY);
+  test.skip(!isPhone(info) && info.title.startsWith("phone:"), "the lock screen is phone-only");
 });
 
 async function expectLanding(page: Page, visitor: Visitor = "recruiter") {
