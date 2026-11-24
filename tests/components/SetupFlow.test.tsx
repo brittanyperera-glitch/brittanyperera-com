@@ -165,25 +165,26 @@ describe("SetupFlow", () => {
     expect(openIds()).toEqual(landing("friend"));
   });
 
-  it("install lines hold 1s each, or 2s under reduced motion", () => {
-    const first = copy.setup.installLines[0];
+  it("install lines run 350ms apart and finish within 3s; reduced motion shows all at once, done within 1.2s", () => {
     const second = copy.setup.installLines[1];
     const { unmount } = renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
+    advance(400);
     expect(screen.getByText(second)).toBeInTheDocument();
+    advance(2600);
+    expect(setupDialog()).toBeNull();
     unmount();
+    window.localStorage.clear();
 
     mockMedia([REDUCED]);
     renderFlow();
     runToConclusion(/I'm hiring/);
     click(copy.setup.goAhead);
-    advance(1500);
-    expect(screen.getByText(first)).toBeInTheDocument();
-    expect(screen.queryByText(second)).toBeNull();
-    advance(1000);
-    expect(screen.getByText(second)).toBeInTheDocument();
+    advance(50);
+    expect(screen.getByText(copy.setup.installLines.at(-1) as string)).toBeInTheDocument();
+    advance(1150);
+    expect(setupDialog()).toBeNull();
   });
 
   it("reduced motion shows all four greetings at once, each with its lang", () => {
