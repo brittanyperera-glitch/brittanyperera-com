@@ -205,7 +205,7 @@
     font-size: 16px;
   }
 
-  /* Photos keeps its own zero padding: the album viewer inside it runs edge to edge. */
+  /* Photos keeps its own zero padding: the viewer inside it runs edge to edge. */
   .desktop
     .win:is([data-win="cv"], [data-win="projects"], [data-win="contact"], [data-win="trash"])
     .body {
@@ -390,7 +390,6 @@
 
   .desktop .win .body .info,
   .desktop .win .open-hint,
-  .desktop .win .album-count,
   .desktop .win .yt-by {
     color: var(--ph-text2);
   }

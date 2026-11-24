@@ -1,1 +1,1 @@
-export type { PhotoAlbum, PhotoItem } from "@/content/photos";
+export type { PhotoItem } from "@/content/photos";
