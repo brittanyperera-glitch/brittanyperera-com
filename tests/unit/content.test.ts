@@ -93,7 +93,7 @@ describe("content strings", () => {
   });
   it("describes the site in the agreed meta description", () => {
     expect(meta.description).toBe(
-      "Brittany Perera. Geospatial engineer at PangeAI. CV and side projects.",
+      "Brittany Perera. AI software engineer working on geospatial AI. CV, projects and the rest of me.",
     );
   });
   it("builds the copy-failed alert from the contact email", () => {

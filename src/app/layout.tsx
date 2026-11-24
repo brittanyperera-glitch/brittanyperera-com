@@ -1,26 +1,37 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { cv } from "@/content/cv";
 import { meta } from "@/content/meta";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://brittanyperera.com"),
+  metadataBase: new URL(meta.siteUrl),
   title: meta.title,
   description: meta.description,
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: "/",
     siteName: meta.title,
     title: meta.title,
     description: meta.description,
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: meta.title }],
   },
   twitter: {
     card: "summary_large_image",
     title: meta.title,
     description: meta.description,
-    images: ["/og.png"],
   },
 };
+
+const personJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: cv.name,
+  alternateName: meta.alternateName,
+  url: meta.siteUrl,
+  jobTitle: cv.headline,
+  sameAs: [cv.linkedin, cv.github],
+  alumniOf: { "@type": "CollegeOrUniversity", name: meta.alumniOf },
+}).replace(/</g, "\\u003c");
 
 // Only parsed when scripting is off. The boot and setup overlays need JavaScript to ever go away, so
 // hide them, and lay the windows out as a plain readable column (menus, icons and the Projects
@@ -55,6 +66,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         {children}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: serialised from our own content, "<" escaped */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: personJsonLd }} />
         <noscript>
           {/* biome-ignore lint/security/noDangerouslySetInnerHtml: a static constant, never user input */}
           <style dangerouslySetInnerHTML={{ __html: NO_JS_CSS }} />
