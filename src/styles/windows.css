@@ -88,6 +88,33 @@
   font: 12px / 1.55 var(--doc-serif);
 }
 
+/* Optional case-study sections under the read-me. */
+.win .case-section {
+  margin-top: 12px;
+}
+
+.win .case-section h4 {
+  margin: 0 0 4px;
+  font: bold 12px var(--doc-ui);
+}
+
+.win .case-section p {
+  margin: 0;
+}
+
+.win .case-stack,
+.win .case-links {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.win .case-image {
+  display: block;
+  max-width: 100%;
+  margin-top: 12px;
+  border: 1px solid #5a5a5a;
+}
+
 /* A portrait promo: capped height so the About window stays short, centred on black. */
 .win .promo {
   display: block;

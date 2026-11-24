@@ -14,6 +14,15 @@ export type Project = {
   codeUrl?: string;
   /** A promo video shown in the About window, hosted in public/video. */
   video?: { src: string; poster: string; label: string };
+  /** Case-study sections, shown in this order when present. Absent ones render nothing. */
+  problem?: string;
+  built?: string;
+  hardest?: string;
+  result?: string;
+  stack?: string[];
+  /** Outbound links listed in the case study; separate from the button above. */
+  links?: { live?: string; repo?: string; video?: string };
+  image?: { src: string; alt: string };
 };
 
 export const projects: Project[] = [
@@ -58,4 +67,13 @@ export const projectUi = {
   reload: "Reload",
   address: "Address",
   newTab: "open in a new tab",
+  sections: {
+    problem: "The problem",
+    built: "What I built",
+    hardest: "The hardest part",
+    result: "The result",
+    stack: "Stack",
+    links: "Links",
+  },
+  linkLabels: { live: "live site", repo: "code", video: "video" },
 };
