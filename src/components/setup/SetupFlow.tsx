@@ -3,9 +3,12 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
 import { useAlertOpen } from "@/components/alert/AlertProvider";
 import { useDesktop } from "@/components/desktop/Desktop";
+import { PhoneLock } from "@/components/phone/PhoneLock";
 import { copy } from "@/content/copy";
 import {
+  DONE_KEY,
   initialSetup,
+  PHONE_QUERY,
   phoneWindow,
   REPLAY_EVENT,
   setupReducer,
@@ -19,7 +22,6 @@ import "@/styles/setup.css";
 import { BOOT_ICONS, Boot } from "./Boot";
 import { SetupAssistant } from "./SetupAssistant";
 
-const DONE_KEY = "bp:setup-done";
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
 
 const BOOT_MS = 900;
@@ -39,10 +41,11 @@ const isVisitor = (v: unknown): v is Visitor => copy.setup.visitors.some((x) => 
 /**
  * First-visit boot screen and Setup Assistant. Mount it as a child of <Desktop>. It renders the
  * boot overlay on the server, then reads the stored visitor after hydration and either resumes or
- * runs the assistant; on finishing it opens that visitor's windows.
+ * runs the assistant; on finishing it opens that visitor's windows. A phone gets the lock screen
+ * instead of the boot and assistant, and nothing opens by itself: it lands on the home screen.
  */
 export function SetupFlow() {
-  const { open, setBusy, state: desk } = useDesktop();
+  const { open, setBusy, busy, setVisitor, state: desk } = useDesktop();
   const alertOpen = useAlertOpen();
   const [s, dispatch] = useReducer(setupReducer, undefined, initialSetup);
   const [marched, setMarched] = useState(0);
@@ -54,6 +57,8 @@ export function SetupFlow() {
   // Set when this visit's setup ends. Focus moves once the windows are open and the desktop has
   // stopped being inert.
   const focusPending = useRef(false);
+  // The phone twin of focusPending: after the lock, focus goes to the first home icon.
+  const focusHome = useRef(false);
 
   // Storage and matchMedia are read after hydration, before paint, so a returning visitor does not
   // see the boot screen flash and the server render stays identical to the first client render.
@@ -66,9 +71,13 @@ export function SetupFlow() {
       (isVisitor(saved?.visitor) ? saved?.visitor : null);
     if (visitor) {
       resumed.current = true;
+      setVisitor(visitor);
       dispatch({ type: "resume", visitor });
+    } else if (window.matchMedia(PHONE_QUERY).matches) {
+      // Read here, not from desk.mode: Desktop's layout effect sets that one after this runs.
+      dispatch({ type: "lock" });
     }
-  }, []);
+  }, [setVisitor]);
 
   useEffect(() => {
     const replay = () => {
@@ -145,9 +154,9 @@ export function SetupFlow() {
     };
   }, [s.phase, reduced]);
 
-  // Esc skips, but an open alert owns Esc first.
+  // Esc skips, but an open alert owns Esc first. The lock has nothing to skip to.
   useEffect(() => {
-    if (s.phase === "done" || alertOpen) return;
+    if (s.phase === "done" || s.phase === "lock" || alertOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") dispatch({ type: "skip" });
     };
@@ -160,17 +169,30 @@ export function SetupFlow() {
   useEffect(() => {
     if (s.phase !== "done" || finished.current) return;
     finished.current = true;
+    if (desk.mode === "phone") {
+      // No visitor means the lock was just opened: nothing to store until they pick on the card.
+      if (s.visitor) writeJSON(DONE_KEY, { visitor: s.visitor });
+      if (!resumed.current) focusHome.current = true;
+      return;
+    }
     if (!s.visitor) throw new Error("visitor not picked");
     const visitor = s.visitor;
     writeJSON(DONE_KEY, { visitor });
-    const phone = desk.mode === "phone";
     if (!resumed.current) focusPending.current = true;
-    if (phone) {
-      open(phoneWindow(visitor));
-    } else {
-      for (const id of copy.firstWindows[visitor]) open(id);
-    }
+    for (const id of copy.firstWindows[visitor]) open(id);
   }, [s.phase, s.visitor, desk.mode, open]);
+
+  // The page behind the lock is inert until `busy` clears, and focus cannot land on inert content.
+  useEffect(() => {
+    if (!focusHome.current || s.phase !== "done" || busy) return;
+    focusHome.current = false;
+    document.querySelector<HTMLElement>(".phone-home [data-open]")?.focus();
+  }, [s.phase, busy]);
+
+  // A lock left up while the window grows past the phone width: take the laptop's way out.
+  useEffect(() => {
+    if (s.phase === "lock" && desk.mode === "desktop") dispatch({ type: "skip" });
+  }, [s.phase, desk.mode]);
 
   // Once the windows are open and the desktop is no longer inert, put keyboard focus on the
   // visitor's main window's close box (not the Stickies note on top) instead of leaving it on <body>.
@@ -186,6 +208,8 @@ export function SetupFlow() {
   if (s.phase === "done") return null;
 
   const skip = () => dispatch({ type: "skip" });
+
+  if (s.phase === "lock") return <PhoneLock onUnlock={() => dispatch({ type: "unlock" })} />;
 
   if (s.phase === "boot" || s.phase === "splash") {
     return <Boot phase={s.phase} marched={marched} onSkip={skip} />;

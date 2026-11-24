@@ -13,32 +13,6 @@
     display: none;
   }
 
-  .desktop .icons {
-    top: 34px;
-    left: 12px;
-    right: 12px;
-    bottom: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: flex-start;
-    gap: 14px 0;
-  }
-
-  .desktop .icon {
-    width: 33.33%;
-    padding: 6px 0;
-  }
-
-  .desktop .icon svg {
-    width: 52px;
-    height: 52px;
-  }
-
-  .desktop .icon .label {
-    font-size: 12px;
-  }
-
   /* No :not([hidden]) here: the no-JS stylesheet shows the CV while it still carries the attribute. */
   .desktop .win {
     position: fixed;

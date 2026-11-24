@@ -245,26 +245,6 @@ describe("SetupFlow", () => {
     expect(setupDialog()).toBeNull();
     expect(win("CV.pdf")).not.toHaveAttribute("hidden");
   });
-
-  it("on a phone, opens only the visitor's most relevant window and shows no alert", () => {
-    mockMedia([PHONE]);
-    renderFlow();
-    runToConclusion(/I'm hiring/);
-    click(copy.setup.goAhead);
-    advance(20000);
-    expect(win("CV.pdf")).not.toHaveAttribute("hidden");
-    expect(screen.queryByLabelText("About me", { selector: "section" })).toBeNull();
-    expect(screen.queryByRole("alertdialog")).toBeNull();
-  });
-
-  it("on a phone, a returning visitor gets one window too", () => {
-    mockMedia([PHONE]);
-    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
-    renderFlow();
-    expect(win("Say hi")).not.toHaveAttribute("hidden");
-    expect(win("CV.pdf")).toHaveAttribute("hidden");
-    expect(screen.queryByRole("alertdialog")).toBeNull();
-  });
 });
 
 describe("visitor links (?for=)", () => {
@@ -292,15 +272,6 @@ describe("visitor links (?for=)", () => {
     expect(JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null")).toEqual({
       visitor: "client",
     });
-  });
-
-  it("on a phone lands on the one window and no alert", () => {
-    mockMedia([PHONE]);
-    window.history.replaceState(null, "", "/?for=client");
-    renderFlow();
-    expect(win("Say hi")).not.toHaveAttribute("hidden");
-    expect(openIds()).toHaveLength(1);
-    expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
   it("an unknown value falls back to the normal flow", () => {
@@ -406,5 +377,120 @@ describe("SetupFlow focus and motion", () => {
     renderFlow();
     advance(500);
     expect(setupDialog()).toBeNull();
+  });
+});
+
+// Her decision (24 Nov): a phone gets a lock screen and a home screen, never the Setup Assistant or
+// the boot, and nothing opens by itself.
+describe("SetupFlow on a phone", () => {
+  const lock = () => screen.queryByRole("dialog", { name: copy.phone.lock.label });
+  const home = (c: HTMLElement) => c.querySelector(".phone-home") as HTMLElement;
+  const dockIds = (c: HTMLElement) =>
+    [...c.querySelectorAll<HTMLElement>(".phone-dock [data-open]")].map((e) => e.dataset.open);
+  const stored = () => JSON.parse(window.localStorage.getItem("bp:setup-done") ?? "null");
+  const unlock = () => fireEvent.click(screen.getByRole("button", { name: copy.phone.lock.slide }));
+
+  beforeEach(() => mockMedia([PHONE]));
+  afterEach(() => window.history.replaceState(null, "", "/"));
+
+  it("a new visitor sees the lock, with her line and the four hellos, and no boot or assistant", () => {
+    const { container } = renderFlow();
+    const dialog = lock() as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog).toHaveClass("setup");
+    expect(dialog).toHaveTextContent(
+      "it seems youve got into my phone. all the stuff is clickable, it is my phone of course. nosiness is welcome.",
+    );
+    const spans = dialog.querySelectorAll(".hello-row [lang]");
+    expect(spans).toHaveLength(copy.setup.hello.length);
+    copy.setup.hello.forEach((h, i) => {
+      expect(spans[i]).toHaveAttribute("lang", h.lang);
+      expect(spans[i]).toHaveTextContent(h.text);
+    });
+    expect(bootOverlay(container)).toBeNull();
+    expect(setupDialog()).toBeNull();
+    expect(container.querySelector(".desktop")).toHaveAttribute("inert");
+    advance(20000);
+    expect(lock()).not.toBeNull();
+  });
+
+  it("the lock fills its clock and date on the client", () => {
+    renderFlow();
+    expect((lock() as HTMLElement).querySelector(".lock-time")).toHaveTextContent(/\d/);
+    expect((lock() as HTMLElement).querySelector(".lock-date")).not.toBeEmptyDOMElement();
+  });
+
+  it("Escape does not get past the lock", () => {
+    renderFlow();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(lock()).not.toBeNull();
+    expect(stored()).toBeNull();
+  });
+
+  it("clicking the knob unlocks onto the home screen: focus on the first icon, nothing open, nothing stored", () => {
+    const { container } = renderFlow();
+    unlock();
+    expect(lock()).toBeNull();
+    expect(container.querySelector(".desktop")).not.toHaveAttribute("inert");
+    expect(document.activeElement).toBe(home(container).querySelector("[data-open]"));
+    expect(openIds()).toEqual([]);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(dockIds(container)).toEqual(copy.phone.docks.none);
+    expect(stored()).toBeNull();
+  });
+
+  it("a returning visitor lands on home with their dock: no lock, no app open", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "client" }));
+    const { container } = renderFlow();
+    expect(lock()).toBeNull();
+    expect(bootOverlay(container)).toBeNull();
+    expect(openIds()).toEqual([]);
+    expect(dockIds(container)).toEqual(copy.phone.docks.client);
+    expect(container.querySelector(".desktop")).not.toHaveAttribute("inert");
+  });
+
+  it.each(["recruiter", "collab", "client", "friend"] as Visitor[])(
+    "?for=%s lands on home with that dock, no lock, and stores it",
+    (v) => {
+      window.history.replaceState(null, "", `/?for=${v}`);
+      const { container } = renderFlow();
+      expect(lock()).toBeNull();
+      expect(openIds()).toEqual([]);
+      expect(dockIds(container)).toEqual(copy.phone.docks[v]);
+      expect(stored()).toEqual({ visitor: v });
+    },
+  );
+
+  it("?for= beats a stored visitor", () => {
+    window.localStorage.setItem("bp:setup-done", JSON.stringify({ visitor: "friend" }));
+    window.history.replaceState(null, "", "/?for=client");
+    const { container } = renderFlow();
+    expect(dockIds(container)).toEqual(copy.phone.docks.client);
+    expect(stored()).toEqual({ visitor: "client" });
+  });
+
+  it("an unknown ?for= value still gets the lock", () => {
+    window.history.replaceState(null, "", "/?for=boss");
+    renderFlow();
+    expect(lock()).not.toBeNull();
+  });
+
+  it("the lock works with storage throwing on every read and write", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    renderFlow();
+    expect(() => unlock()).not.toThrow();
+    expect(lock()).toBeNull();
+  });
+
+  it("a laptop still gets no lock", () => {
+    mockMedia([]);
+    const { container } = renderFlow();
+    expect(lock()).toBeNull();
+    expect(bootOverlay(container)).not.toBeNull();
   });
 });

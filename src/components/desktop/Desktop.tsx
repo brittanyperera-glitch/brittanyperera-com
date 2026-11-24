@@ -7,18 +7,20 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
 } from "react";
 import { AlertProvider, useAlert, useAlertOpen } from "@/components/alert/AlertProvider";
+import { PhoneHome, PhoneStatus } from "@/components/phone/PhoneHome";
 import { copy } from "@/content/copy";
 import { projects, projectUi, siteProjects } from "@/content/projects";
 import { pickInk } from "@/lib/contrast";
-import { REPLAY_EVENT } from "@/lib/setup";
+import { DONE_KEY, PHONE_QUERY, REPLAY_EVENT } from "@/lib/setup";
 import { removeKey } from "@/lib/storage";
-import type { WinId } from "@/lib/types";
+import type { Visitor, WinId } from "@/lib/types";
 import {
   initialWindows,
   parentOf,
@@ -34,7 +36,6 @@ import { measureNatural, measureTitle, type Natural } from "./titleMetrics";
 import { Window } from "./Window";
 
 const CV_PDF = "/Brittany-Perera-CV.pdf";
-const PHONE_QUERY = "(max-width: 700px)";
 
 export type DesktopActions = {
   aboutmac(): void;
@@ -65,6 +66,10 @@ export type DesktopApi = {
   toggleSound(): void;
   /** True while a full-screen overlay (boot, Setup Assistant) is up: the desktop goes inert behind it. */
   setBusy(busy: boolean): void;
+  busy: boolean;
+  /** Whose stuff the phone dock holds; null until the visitor is known. Laptops ignore it. */
+  visitor: Visitor | null;
+  setVisitor(v: Visitor | null): void;
 };
 
 const DesktopCtx = createContext<DesktopApi | null>(null);
@@ -117,6 +122,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
   const [accent, setAccent] = useState(copy.setup.accent);
   const [soundOn, setSoundOn] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [visitor, setVisitor] = useState<Visitor | null>(null);
   const closedId = useRef<WinId | null>(null);
   const [videoRequest, setVideoRequest] = useState<DesktopApi["videoRequest"]>(null);
 
@@ -146,7 +152,8 @@ function DesktopInner({ windows, children }: DesktopProps) {
     if (state.mode === "desktop") clampWindows();
   }, [state.mode, clampWindows]);
 
-  useEffect(() => {
+  // Before paint, so a phone's first client frame is already in phone mode.
+  useLayoutEffect(() => {
     const mq = window.matchMedia(PHONE_QUERY);
     const sync = () => dispatch({ type: "setMode", mode: mq.matches ? "phone" : "desktop" });
     sync();
@@ -178,10 +185,12 @@ function DesktopInner({ windows, children }: DesktopProps) {
     if (!id || state.open.includes(id)) return;
     closedId.current = null;
     const top = topWindow(state);
+    // The desktop icons are hidden on a phone; its apps are on the home screen.
+    const icons = state.mode === "phone" ? ".phone-home" : ".icons";
     const target = top
       ? document.querySelector<HTMLElement>(`section[data-win="${top}"] .close`)
-      : (document.querySelector<HTMLElement>(`.icons [data-open="${id}"]`) ??
-        document.querySelector<HTMLElement>(`.icons [data-open="${parentOf(id)}"]`));
+      : (document.querySelector<HTMLElement>(`${icons} [data-open="${id}"]`) ??
+        document.querySelector<HTMLElement>(`${icons} [data-open="${parentOf(id)}"]`));
     target?.focus();
   }, [state]);
   const focus = useCallback((id: WinId) => dispatch({ type: "focus", id }), []);
@@ -220,7 +229,7 @@ function DesktopInner({ windows, children }: DesktopProps) {
               label: a.restart.ok,
               primary: true,
               run: () => {
-                removeKey("bp:setup-done");
+                removeKey(DONE_KEY);
                 window.location.reload();
               },
             },
@@ -319,8 +328,13 @@ function DesktopInner({ windows, children }: DesktopProps) {
       soundOn,
       toggleSound,
       setBusy,
+      busy,
+      visitor,
+      setVisitor,
     }),
     [
+      busy,
+      visitor,
       state,
       open,
       close,
@@ -351,7 +365,12 @@ function DesktopInner({ windows, children }: DesktopProps) {
     <DesktopCtx.Provider value={api}>
       <div className="desktop" data-mode={state.mode} inert={alertOpen || busy}>
         <MenuBar />
-        <DesktopIcons />
+        {/* A phone's apps are on its home screen; keep this duplicate grid out of the a11y tree. */}
+        <div hidden={state.mode === "phone"}>
+          <DesktopIcons />
+        </div>
+        <PhoneStatus />
+        <PhoneHome />
         {ids.map(({ id, title }) => (
           <Window key={id} id={id} title={title}>
             {windows[id]}
