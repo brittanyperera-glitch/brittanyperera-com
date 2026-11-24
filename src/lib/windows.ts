@@ -139,7 +139,6 @@ const ANCHORS: Partial<Record<WinId, Anchor>> = {
   projects: { fx: 0.3, fy: 1 },
   contact: { fx: 0.25, fy: 1 },
   trash: { fx: 0.5, fy: 0.2 },
-  cvbuilder: { fx: 0, fy: 0 },
   music: { fx: 0.15, fy: 0.1 },
   garage: { fx: 0, fy: 1 },
   photos: { fx: 0, fy: 0 },

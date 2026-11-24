@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 import { appWindows } from "@/components/apps/appWindows";
 import { Desktop } from "@/components/desktop/Desktop";
 import { copy } from "@/content/copy";
-import { cvBuilder } from "@/content/cvbuilder";
 import { music } from "@/content/music";
 import { photos } from "@/content/photos";
 import type { WinId } from "@/lib/types";
@@ -21,7 +20,6 @@ const icon = (name: string) =>
 
 describe("new desktop apps", () => {
   const apps: { label: string; id: WinId; title: string }[] = [
-    { label: cvBuilder.title, id: "cvbuilder", title: cvBuilder.title },
     { label: music.folderTitle, id: "music", title: music.folderTitle },
     { label: photos.title, id: "photos", title: photos.title },
   ];
@@ -37,14 +35,9 @@ describe("new desktop apps", () => {
     });
   }
 
-  it("puts CV Builder right after CV in the desktop icon order", () => {
-    const labels = copy.desktopIcons.map((i) => i.label);
-    expect(labels.indexOf(cvBuilder.title)).toBe(labels.indexOf("CV") + 1);
-  });
-
   it("renders a window for every new WinId", () => {
     setup();
-    const ids: WinId[] = ["cvbuilder", "music", "garage", "photos"];
+    const ids: WinId[] = ["music", "garage", "photos"];
     for (const id of ids) {
       expect(document.querySelector(`section[data-win="${id}"]`), id).not.toBeNull();
     }
@@ -94,12 +87,11 @@ describe("Music folder", () => {
 });
 
 describe("View menu", () => {
-  it("lists Music, Photos and CV Builder, each opening its window", async () => {
+  it("lists Music and Photos, each opening its window", async () => {
     const user = setup();
     for (const [label, id] of [
       [music.folderTitle, "music"],
       [photos.title, "photos"],
-      [cvBuilder.title, "cvbuilder"],
     ] as const) {
       await user.click(screen.getByRole("button", { name: "View" }));
       const menu = document.getElementById(
